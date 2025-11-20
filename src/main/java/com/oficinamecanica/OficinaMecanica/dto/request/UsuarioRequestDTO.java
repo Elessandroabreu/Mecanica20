@@ -1,6 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.dto.request;
 
-import com.oficinamecanica.models.Usuario;
+import com.oficinamecanica.OficinaMecanica.models.Usuario;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

@@ -1,6 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.dto.request;
 
-import com.oficinamecanica.models.Venda;
+import com.oficinamecanica.OficinaMecanica.models.Venda;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;

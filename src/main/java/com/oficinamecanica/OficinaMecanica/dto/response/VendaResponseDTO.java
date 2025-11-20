@@ -1,6 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.dto.response;
 
-import com.oficinamecanica.models.Venda;
+import com.oficinamecanica.OficinaMecanica.models.Venda;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
