@@ -49,7 +49,6 @@ public class Agendamento {
     @PrePersist
     protected void onCreate() {
         this.dataCadastro = LocalDateTime.now();
+
     }
-
-
 }

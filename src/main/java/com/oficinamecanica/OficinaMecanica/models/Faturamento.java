@@ -42,6 +42,6 @@ public class Faturamento {
     @PrePersist
     protected void onCreate() {
         this.dataCadastro = LocalDateTime.now();
-    }
 
+    }
   }

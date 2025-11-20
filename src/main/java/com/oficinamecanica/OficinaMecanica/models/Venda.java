@@ -3,6 +3,7 @@ package com.oficinamecanica.OficinaMecanica.models;
 import com.oficinamecanica.OficinaMecanica.enums.FormaPagamento;
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -52,4 +53,4 @@ public class Venda {
         this.dataVenda = LocalDateTime.now();
     }
 
-    }
+}
