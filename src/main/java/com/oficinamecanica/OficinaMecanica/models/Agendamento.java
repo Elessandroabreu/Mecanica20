@@ -1,5 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.models;
 
+import com.oficinamecanica.OficinaMecanica.enums.StatusAgendamento;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -50,10 +51,5 @@ public class Agendamento {
         this.dataCadastro = LocalDateTime.now();
     }
 
-    public enum StatusAgendamento {
-        AGENDADO,
-        CANCELADO,
-        CONCLUIDO,
-        EM_ANDAMENTO
-    }
+
 }

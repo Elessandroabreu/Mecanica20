@@ -1,5 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.models;
 
+import com.oficinamecanica.OficinaMecanica.enums.FormaPagamento;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -43,10 +44,4 @@ public class Faturamento {
         this.dataCadastro = LocalDateTime.now();
     }
 
-    public enum FormaPagamento {
-        DINHEIRO,
-        CARTAO_CREDITO,
-        CARTAO_DEBITO,
-        PIX
-    }
-}
+  }

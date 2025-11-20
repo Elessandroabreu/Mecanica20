@@ -1,5 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.models;
 
+import com.oficinamecanica.OficinaMecanica.enums.AuthProvider;
+import com.oficinamecanica.OficinaMecanica.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -68,14 +70,4 @@ public class Usuario {
         this.dataCadastro = LocalDateTime.now();
     }
 
-    public enum AuthProvider {
-        LOCAL,
-        GOOGLE
-    }
-
-    public enum UserRole {
-        ROLE_ADMIN,
-        ROLE_ATENDENTE,
-        ROLE_MECANICO
-    }
 }

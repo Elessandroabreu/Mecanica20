@@ -1,5 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.models;
 
+import com.oficinamecanica.OficinaMecanica.enums.StatusOrdemServico;
+import com.oficinamecanica.OficinaMecanica.enums.TipoServico;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -77,15 +79,4 @@ public class OrdemServico {
         this.dataAbertura = LocalDateTime.now();
     }
 
-    public enum TipoServico {
-        ORCAMENTO,
-        ORDEM_DE_SERVICO
-    }
-
-    public enum StatusOrdemServico {
-        AGUARDANDO,
-        EM_ANDAMENTO,
-        CONCLUIDA,
-        CANCELADA
-    }
 }
