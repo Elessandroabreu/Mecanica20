@@ -16,7 +16,6 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
-    // Trata RuntimeException genérica (tudo que você lança nos Services)
     @ExceptionHandler(RuntimeException.class)
     public ResponseEntity<ErrorResponse> handleRuntimeException(RuntimeException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -27,7 +26,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(error);
     }
 
-    // Trata erros de validação (@NotNull, @NotBlank, etc)
     @ExceptionHandler(MethodArgumentNotValidException.class)
     public ResponseEntity<Map<String, Object>> handleValidationExceptions(
             MethodArgumentNotValidException ex) {
@@ -47,7 +45,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(response);
     }
 
-    // Trata credenciais inválidas (login errado)
     @ExceptionHandler(BadCredentialsException.class)
     public ResponseEntity<ErrorResponse> handleBadCredentials(BadCredentialsException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -58,7 +55,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(error);
     }
 
-    // Trata quando usuário não tem permissão
     @ExceptionHandler(AccessDeniedException.class)
     public ResponseEntity<ErrorResponse> handleAccessDeniedException(AccessDeniedException ex) {
         ErrorResponse error = new ErrorResponse(
@@ -69,7 +65,6 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.FORBIDDEN).body(error);
     }
 
-    // Captura qualquer outra exceção não tratada
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleGenericException(Exception ex) {
         ErrorResponse error = new ErrorResponse(
@@ -80,6 +75,5 @@ public class GlobalExceptionHandler {
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(error);
     }
 
-    // Classe interna para padronizar resposta de erro
     public record ErrorResponse(int status, String message, LocalDateTime timestamp) {}
 }
