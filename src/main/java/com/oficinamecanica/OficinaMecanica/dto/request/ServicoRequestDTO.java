@@ -1,5 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.dto.request;
 
+import jakarta.validation.constraints.DecimalMin;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -24,6 +25,7 @@ public class ServicoRequestDTO {
 
     @NotNull(message = "Valor do serviço é obrigatório")
     @Positive(message = "Valor do serviço deve ser positivo")
+    @DecimalMin(value = "0.01", message = "Valor deve ser maior que zero")
     private Double vlServico;
 
     @NotNull(message = "Tempo estimado é obrigatório")

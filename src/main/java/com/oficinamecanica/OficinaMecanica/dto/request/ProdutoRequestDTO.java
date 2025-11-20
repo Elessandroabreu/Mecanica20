@@ -1,5 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.dto.request;
 
+import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -41,4 +42,10 @@ public class ProdutoRequestDTO {
     @NotNull(message = "Quantidade mínima é obrigatória")
     @PositiveOrZero(message = "Quantidade mínima deve ser zero ou positiva")
     private Integer qtdMinimo;
+
+    @AssertTrue(message = "Preço de venda deve ser maior que o custo")
+    public boolean isPrecoVendaMaiorQueCusto() {
+        if (vlVenda == null || vlCusto == null) return true;
+        return vlVenda > vlCusto;
+    }
 }

@@ -1,7 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.dto.request;
 
 import com.oficinamecanica.OficinaMecanica.enums.TipoServico;
-import com.oficinamecanica.OficinaMecanica.models.OrdemServico;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
