@@ -1,5 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.oficinamecanica.OficinaMecanica.enums.FormaPagamento;
 import jakarta.persistence.*;
 import lombok.*;
@@ -45,6 +46,7 @@ public class Venda {
     private LocalDateTime dataCadastro;
 
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<ItemVenda> itens;
 
     @PrePersist

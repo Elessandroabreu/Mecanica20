@@ -1,5 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.oficinamecanica.OficinaMecanica.enums.StatusOrdemServico;
 import com.oficinamecanica.OficinaMecanica.enums.TipoServico;
 import jakarta.persistence.*;
@@ -71,6 +72,7 @@ public class OrdemServico {
     private LocalDateTime dataCadastro;
 
     @OneToMany(mappedBy = "ordemServico", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<ItemOrdemServico> itens;
 
     @PrePersist

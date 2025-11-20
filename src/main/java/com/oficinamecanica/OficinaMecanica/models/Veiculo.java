@@ -1,5 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.models;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
@@ -41,6 +42,7 @@ public class Veiculo {
     private LocalDateTime dataCadastro;
 
     @OneToMany(mappedBy = "veiculo", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
     private List<OrdemServico> ordensServico;
 
     @PrePersist
