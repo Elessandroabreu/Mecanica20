@@ -1,5 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.dto.response;
 
+import com.oficinamecanica.OficinaMecanica.enums.AuthProvider;
+import com.oficinamecanica.OficinaMecanica.enums.UserRole;
 import com.oficinamecanica.OficinaMecanica.models.Usuario;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -18,8 +20,8 @@ public class UsuarioResponseDTO {
     private Integer cdUsuario;
     private String nmUsuario;
     private String email;
-    private Usuario.AuthProvider provider;
-    private Set<Usuario.UserRole> roles;
+    private AuthProvider provider;
+    private Set<UserRole> roles;
     private String nuTelefone;
     private String nuCPF;
     private Boolean ativo;

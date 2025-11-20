@@ -2,7 +2,7 @@ package com.oficinamecanica.OficinaMecanica.controllers;
 
 import com.oficinamecanica.OficinaMecanica.dto.request.OrdemServicoRequestDTO;
 import com.oficinamecanica.OficinaMecanica.dto.response.OrdemServicoResponseDTO;
-import com.oficinamecanica.OficinaMecanica.models.OrdemServico;
+import com.oficinamecanica.OficinaMecanica.enums.StatusOrdemServico;
 import com.oficinamecanica.OficinaMecanica.services.OrdemServicoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -43,7 +43,7 @@ public class OrdemServicoController {
     @GetMapping("/status/{status}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Listar ordens por status")
-    public ResponseEntity<List<OrdemServicoResponseDTO>> listarPorStatus(@PathVariable OrdemServico.StatusOrdemServico status) {
+    public ResponseEntity<List<OrdemServicoResponseDTO>> listarPorStatus(@PathVariable StatusOrdemServico status) {
         List<OrdemServicoResponseDTO> response = ordemServicoService.listarPorStatus(status);
         return ResponseEntity.ok(response);
     }

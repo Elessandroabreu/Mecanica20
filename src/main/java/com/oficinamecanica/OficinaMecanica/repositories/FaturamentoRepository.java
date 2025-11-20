@@ -1,5 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.repositories;
 
+import com.oficinamecanica.OficinaMecanica.enums.FormaPagamento;
 import com.oficinamecanica.OficinaMecanica.models.Faturamento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -20,7 +21,7 @@ public interface FaturamentoRepository extends JpaRepository<Faturamento, Intege
     Optional<Faturamento> findByOrdemServico_CdOrdemServico(Integer cdOrdemServico);
 
     // Listar faturamentos por forma de pagamento
-    List<Faturamento> findByFormaPagamento(Faturamento.FormaPagamento formaPagamento);
+    List<Faturamento> findByFormaPagamento(FormaPagamento formaPagamento);
 
     // Listar faturamentos em um período
     @Query("SELECT f FROM Faturamento f WHERE f.dataVenda BETWEEN :dataInicio AND :dataFim")

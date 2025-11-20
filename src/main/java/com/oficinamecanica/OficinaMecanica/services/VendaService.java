@@ -2,6 +2,7 @@ package com.oficinamecanica.OficinaMecanica.services;
 
 import com.oficinamecanica.OficinaMecanica.dto.request.VendaRequestDTO;
 import com.oficinamecanica.OficinaMecanica.dto.response.VendaResponseDTO;
+import com.oficinamecanica.OficinaMecanica.enums.FormaPagamento;
 import com.oficinamecanica.OficinaMecanica.models.*;
 import com.oficinamecanica.OficinaMecanica.repositories.*;
 import lombok.RequiredArgsConstructor;
@@ -95,7 +96,7 @@ public class VendaService {
                 .venda(venda)
                 .dataVenda(venda.getDataVenda())
                 .vlTotal(venda.getVlTotal())
-                .formaPagamento(Faturamento.FormaPagamento.valueOf(venda.getFormaPagamento().name()))
+                .formaPagamento(FormaPagamento.valueOf(venda.getFormaPagamento().name()))
                 .build();
 
         faturamentoRepository.save(faturamento);

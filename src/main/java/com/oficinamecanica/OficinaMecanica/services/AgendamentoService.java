@@ -2,6 +2,7 @@ package com.oficinamecanica.OficinaMecanica.services;
 
 import com.oficinamecanica.OficinaMecanica.dto.request.AgendamentoRequestDTO;
 import com.oficinamecanica.OficinaMecanica.dto.response.AgendamentoResponseDTO;
+import com.oficinamecanica.OficinaMecanica.enums.StatusAgendamento;
 import com.oficinamecanica.OficinaMecanica.models.Agendamento;
 import com.oficinamecanica.OficinaMecanica.models.Cliente;
 import com.oficinamecanica.OficinaMecanica.models.Usuario;
@@ -49,7 +50,7 @@ public class AgendamentoService {
                 .mecanico(mecanico)
                 .horario(dto.getHorario())
                 .observacoes(dto.getObservacoes())
-                .status(Agendamento.StatusAgendamento.AGENDADO)
+                .status(StatusAgendamento.AGENDADO)
                 .dataAgendamento(LocalDateTime.now())
                 .build();
 
@@ -102,7 +103,7 @@ public class AgendamentoService {
     public void cancelar(Integer id) {
         Agendamento agendamento = agendamentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
-        agendamento.setStatus(Agendamento.StatusAgendamento.CANCELADO);
+        agendamento.setStatus(StatusAgendamento.CANCELADO);
         agendamentoRepository.save(agendamento);
     }
 

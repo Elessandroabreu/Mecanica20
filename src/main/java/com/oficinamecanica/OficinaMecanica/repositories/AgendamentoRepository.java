@@ -1,5 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.repositories;
 
+import com.oficinamecanica.OficinaMecanica.enums.StatusAgendamento;
 import com.oficinamecanica.OficinaMecanica.models.Agendamento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,7 +14,7 @@ import java.util.List;
 public interface AgendamentoRepository extends JpaRepository<Agendamento, Integer> {
 
     // Listar agendamentos por status
-    List<Agendamento> findByStatus(Agendamento.StatusAgendamento status);
+    List<Agendamento> findByStatus(StatusAgendamento status);
 
     // Listar agendamentos de um mecânico
     List<Agendamento> findByMecanico_CdUsuario(Integer cdMecanico);

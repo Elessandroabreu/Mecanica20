@@ -1,5 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.repositories;
 
+import com.oficinamecanica.OficinaMecanica.enums.UserRole;
 import com.oficinamecanica.OficinaMecanica.models.Usuario;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -29,7 +30,7 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
     // Buscar por role específica
     @Query("SELECT u FROM Usuario u JOIN u.roles r WHERE r = :role AND u.ativo = true")
-    List<Usuario> findByRole(@Param("role") Usuario.UserRole role);
+    List<Usuario> findByRole(@Param("role") UserRole role);
 
     // Buscar mecânicos ativos
     @Query("SELECT u FROM Usuario u JOIN u.roles r WHERE r = 'ROLE_MECANICO' AND u.ativo = true")

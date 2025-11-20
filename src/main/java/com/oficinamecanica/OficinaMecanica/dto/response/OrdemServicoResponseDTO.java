@@ -1,5 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.dto.response;
 
+import com.oficinamecanica.OficinaMecanica.enums.StatusOrdemServico;
+import com.oficinamecanica.OficinaMecanica.enums.TipoServico;
 import com.oficinamecanica.OficinaMecanica.models.OrdemServico;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -20,8 +22,8 @@ public class OrdemServicoResponseDTO {
     private String placa;
     private Integer cdMecanico;
     private String nmMecanico;
-    private OrdemServico.TipoServico tipoServico;
-    private OrdemServico.StatusOrdemServico statusOrdemServico;
+    private TipoServico tipoServico;
+    private StatusOrdemServico statusOrdemServico;
     private LocalDateTime dataAbertura;
     private LocalDateTime dataFechamento;
     private Double vlPecas;

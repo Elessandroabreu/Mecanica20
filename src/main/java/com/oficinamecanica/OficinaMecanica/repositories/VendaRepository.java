@@ -1,5 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.repositories;
 
+import com.oficinamecanica.OficinaMecanica.enums.FormaPagamento;
 import com.oficinamecanica.OficinaMecanica.models.Venda;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -19,7 +20,7 @@ public interface VendaRepository extends JpaRepository<Venda, Integer> {
     List<Venda> findByAtendente_CdUsuario(Integer cdAtendente);
 
     // Listar vendas por forma de pagamento
-    List<Venda> findByFormaPagamento(Venda.FormaPagamento formaPagamento);
+    List<Venda> findByFormaPagamento(FormaPagamento formaPagamento);
 
     // Listar vendas em um período
     @Query("SELECT v FROM Venda v WHERE v.dataVenda BETWEEN :dataInicio AND :dataFim")

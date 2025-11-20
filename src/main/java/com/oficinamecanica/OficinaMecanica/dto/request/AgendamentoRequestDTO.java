@@ -1,5 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.dto.request;
 
+import com.oficinamecanica.OficinaMecanica.enums.StatusAgendamento;
 import com.oficinamecanica.OficinaMecanica.models.Agendamento;
 import jakarta.validation.constraints.Future;
 import jakarta.validation.constraints.NotNull;
@@ -33,5 +34,5 @@ public class AgendamentoRequestDTO {
     @Size(max = 1000, message = "Observações deve ter no máximo 1000 caracteres")
     private String observacoes;
 
-    private Agendamento.StatusAgendamento status;
+    private StatusAgendamento status;
 }

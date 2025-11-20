@@ -1,5 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.dto.request;
 
+import com.oficinamecanica.OficinaMecanica.enums.FormaPagamento;
 import com.oficinamecanica.OficinaMecanica.models.Venda;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
@@ -27,7 +28,7 @@ public class VendaRequestDTO {
     private Double desconto;
 
     @NotNull(message = "Forma de pagamento é obrigatória")
-    private Venda.FormaPagamento formaPagamento;
+    private FormaPagamento formaPagamento;
 
     @NotNull(message = "Itens são obrigatórios")
     private List<ItemVendaDTO> itens;

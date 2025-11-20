@@ -1,5 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.dto.request;
 
+import com.oficinamecanica.OficinaMecanica.enums.AuthProvider;
+import com.oficinamecanica.OficinaMecanica.enums.UserRole;
 import com.oficinamecanica.OficinaMecanica.models.Usuario;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
@@ -31,10 +33,10 @@ public class UsuarioRequestDTO {
     private String password;
 
     @NotNull(message = "Provider é obrigatório")
-    private Usuario.AuthProvider provider;
+    private AuthProvider provider;
 
     @NotNull(message = "Perfis são obrigatórios")
-    private Set<Usuario.UserRole> roles;
+    private Set<UserRole> roles;
 
     @Size(max = 20, message = "Telefone deve ter no máximo 20 caracteres")
     private String nuTelefone;

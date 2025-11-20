@@ -1,5 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.dto.response;
 
+import com.oficinamecanica.OficinaMecanica.enums.FormaPagamento;
 import com.oficinamecanica.OficinaMecanica.models.Venda;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -21,6 +22,6 @@ public class VendaResponseDTO {
     private LocalDateTime dataVenda;
     private Double vlTotal;
     private Double desconto;
-    private Venda.FormaPagamento formaPagamento;
+    private FormaPagamento formaPagamento;
     private LocalDateTime dataCadastro;
 }

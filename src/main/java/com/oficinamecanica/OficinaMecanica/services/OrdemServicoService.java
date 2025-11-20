@@ -2,6 +2,9 @@ package com.oficinamecanica.OficinaMecanica.services;
 
 import com.oficinamecanica.OficinaMecanica.dto.request.OrdemServicoRequestDTO;
 import com.oficinamecanica.OficinaMecanica.dto.response.OrdemServicoResponseDTO;
+import com.oficinamecanica.OficinaMecanica.enums.FormaPagamento;
+import com.oficinamecanica.OficinaMecanica.enums.StatusOrdemServico;
+import com.oficinamecanica.OficinaMecanica.enums.TipoServico;
 import com.oficinamecanica.OficinaMecanica.models.*;
 import com.oficinamecanica.OficinaMecanica.repositories.*;
 import lombok.RequiredArgsConstructor;
@@ -41,7 +44,7 @@ public class OrdemServicoService {
                 .veiculo(veiculo)
                 .mecanico(mecanico)
                 .tipoServico(dto.getTipoServico())
-                .statusOrdemServico(OrdemServico.StatusOrdemServico.AGUARDANDO)
+                .statusOrdemServico(StatusOrdemServico.AGUARDANDO)
                 .dataAbertura(LocalDateTime.now())
                 .vlPecas(0.0)
                 .vlMaoObra(dto.getVlMaoObra() != null ? dto.getVlMaoObra() : 0.0)
@@ -86,7 +89,7 @@ public class OrdemServicoService {
                 totalPecas += item.getVlTotal();
 
                 // Dar baixa no estoque se não for orçamento
-                if (ordem.getTipoServico() == OrdemServico.TipoServico.ORDEM_DE_SERVICO) {
+                if (ordem.getTipoServico() == TipoServico.ORDEM_DE_SERVICO) {
                     produto.setQtdEstoque(produto.getQtdEstoque() - itemDTO.getQuantidade());
                     produtoRepository.save(produto);
                 }
@@ -118,7 +121,7 @@ public class OrdemServicoService {
     }
 
     @Transactional(readOnly = true)
-    public List<OrdemServicoResponseDTO> listarPorStatus(OrdemServico.StatusOrdemServico status) {
+    public List<OrdemServicoResponseDTO> listarPorStatus(StatusOrdemServico status) {
         return ordemServicoRepository.findByStatusOrdemServico(status).stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
@@ -136,13 +139,13 @@ public class OrdemServicoService {
         OrdemServico ordem = ordemServicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ordem de serviço não encontrada"));
 
-        if (ordem.getTipoServico() != OrdemServico.TipoServico.ORCAMENTO) {
+        if (ordem.getTipoServico() != TipoServico.ORCAMENTO) {
             throw new RuntimeException("Apenas orçamentos podem ser aprovados");
         }
 
         ordem.setAprovado(true);
-        ordem.setTipoServico(OrdemServico.TipoServico.ORDEM_DE_SERVICO);
-        ordem.setStatusOrdemServico(OrdemServico.StatusOrdemServico.AGUARDANDO);
+        ordem.setTipoServico(TipoServico.ORDEM_DE_SERVICO);
+        ordem.setStatusOrdemServico(StatusOrdemServico.AGUARDANDO);
 
         // Dar baixa no estoque dos produtos
         List<ItemOrdemServico> itens = itemOrdemServicoRepository.findByOrdemServico_CdOrdemServico(id);
@@ -166,7 +169,7 @@ public class OrdemServicoService {
         OrdemServico ordem = ordemServicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ordem de serviço não encontrada"));
 
-        ordem.setStatusOrdemServico(OrdemServico.StatusOrdemServico.CONCLUIDA);
+        ordem.setStatusOrdemServico(StatusOrdemServico.CONCLUIDA);
         ordem.setDataFechamento(LocalDateTime.now());
 
         OrdemServico concluida = ordemServicoRepository.save(ordem);
@@ -183,7 +186,7 @@ public class OrdemServicoService {
                 .ordemServico(ordem)
                 .dataVenda(ordem.getDataFechamento())
                 .vlTotal(ordem.getVlTotal())
-                .formaPagamento(Faturamento.FormaPagamento.valueOf(formaPagamento))
+                .formaPagamento(FormaPagamento.valueOf(formaPagamento))
                 .build();
 
         faturamentoRepository.save(faturamento);
@@ -195,7 +198,7 @@ public class OrdemServicoService {
                 .orElseThrow(() -> new RuntimeException("Ordem de serviço não encontrada"));
 
         // Devolver produtos ao estoque se já foi dado baixa
-        if (ordem.getTipoServico() == OrdemServico.TipoServico.ORDEM_DE_SERVICO) {
+        if (ordem.getTipoServico() == TipoServico.ORDEM_DE_SERVICO) {
             List<ItemOrdemServico> itens = itemOrdemServicoRepository.findByOrdemServico_CdOrdemServico(id);
             for (ItemOrdemServico item : itens) {
                 if (item.getProduto() != null) {
@@ -206,7 +209,7 @@ public class OrdemServicoService {
             }
         }
 
-        ordem.setStatusOrdemServico(OrdemServico.StatusOrdemServico.CANCELADA);
+        ordem.setStatusOrdemServico(StatusOrdemServico.CANCELADA);
         ordemServicoRepository.save(ordem);
     }
 
