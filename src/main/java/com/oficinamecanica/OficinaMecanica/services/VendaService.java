@@ -43,12 +43,10 @@ public class VendaService {
 
         Venda salva = vendaRepository.save(venda);
 
-        // Adicionar itens
         if (dto.getItens() != null && !dto.getItens().isEmpty()) {
             adicionarItens(salva, dto.getItens());
         }
 
-        // Gerar faturamento automaticamente
         gerarFaturamento(salva);
 
         return converterParaDTO(salva);
@@ -62,12 +60,10 @@ public class VendaService {
             Produto produto = produtoRepository.findById(itemDTO.getCdProduto())
                     .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
 
-            // Validar estoque
             if (produto.getQtdEstoque() < itemDTO.getQuantidade()) {
                 throw new RuntimeException("Estoque insuficiente para o produto: " + produto.getNmProduto());
             }
 
-            // Criar item da venda
             ItemVenda item = ItemVenda.builder()
                     .venda(venda)
                     .produto(produto)
@@ -78,14 +74,12 @@ public class VendaService {
 
             itemVendaRepository.save(item);
 
-            // Dar baixa no estoque
             produto.setQtdEstoque(produto.getQtdEstoque() - itemDTO.getQuantidade());
             produtoRepository.save(produto);
 
             total += item.getVlTotal();
         }
 
-        // Atualizar total da venda
         venda.setVlTotal(total - venda.getDesconto());
         vendaRepository.save(venda);
     }

@@ -21,12 +21,11 @@ public class UsuarioService {
 
     @Transactional
     public UsuarioResponseDTO criar(UsuarioRequestDTO dto) {
-        // Validar se email já existe
+
         if (usuarioRepository.existsByEmail(dto.getEmail())) {
             throw new RuntimeException("Email já cadastrado");
         }
 
-        // Validar se CPF já existe (se informado)
         if (dto.getNuCPF() != null && usuarioRepository.existsByNuCPF(dto.getNuCPF())) {
             throw new RuntimeException("CPF já cadastrado");
         }
@@ -87,8 +86,7 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        // Validar email se foi alterado
-        if (!usuario.getEmail().equals(dto.getEmail()) && 
+        if (!usuario.getEmail().equals(dto.getEmail()) &&
             usuarioRepository.existsByEmail(dto.getEmail())) {
             throw new RuntimeException("Email já cadastrado");
         }
@@ -111,8 +109,7 @@ public class UsuarioService {
     public void deletar(Integer id) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
-        
-        // Soft delete
+
         usuario.setAtivo(false);
         usuarioRepository.save(usuario);
     }

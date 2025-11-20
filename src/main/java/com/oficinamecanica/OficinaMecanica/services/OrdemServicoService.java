@@ -57,7 +57,6 @@ public class OrdemServicoService {
 
         OrdemServico salva = ordemServicoRepository.save(ordem);
 
-        // Adicionar itens se fornecidos
         if (dto.getItens() != null && !dto.getItens().isEmpty()) {
             adicionarItens(salva, dto.getItens());
         }
@@ -77,8 +76,7 @@ public class OrdemServicoService {
             if (itemDTO.getCdProduto() != null) {
                 Produto produto = produtoRepository.findById(itemDTO.getCdProduto())
                         .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
-                
-                // Validar estoque
+
                 if (produto.getQtdEstoque() < itemDTO.getQuantidade()) {
                     throw new RuntimeException("Estoque insuficiente para o produto: " + produto.getNmProduto());
                 }
@@ -88,7 +86,6 @@ public class OrdemServicoService {
                 item.setVlTotal(produto.getVlVenda() * itemDTO.getQuantidade());
                 totalPecas += item.getVlTotal();
 
-                // Dar baixa no estoque se não for orçamento
                 if (ordem.getTipoServico() == TipoServico.ORDEM_DE_SERVICO) {
                     produto.setQtdEstoque(produto.getQtdEstoque() - itemDTO.getQuantidade());
                     produtoRepository.save(produto);
@@ -107,7 +104,6 @@ public class OrdemServicoService {
             itemOrdemServicoRepository.save(item);
         }
 
-        // Atualizar valores da ordem
         ordem.setVlPecas(totalPecas);
         ordem.setVlTotal(ordem.getVlPecas() + ordem.getVlMaoObra() - ordem.getDesconto());
         ordemServicoRepository.save(ordem);
@@ -147,7 +143,6 @@ public class OrdemServicoService {
         ordem.setTipoServico(TipoServico.ORDEM_DE_SERVICO);
         ordem.setStatusOrdemServico(StatusOrdemServico.AGUARDANDO);
 
-        // Dar baixa no estoque dos produtos
         List<ItemOrdemServico> itens = itemOrdemServicoRepository.findByOrdemServico_CdOrdemServico(id);
         for (ItemOrdemServico item : itens) {
             if (item.getProduto() != null) {
@@ -174,7 +169,6 @@ public class OrdemServicoService {
 
         OrdemServico concluida = ordemServicoRepository.save(ordem);
 
-        // Gerar faturamento automaticamente
         gerarFaturamento(concluida, formaPagamento);
 
         return converterParaDTO(concluida);
@@ -197,7 +191,6 @@ public class OrdemServicoService {
         OrdemServico ordem = ordemServicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ordem de serviço não encontrada"));
 
-        // Devolver produtos ao estoque se já foi dado baixa
         if (ordem.getTipoServico() == TipoServico.ORDEM_DE_SERVICO) {
             List<ItemOrdemServico> itens = itemOrdemServicoRepository.findByOrdemServico_CdOrdemServico(id);
             for (ItemOrdemServico item : itens) {
