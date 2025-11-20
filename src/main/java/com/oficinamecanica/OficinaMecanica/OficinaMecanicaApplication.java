@@ -10,7 +10,7 @@ public class OficinaMecanicaApplication {
 
 	public static void main(String[] args) {
 		SpringApplication.run(OficinaMecanicaApplication.class, args);
-		System.out.println("Documentação API: http://localhost:8080/swagger-ui.html");
+		System.out.println("Documentação API: http://localhost:8084/swagger-ui.html");
 		System.out.println("Autenticação: JWT + OAuth2 (Google)");
 	}
 
