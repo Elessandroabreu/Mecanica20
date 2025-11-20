@@ -1,0 +1,26 @@
+package com.oficinamecanica.OficinaMecanica.dto.response;
+
+import com.oficinamecanica.models.Venda;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class VendaResponseDTO {
+    private Integer cdVenda;
+    private Integer cdCliente;
+    private String nmCliente;
+    private Integer cdAtendente;
+    private String nmAtendente;
+    private LocalDateTime dataVenda;
+    private Double vlTotal;
+    private Double desconto;
+    private Venda.FormaPagamento formaPagamento;
+    private LocalDateTime dataCadastro;
+}
