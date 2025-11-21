@@ -18,6 +18,7 @@ import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
+@CrossOrigin(origins = "http://localhost:4200")
 @RestController
 @RequestMapping("/api/auth")
 @RequiredArgsConstructor
@@ -31,26 +32,66 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "Login com email e senha", description = "Retorna token JWT para autenticação")
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword()
-                )
-        );
 
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-        String token = tokenProvider.generateToken(authentication);
+        // 🔍 DEBUG
+        System.out.println("=== LOGIN REQUEST ===");
+        System.out.println("Email recebido: " + loginRequest.getEmail());
+        System.out.println("Password recebido: " + (loginRequest.getPassword() != null ? "***" : "NULL"));
 
-        UsuarioResponseDTO usuario = usuarioService.buscarPorEmail(loginRequest.getEmail());
+        try {
+            Authentication authentication = authenticationManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            loginRequest.getEmail(),
+                            loginRequest.getPassword()
+                    )
+            );
 
-        AuthResponseDTO response = AuthResponseDTO.builder()
-                .accessToken(token)
-                .tokenType("Bearer")
-                .usuario(usuario)
-                .build();
+            SecurityContextHolder.getContext().setAuthentication(authentication);
+            String token = tokenProvider.generateToken(authentication);
 
-        return ResponseEntity.ok(response);
+            UsuarioResponseDTO usuario = usuarioService.buscarPorEmail(loginRequest.getEmail());
+
+            AuthResponseDTO response = AuthResponseDTO.builder()
+                    .accessToken(token)
+                    .tokenType("Bearer")
+                    .usuario(usuario)
+                    .build();
+
+            System.out.println("✅ Login bem-sucedido para: " + loginRequest.getEmail());
+            return ResponseEntity.ok(response);
+
+        } catch (Exception e) {
+            System.err.println("❌ Erro no login: " + e.getMessage());
+            e.printStackTrace();
+            throw e;
+        }
     }
+
+
+
+//    @PostMapping("/login")
+//    @Operation(summary = "Login com email e senha", description = "Retorna token JWT para autenticação")
+//    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
+//        Authentication authentication = authenticationManager.authenticate(
+//                new UsernamePasswordAuthenticationToken(
+//                        loginRequest.getEmail(),
+//                        loginRequest.getPassword()
+//                )
+//        );
+//
+//        SecurityContextHolder.getContext().setAuthentication(authentication);
+//        String token = tokenProvider.generateToken(authentication);
+//
+//        UsuarioResponseDTO usuario = usuarioService.buscarPorEmail(loginRequest.getEmail());
+//
+//        AuthResponseDTO response = AuthResponseDTO.builder()
+//                .accessToken(token)
+//                .tokenType("Bearer")
+//                .usuario(usuario)
+//                .build();
+//
+//        return ResponseEntity.ok(response);
+//    }
 
     @PostMapping("/register")
     @Operation(summary = "Registrar novo usuário", description = "Cadastra um novo usuário LOCAL (com senha)")
