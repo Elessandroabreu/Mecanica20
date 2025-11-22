@@ -30,11 +30,8 @@ public class DataLoader {
     @Bean
     CommandLineRunner initDatabase() {
         return args -> {
-            System.out.println("\n========================================");
-            System.out.println("🔧 INICIALIZANDO DADOS PADRÃO");
-            System.out.println("========================================\n");
 
-            // Verificar se já existem usuários
+
             if (usuarioRepository.count() > 0) {
                 System.out.println("✅ Usuários já existem no banco de dados.");
                 System.out.println("📊 Total de usuários: " + usuarioRepository.count());
@@ -93,11 +90,6 @@ public class DataLoader {
             usuarioRepository.save(mecanico);
             System.out.println("✅ Mecânico criado: " + mecanico.getEmail());
 
-            System.out.println("\n========================================");
-            System.out.println("🎉 USUÁRIOS PADRÃO CRIADOS COM SUCESSO!");
-            System.out.println("========================================");
-            System.out.println("\n📋 CREDENCIAIS DE ACESSO:");
-            System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━");
             System.out.println("👤 ADMIN");
             System.out.println("   Email: admin@oficina.com");
             System.out.println("   Senha: senha123");
@@ -109,10 +101,10 @@ public class DataLoader {
             System.out.println("👤 MECÂNICO");
             System.out.println("   Email: mecanico@oficina.com");
             System.out.println("   Senha: senha123");
-            System.out.println("━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n");
 
-            // Verificação final
-            System.out.println("🔍 Verificando criação...");
+
+
+            System.out.println("Verificando criação...");
             usuarioRepository.findAll().forEach(u -> {
                 System.out.println("   ✓ " + u.getEmail() + " | Roles: " + u.getRoles());
             });

@@ -43,7 +43,6 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -57,12 +56,11 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/usuarios/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/usuarios/**").hasRole("ADMIN")
 
-                        .requestMatchers("/api/clientes/**").hasAnyRole("ADMIN", "ATENDENTE")
-
+                        .requestMatchers("/api/clientes/**")
+                        .hasAnyRole("ADMIN", "ATENDENTE")
 
                         .requestMatchers("/api/produtos/**")
                         .hasAnyRole("ADMIN", "ATENDENTE", "MECANICO")
-
 
                         .anyRequest().authenticated()
                 )
@@ -71,6 +69,7 @@ public class SecurityConfig {
                         .successHandler(oAuth2SuccessHandler)
                         .failureUrl("/api/auth/oauth2/failure")
                 )
+
 
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 

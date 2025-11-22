@@ -8,6 +8,7 @@ import com.oficinamecanica.OficinaMecanica.security.JwtTokenProvider;
 import com.oficinamecanica.OficinaMecanica.services.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.servlet.http.HttpServletResponse;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
@@ -17,6 +18,8 @@ import org.springframework.security.authentication.UsernamePasswordAuthenticatio
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
+
+import java.io.IOException;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -98,6 +101,17 @@ public class AuthController {
     public ResponseEntity<UsuarioResponseDTO> register(@Valid @RequestBody UsuarioRequestDTO dto) {
         UsuarioResponseDTO response = usuarioService.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
+
+    @GetMapping("/oauth2/callback")
+    public void oauth2Callback(HttpServletResponse response, Authentication authentication) throws IOException {
+        String email = authentication.getName();
+
+        String token = tokenProvider.generateToken(authentication);
+
+        String redirectUrl = "http://localhost:4200/auth/callback?token=" + token + "&email=" + email;
+
+        response.sendRedirect(redirectUrl);
     }
 
     @GetMapping("/me")
