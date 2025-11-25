@@ -35,66 +35,26 @@ public class AuthController {
     @PostMapping("/login")
     @Operation(summary = "Login com email e senha", description = "Retorna token JWT para autenticação")
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
+        Authentication authentication = authenticationManager.authenticate(
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getEmail(),
+                        loginRequest.getPassword()
+                )
+        );
 
-        // 🔍 DEBUG
-        System.out.println("=== LOGIN REQUEST ===");
-        System.out.println("Email recebido: " + loginRequest.getEmail());
-        System.out.println("Password recebido: " + (loginRequest.getPassword() != null ? "***" : "NULL"));
+        SecurityContextHolder.getContext().setAuthentication(authentication);
+        String token = tokenProvider.generateToken(authentication);
 
-        try {
-            Authentication authentication = authenticationManager.authenticate(
-                    new UsernamePasswordAuthenticationToken(
-                            loginRequest.getEmail(),
-                            loginRequest.getPassword()
-                    )
-            );
+        UsuarioResponseDTO usuario = usuarioService.buscarPorEmail(loginRequest.getEmail());
 
-            SecurityContextHolder.getContext().setAuthentication(authentication);
-            String token = tokenProvider.generateToken(authentication);
+        AuthResponseDTO response = AuthResponseDTO.builder()
+                .accessToken(token)
+                .tokenType("Bearer")
+                .usuario(usuario)
+                .build();
 
-            UsuarioResponseDTO usuario = usuarioService.buscarPorEmail(loginRequest.getEmail());
-
-            AuthResponseDTO response = AuthResponseDTO.builder()
-                    .accessToken(token)
-                    .tokenType("Bearer")
-                    .usuario(usuario)
-                    .build();
-
-            System.out.println("✅ Login bem-sucedido para: " + loginRequest.getEmail());
-            return ResponseEntity.ok(response);
-
-        } catch (Exception e) {
-            System.err.println("❌ Erro no login: " + e.getMessage());
-            e.printStackTrace();
-            throw e;
-        }
+        return ResponseEntity.ok(response);
     }
-
-
-
-//    @PostMapping("/login")
-//    @Operation(summary = "Login com email e senha", description = "Retorna token JWT para autenticação")
-//    public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
-//        Authentication authentication = authenticationManager.authenticate(
-//                new UsernamePasswordAuthenticationToken(
-//                        loginRequest.getEmail(),
-//                        loginRequest.getPassword()
-//                )
-//        );
-//
-//        SecurityContextHolder.getContext().setAuthentication(authentication);
-//        String token = tokenProvider.generateToken(authentication);
-//
-//        UsuarioResponseDTO usuario = usuarioService.buscarPorEmail(loginRequest.getEmail());
-//
-//        AuthResponseDTO response = AuthResponseDTO.builder()
-//                .accessToken(token)
-//                .tokenType("Bearer")
-//                .usuario(usuario)
-//                .build();
-//
-//        return ResponseEntity.ok(response);
-//    }
 
     @PostMapping("/register")
     @Operation(summary = "Registrar novo usuário", description = "Cadastra um novo usuário LOCAL (com senha)")
