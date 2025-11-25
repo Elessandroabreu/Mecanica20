@@ -7,51 +7,44 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 import org.hibernate.validator.constraints.br.CPF;
-
 import java.util.Set;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class UsuarioRequestDTO {
+public record UsuarioRequestDTO(
+        @NotBlank(message = "Nome é obrigatório")
+        @Size(max = 120, message = "Nome deve ter no máximo 120 caracteres")
+        String nmUsuario,
 
-    @NotBlank(message = "Nome é obrigatório")
-    @Size(max = 120, message = "Nome deve ter no máximo 120 caracteres")
-    private String nmUsuario;
+        @NotBlank(message = "Email é obrigatório")
+        @Email(message = "Email inválido")
+        @Size(max = 150, message = "Email deve ter no máximo 150 caracteres")
+        String email,
 
-    @NotBlank(message = "Email é obrigatório")
-    @Email(message = "Email inválido")
-    @Size(max = 150, message = "Email deve ter no máximo 150 caracteres")
-    private String email;
+        @Size(min = 3, message = "Senha deve ter no mínimo 3 caracteres")
+        String password,
 
-    @NotBlank(message = "Senha é obrigatória", groups = LocalAuth.class)
-    @Size(min = 3, message = "Senha deve ter no mínimo 3 caracteres")
-    private String password;
+        @NotNull(message = "Provider é obrigatório")
+        AuthProvider provider,
 
-    public interface LocalAuth {}
+        @NotNull(message = "Perfis são obrigatórios")
+        Set<UserRole> roles,
 
-    @NotNull(message = "Provider é obrigatório")
-    private AuthProvider provider;
+        @Pattern(regexp = "^\\(?\\d{2}\\)?[\\s-]?9?\\d{4}-?\\d{4}$",
+                message = "Telefone inválido. Formato: (XX) 9XXXX-XXXX")
+        @Size(max = 20, message = "Telefone deve ter no máximo 20 caracteres")
+        String nuTelefone,
 
-    @NotNull(message = "Perfis são obrigatórios")
-    private Set<UserRole> roles;
+        @CPF(message = "CPF inválido")
+        @Size(max = 14, message = "CPF deve ter no máximo 14 caracteres")
+        String nuCPF,
 
-    @Pattern(regexp = "^\\(?\\d{2}\\)?[\\s-]?9?\\d{4}-?\\d{4}$",
-            message = "Telefone inválido. Formato: (XX) 9XXXX-XXXX")
-    @Size(max = 20, message = "Telefone deve ter no máximo 20 caracteres")
-    private String nuTelefone;
+        String providerId,
 
-    @CPF(message = "CPF inválido")
-    @Size(max = 14, message = "CPF deve ter no máximo 14 caracteres")
-    private String nuCPF;
-
-    private String providerId;
-
-    private Boolean ativo = true;
+        Boolean ativo
+) {
+    public UsuarioRequestDTO {
+        if (ativo == null) {
+            ativo = true;
+        }
+    }
 }

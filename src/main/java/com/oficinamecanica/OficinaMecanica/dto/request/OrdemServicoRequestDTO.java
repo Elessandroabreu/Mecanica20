@@ -4,55 +4,41 @@ import com.oficinamecanica.OficinaMecanica.enums.TipoServico;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-
 import java.util.List;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class OrdemServicoRequestDTO {
+public record OrdemServicoRequestDTO(
+        @NotNull(message = "Cliente é obrigatório")
+        Integer cdCliente,
 
-    @NotNull(message = "Cliente é obrigatório")
-    private Integer cdCliente;
+        @NotNull(message = "Veículo é obrigatório")
+        Integer cdVeiculo,
 
-    @NotNull(message = "Veículo é obrigatório")
-    private Integer cdVeiculo;
+        @NotNull(message = "Mecânico é obrigatório")
+        Integer cdMecanico,
 
-    @NotNull(message = "Mecânico é obrigatório")
-    private Integer cdMecanico;
+        @NotNull(message = "Tipo de serviço é obrigatório")
+        TipoServico tipoServico,
 
-    @NotNull(message = "Tipo de serviço é obrigatório")
-    private TipoServico tipoServico;
+        @PositiveOrZero(message = "Valor da mão de obra deve ser zero ou positivo")
+        Double vlMaoObra,
 
-    @PositiveOrZero(message = "Valor da mão de obra deve ser zero ou positivo")
-    private Double vlMaoObra;
+        @PositiveOrZero(message = "Desconto deve ser zero ou positivo")
+        Double desconto,
 
-    @PositiveOrZero(message = "Desconto deve ser zero ou positivo")
-    private Double desconto;
+        @Size(max = 1000, message = "Observações deve ter no máximo 1000 caracteres")
+        String observacoes,
 
-    @Size(max = 1000, message = "Observações deve ter no máximo 1000 caracteres")
-    private String observacoes;
+        @Size(max = 1000, message = "Diagnóstico deve ter no máximo 1000 caracteres")
+        String diagnostico,
 
-    @Size(max = 1000, message = "Diagnóstico deve ter no máximo 1000 caracteres")
-    private String diagnostico;
+        List<ItemDTO> itens
+) {
+    public record ItemDTO(
+            Integer cdProduto,
+            Integer cdServico,
 
-    private List<ItemDTO> itens;
-
-    @Data
-    @Builder
-    @NoArgsConstructor
-    @AllArgsConstructor
-    public static class ItemDTO {
-        private Integer cdProduto;
-        private Integer cdServico;
-
-        @NotNull(message = "Quantidade é obrigatória")
-        @PositiveOrZero(message = "Quantidade deve ser zero ou positiva")
-        private Integer quantidade;
-    }
+            @NotNull(message = "Quantidade é obrigatória")
+            @PositiveOrZero(message = "Quantidade deve ser zero ou positiva")
+            Integer quantidade
+    ) {}
 }

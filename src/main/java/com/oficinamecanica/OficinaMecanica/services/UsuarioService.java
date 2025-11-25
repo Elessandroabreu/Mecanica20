@@ -22,24 +22,24 @@ public class UsuarioService {
     @Transactional
     public UsuarioResponseDTO criar(UsuarioRequestDTO dto) {
 
-        if (usuarioRepository.existsByEmail(dto.getEmail())) {
+        if (usuarioRepository.existsByEmail(dto.email())) {
             throw new RuntimeException("Email já cadastrado");
         }
 
-        if (dto.getNuCPF() != null && usuarioRepository.existsByNuCPF(dto.getNuCPF())) {
+        if (dto.nuCPF() != null && usuarioRepository.existsByNuCPF(dto.nuCPF())) {
             throw new RuntimeException("CPF já cadastrado");
         }
 
         Usuario usuario = Usuario.builder()
-                .nmUsuario(dto.getNmUsuario())
-                .email(dto.getEmail())
-                .password(dto.getPassword() != null ? passwordEncoder.encode(dto.getPassword()) : null)
-                .provider(dto.getProvider())
-                .roles(dto.getRoles())
-                .nuTelefone(dto.getNuTelefone())
-                .nuCPF(dto.getNuCPF())
-                .providerId(dto.getProviderId())
-                .ativo(dto.getAtivo())
+                .nmUsuario(dto.nmUsuario())
+                .email(dto.email())
+                .password(dto.password() != null ? passwordEncoder.encode(dto.password()) : null)
+                .provider(dto.provider())
+                .roles(dto.roles())
+                .nuTelefone(dto.nuTelefone())
+                .nuCPF(dto.nuCPF())
+                .providerId(dto.providerId())
+                .ativo(dto.ativo() != null ? dto.ativo() : true)
                 .build();
 
         Usuario salvo = usuarioRepository.save(usuario);
@@ -86,20 +86,20 @@ public class UsuarioService {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        if (!usuario.getEmail().equals(dto.getEmail()) &&
-            usuarioRepository.existsByEmail(dto.getEmail())) {
+        if (!usuario.getEmail().equals(dto.email()) &&
+                usuarioRepository.existsByEmail(dto.email())) {
             throw new RuntimeException("Email já cadastrado");
         }
 
-        usuario.setNmUsuario(dto.getNmUsuario());
-        usuario.setEmail(dto.getEmail());
-        if (dto.getPassword() != null && !dto.getPassword().isEmpty()) {
-            usuario.setPassword(passwordEncoder.encode(dto.getPassword()));
+        usuario.setNmUsuario(dto.nmUsuario());
+        usuario.setEmail(dto.email());
+        if (dto.password() != null && !dto.password().isEmpty()) {
+            usuario.setPassword(passwordEncoder.encode(dto.password()));
         }
-        usuario.setNuTelefone(dto.getNuTelefone());
-        usuario.setNuCPF(dto.getNuCPF());
-        usuario.setRoles(dto.getRoles());
-        usuario.setAtivo(dto.getAtivo());
+        usuario.setNuTelefone(dto.nuTelefone());
+        usuario.setNuCPF(dto.nuCPF());
+        usuario.setRoles(dto.roles());
+        usuario.setAtivo(dto.ativo() != null ? dto.ativo() : true);
 
         Usuario atualizado = usuarioRepository.save(usuario);
         return converterParaDTO(atualizado);
@@ -115,17 +115,17 @@ public class UsuarioService {
     }
 
     private UsuarioResponseDTO converterParaDTO(Usuario usuario) {
-        return UsuarioResponseDTO.builder()
-                .cdUsuario(usuario.getCdUsuario())
-                .nmUsuario(usuario.getNmUsuario())
-                .email(usuario.getEmail())
-                .provider(usuario.getProvider())
-                .roles(usuario.getRoles())
-                .nuTelefone(usuario.getNuTelefone())
-                .nuCPF(usuario.getNuCPF())
-                .ativo(usuario.getAtivo())
-                .dataCadastro(usuario.getDataCadastro())
-                .dataAtualizacao(usuario.getDataAtualizacao())
-                .build();
+        return new UsuarioResponseDTO(
+                usuario.getCdUsuario(),
+                usuario.getNmUsuario(),
+                usuario.getEmail(),
+                usuario.getProvider(),
+                usuario.getRoles(),
+                usuario.getNuTelefone(),
+                usuario.getNuCPF(),
+                usuario.getAtivo(),
+                usuario.getDataCadastro(),
+                usuario.getDataAtualizacao()
+        );
     }
 }

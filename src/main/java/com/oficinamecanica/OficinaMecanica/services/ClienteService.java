@@ -19,16 +19,16 @@ public class ClienteService {
 
     @Transactional
     public ClienteResponseDTO criar(ClienteRequestDTO dto) {
-        if (dto.getNuCPF() != null && clienteRepository.existsByNuCPF(dto.getNuCPF())) {
+        if (dto.nuCPF() != null && clienteRepository.existsByNuCPF(dto.nuCPF())) {
             throw new RuntimeException("CPF já cadastrado");
         }
 
         Cliente cliente = Cliente.builder()
-                .nmCliente(dto.getNmCliente())
-                .nuCPF(dto.getNuCPF())
-                .nuTelefone(dto.getNuTelefone())
-                .dsEndereco(dto.getDsEndereco())
-                .email(dto.getEmail())
+                .nmCliente(dto.nmCliente())
+                .nuCPF(dto.nuCPF())
+                .nuTelefone(dto.nuTelefone())
+                .dsEndereco(dto.dsEndereco())
+                .email(dto.email())
                 .ativo(true)
                 .build();
 
@@ -55,11 +55,11 @@ public class ClienteService {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        cliente.setNmCliente(dto.getNmCliente());
-        cliente.setNuCPF(dto.getNuCPF());
-        cliente.setNuTelefone(dto.getNuTelefone());
-        cliente.setDsEndereco(dto.getDsEndereco());
-        cliente.setEmail(dto.getEmail());
+        cliente.setNmCliente(dto.nmCliente());
+        cliente.setNuCPF(dto.nuCPF());
+        cliente.setNuTelefone(dto.nuTelefone());
+        cliente.setDsEndereco(dto.dsEndereco());
+        cliente.setEmail(dto.email());
 
         Cliente atualizado = clienteRepository.save(cliente);
         return converterParaDTO(atualizado);
@@ -74,15 +74,15 @@ public class ClienteService {
     }
 
     private ClienteResponseDTO converterParaDTO(Cliente cliente) {
-        return ClienteResponseDTO.builder()
-                .cdCliente(cliente.getCdCliente())
-                .nmCliente(cliente.getNmCliente())
-                .nuCPF(cliente.getNuCPF())
-                .nuTelefone(cliente.getNuTelefone())
-                .dsEndereco(cliente.getDsEndereco())
-                .email(cliente.getEmail())
-                .ativo(cliente.getAtivo())
-                .dataCadastro(cliente.getDataCadastro())
-                .build();
+        return new ClienteResponseDTO(
+                cliente.getCdCliente(),
+                cliente.getNmCliente(),
+                cliente.getNuCPF(),
+                cliente.getNuTelefone(),
+                cliente.getDsEndereco(),
+                cliente.getEmail(),
+                cliente.getAtivo(),
+                cliente.getDataCadastro()
+        );
     }
 }

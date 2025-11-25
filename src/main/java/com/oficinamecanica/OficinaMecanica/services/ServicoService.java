@@ -20,10 +20,10 @@ public class ServicoService {
     @Transactional
     public ServicoResponseDTO criar(ServicoRequestDTO dto) {
         Servico servico = Servico.builder()
-                .nmServico(dto.getNmServico())
-                .dsServico(dto.getDsServico())
-                .vlServico(dto.getVlServico())
-                .tmpEstimado(dto.getTmpEstimado())
+                .nmServico(dto.nmServico())
+                .dsServico(dto.dsServico())
+                .vlServico(dto.vlServico())
+                .tmpEstimado(dto.tmpEstimado())
                 .ativo(true)
                 .build();
 
@@ -50,10 +50,10 @@ public class ServicoService {
         Servico servico = servicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
 
-        servico.setNmServico(dto.getNmServico());
-        servico.setDsServico(dto.getDsServico());
-        servico.setVlServico(dto.getVlServico());
-        servico.setTmpEstimado(dto.getTmpEstimado());
+        servico.setNmServico(dto.nmServico());
+        servico.setDsServico(dto.dsServico());
+        servico.setVlServico(dto.vlServico());
+        servico.setTmpEstimado(dto.tmpEstimado());
 
         Servico atualizado = servicoRepository.save(servico);
         return converterParaDTO(atualizado);
@@ -68,14 +68,14 @@ public class ServicoService {
     }
 
     private ServicoResponseDTO converterParaDTO(Servico servico) {
-        return ServicoResponseDTO.builder()
-                .cdServico(servico.getCdServico())
-                .nmServico(servico.getNmServico())
-                .dsServico(servico.getDsServico())
-                .vlServico(servico.getVlServico())
-                .tmpEstimado(servico.getTmpEstimado())
-                .ativo(servico.getAtivo())
-                .dataCadastro(servico.getDataCadastro())
-                .build();
+        return new ServicoResponseDTO(
+                servico.getCdServico(),
+                servico.getNmServico(),
+                servico.getDsServico(),
+                servico.getVlServico(),
+                servico.getTmpEstimado(),
+                servico.getAtivo(),
+                servico.getDataCadastro()
+        );
     }
 }

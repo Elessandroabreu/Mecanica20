@@ -22,20 +22,20 @@ public class VeiculoService {
 
     @Transactional
     public VeiculoResponseDTO criar(VeiculoRequestDTO dto) {
-        if (veiculoRepository.existsByPlaca(dto.getPlaca())) {
+        if (veiculoRepository.existsByPlaca(dto.placa())) {
             throw new RuntimeException("Placa já cadastrada");
         }
 
-        Cliente cliente = clienteRepository.findById(dto.getCdCliente())
+        Cliente cliente = clienteRepository.findById(dto.cdCliente())
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
         Veiculo veiculo = Veiculo.builder()
                 .cliente(cliente)
-                .placa(dto.getPlaca())
-                .modelo(dto.getModelo())
-                .marca(dto.getMarca())
-                .ano(dto.getAno())
-                .cor(dto.getCor())
+                .placa(dto.placa())
+                .modelo(dto.modelo())
+                .marca(dto.marca())
+                .ano(dto.ano())
+                .cor(dto.cor())
                 .build();
 
         Veiculo salvo = veiculoRepository.save(veiculo);
@@ -68,16 +68,16 @@ public class VeiculoService {
         Veiculo veiculo = veiculoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Veículo não encontrado"));
 
-        if (!veiculo.getPlaca().equals(dto.getPlaca()) && 
-            veiculoRepository.existsByPlaca(dto.getPlaca())) {
+        if (!veiculo.getPlaca().equals(dto.placa()) &&
+                veiculoRepository.existsByPlaca(dto.placa())) {
             throw new RuntimeException("Placa já cadastrada");
         }
 
-        veiculo.setPlaca(dto.getPlaca());
-        veiculo.setModelo(dto.getModelo());
-        veiculo.setMarca(dto.getMarca());
-        veiculo.setAno(dto.getAno());
-        veiculo.setCor(dto.getCor());
+        veiculo.setPlaca(dto.placa());
+        veiculo.setModelo(dto.modelo());
+        veiculo.setMarca(dto.marca());
+        veiculo.setAno(dto.ano());
+        veiculo.setCor(dto.cor());
 
         Veiculo atualizado = veiculoRepository.save(veiculo);
         return converterParaDTO(atualizado);
@@ -91,16 +91,16 @@ public class VeiculoService {
     }
 
     private VeiculoResponseDTO converterParaDTO(Veiculo veiculo) {
-        return VeiculoResponseDTO.builder()
-                .cdVeiculo(veiculo.getCdVeiculo())
-                .cdCliente(veiculo.getCliente().getCdCliente())
-                .nmCliente(veiculo.getCliente().getNmCliente())
-                .placa(veiculo.getPlaca())
-                .modelo(veiculo.getModelo())
-                .marca(veiculo.getMarca())
-                .ano(veiculo.getAno())
-                .cor(veiculo.getCor())
-                .dataCadastro(veiculo.getDataCadastro())
-                .build();
+        return new VeiculoResponseDTO(
+                veiculo.getCdVeiculo(),
+                veiculo.getCliente().getCdCliente(),
+                veiculo.getCliente().getNmCliente(),
+                veiculo.getPlaca(),
+                veiculo.getModelo(),
+                veiculo.getMarca(),
+                veiculo.getAno(),
+                veiculo.getCor(),
+                veiculo.getDataCadastro()
+        );
     }
 }

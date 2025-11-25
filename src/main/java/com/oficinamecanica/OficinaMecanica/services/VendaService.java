@@ -26,10 +26,10 @@ public class VendaService {
 
     @Transactional
     public VendaResponseDTO criar(VendaRequestDTO dto) {
-        Cliente cliente = clienteRepository.findById(dto.getCdCliente())
+        Cliente cliente = clienteRepository.findById(dto.cdCliente())
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        Usuario atendente = usuarioRepository.findById(dto.getCdAtendente())
+        Usuario atendente = usuarioRepository.findById(dto.cdAtendente())
                 .orElseThrow(() -> new RuntimeException("Atendente não encontrado"));
 
         Venda venda = Venda.builder()
@@ -37,14 +37,14 @@ public class VendaService {
                 .atendente(atendente)
                 .dataVenda(LocalDateTime.now())
                 .vlTotal(0.0)
-                .desconto(dto.getDesconto() != null ? dto.getDesconto() : 0.0)
-                .formaPagamento(dto.getFormaPagamento())
+                .desconto(dto.desconto() != null ? dto.desconto() : 0.0)
+                .formaPagamento(dto.formaPagamento())
                 .build();
 
         Venda salva = vendaRepository.save(venda);
 
-        if (dto.getItens() != null && !dto.getItens().isEmpty()) {
-            adicionarItens(salva, dto.getItens());
+        if (dto.itens() != null && !dto.itens().isEmpty()) {
+            adicionarItens(salva, dto.itens());
         }
 
         gerarFaturamento(salva);
@@ -57,24 +57,24 @@ public class VendaService {
         double total = 0.0;
 
         for (VendaRequestDTO.ItemVendaDTO itemDTO : itensDTO) {
-            Produto produto = produtoRepository.findById(itemDTO.getCdProduto())
+            Produto produto = produtoRepository.findById(itemDTO.cdProduto())
                     .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
 
-            if (produto.getQtdEstoque() < itemDTO.getQuantidade()) {
+            if (produto.getQtdEstoque() < itemDTO.quantidade()) {
                 throw new RuntimeException("Estoque insuficiente para o produto: " + produto.getNmProduto());
             }
 
             ItemVenda item = ItemVenda.builder()
                     .venda(venda)
                     .produto(produto)
-                    .quantidade(itemDTO.getQuantidade())
+                    .quantidade(itemDTO.quantidade())
                     .vlUnitario(produto.getVlVenda())
-                    .vlTotal(produto.getVlVenda() * itemDTO.getQuantidade())
+                    .vlTotal(produto.getVlVenda() * itemDTO.quantidade())
                     .build();
 
             itemVendaRepository.save(item);
 
-            produto.setQtdEstoque(produto.getQtdEstoque() - itemDTO.getQuantidade());
+            produto.setQtdEstoque(produto.getQtdEstoque() - itemDTO.quantidade());
             produtoRepository.save(produto);
 
             total += item.getVlTotal();
@@ -138,17 +138,17 @@ public class VendaService {
     }
 
     private VendaResponseDTO converterParaDTO(Venda venda) {
-        return VendaResponseDTO.builder()
-                .cdVenda(venda.getCdVenda())
-                .cdCliente(venda.getCliente().getCdCliente())
-                .nmCliente(venda.getCliente().getNmCliente())
-                .cdAtendente(venda.getAtendente().getCdUsuario())
-                .nmAtendente(venda.getAtendente().getNmUsuario())
-                .dataVenda(venda.getDataVenda())
-                .vlTotal(venda.getVlTotal())
-                .desconto(venda.getDesconto())
-                .formaPagamento(venda.getFormaPagamento())
-                .dataCadastro(venda.getDataCadastro())
-                .build();
+        return new VendaResponseDTO(
+                venda.getCdVenda(),
+                venda.getCliente().getCdCliente(),
+                venda.getCliente().getNmCliente(),
+                venda.getAtendente().getCdUsuario(),
+                venda.getAtendente().getNmUsuario(),
+                venda.getDataVenda(),
+                venda.getVlTotal(),
+                venda.getDesconto(),
+                venda.getFormaPagamento(),
+                venda.getDataCadastro()
+        );
     }
 }

@@ -20,13 +20,13 @@ public class ProdutoService {
     @Transactional
     public ProdutoResponseDTO criar(ProdutoRequestDTO dto) {
         Produto produto = Produto.builder()
-                .nmProduto(dto.getNmProduto())
-                .dsProduto(dto.getDsProduto())
-                .categoria(dto.getCategoria())
-                .vlCusto(dto.getVlCusto())
-                .vlVenda(dto.getVlVenda())
-                .qtdEstoque(dto.getQtdEstoque())
-                .qtdMinimo(dto.getQtdMinimo())
+                .nmProduto(dto.nmProduto())
+                .dsProduto(dto.dsProduto())
+                .categoria(dto.categoria())
+                .vlCusto(dto.vlCusto())
+                .vlVenda(dto.vlVenda())
+                .qtdEstoque(dto.qtdEstoque())
+                .qtdMinimo(dto.qtdMinimo())
                 .ativo(true)
                 .build();
 
@@ -67,13 +67,13 @@ public class ProdutoService {
         Produto produto = produtoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
 
-        produto.setNmProduto(dto.getNmProduto());
-        produto.setDsProduto(dto.getDsProduto());
-        produto.setCategoria(dto.getCategoria());
-        produto.setVlCusto(dto.getVlCusto());
-        produto.setVlVenda(dto.getVlVenda());
-        produto.setQtdEstoque(dto.getQtdEstoque());
-        produto.setQtdMinimo(dto.getQtdMinimo());
+        produto.setNmProduto(dto.nmProduto());
+        produto.setDsProduto(dto.dsProduto());
+        produto.setCategoria(dto.categoria());
+        produto.setVlCusto(dto.vlCusto());
+        produto.setVlVenda(dto.vlVenda());
+        produto.setQtdEstoque(dto.qtdEstoque());
+        produto.setQtdMinimo(dto.qtdMinimo());
 
         Produto atualizado = produtoRepository.save(produto);
         return converterParaDTO(atualizado);
@@ -111,17 +111,17 @@ public class ProdutoService {
     }
 
     private ProdutoResponseDTO converterParaDTO(Produto produto) {
-        return ProdutoResponseDTO.builder()
-                .cdProduto(produto.getCdProduto())
-                .nmProduto(produto.getNmProduto())
-                .dsProduto(produto.getDsProduto())
-                .categoria(produto.getCategoria())
-                .vlCusto(produto.getVlCusto())
-                .vlVenda(produto.getVlVenda())
-                .qtdEstoque(produto.getQtdEstoque())
-                .qtdMinimo(produto.getQtdMinimo())
-                .ativo(produto.getAtivo())
-                .dataCadastro(produto.getDataCadastro())
-                .build();
+        return new ProdutoResponseDTO(
+                produto.getCdProduto(),
+                produto.getNmProduto(),
+                produto.getDsProduto(),
+                produto.getCategoria(),
+                produto.getVlCusto(),
+                produto.getVlVenda(),
+                produto.getQtdEstoque(),
+                produto.getQtdMinimo(),
+                produto.getAtivo(),
+                produto.getDataCadastro()
+        );
     }
 }

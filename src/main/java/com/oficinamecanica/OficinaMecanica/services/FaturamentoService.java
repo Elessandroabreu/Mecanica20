@@ -62,15 +62,15 @@ public class FaturamentoService {
             tipoTransacao = "SERVICO";
         }
 
-        return FaturamentoResponseDTO.builder()
-                .cdFaturamento(faturamento.getCdFaturamento())
-                .cdVenda(faturamento.getVenda() != null ? faturamento.getVenda().getCdVenda() : null)
-                .cdOrdemServico(faturamento.getOrdemServico() != null ? faturamento.getOrdemServico().getCdOrdemServico() : null)
-                .dataVenda(faturamento.getDataVenda())
-                .vlTotal(faturamento.getVlTotal())
-                .formaPagamento(faturamento.getFormaPagamento())
-                .nomeCliente(nomeCliente)
-                .tipoTransacao(tipoTransacao)
-                .build();
+        return new FaturamentoResponseDTO(
+                faturamento.getCdFaturamento(),
+                faturamento.getVenda() != null ? faturamento.getVenda().getCdVenda() : null,
+                faturamento.getOrdemServico() != null ? faturamento.getOrdemServico().getCdOrdemServico() : null,
+                faturamento.getDataVenda(),
+                faturamento.getVlTotal(),
+                faturamento.getFormaPagamento(),
+                nomeCliente,
+                tipoTransacao
+        );
     }
 }

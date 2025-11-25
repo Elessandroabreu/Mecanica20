@@ -37,21 +37,21 @@ public class AuthController {
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
         Authentication authentication = authenticationManager.authenticate(
                 new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword()
+                        loginRequest.email(),
+                        loginRequest.password()
                 )
         );
 
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String token = tokenProvider.generateToken(authentication);
 
-        UsuarioResponseDTO usuario = usuarioService.buscarPorEmail(loginRequest.getEmail());
+        UsuarioResponseDTO usuario = usuarioService.buscarPorEmail(loginRequest.email());
 
-        AuthResponseDTO response = AuthResponseDTO.builder()
-                .accessToken(token)
-                .tokenType("Bearer")
-                .usuario(usuario)
-                .build();
+        AuthResponseDTO response = new AuthResponseDTO(
+                token,
+                "Bearer",
+                usuario
+        );
 
         return ResponseEntity.ok(response);
     }

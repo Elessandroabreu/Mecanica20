@@ -5,30 +5,21 @@ import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ServicoRequestDTO {
+public record ServicoRequestDTO(
+        @NotBlank(message = "Nome do serviço é obrigatório")
+        @Size(max = 150, message = "Nome deve ter no máximo 150 caracteres")
+        String nmServico,
 
-    @NotBlank(message = "Nome do serviço é obrigatório")
-    @Size(max = 150, message = "Nome deve ter no máximo 150 caracteres")
-    private String nmServico;
+        @Size(max = 500, message = "Descrição deve ter no máximo 500 caracteres")
+        String dsServico,
 
-    @Size(max = 500, message = "Descrição deve ter no máximo 500 caracteres")
-    private String dsServico;
+        @NotNull(message = "Valor do serviço é obrigatório")
+        @Positive(message = "Valor do serviço deve ser positivo")
+        @DecimalMin(value = "0.01", message = "Valor deve ser maior que zero")
+        Double vlServico,
 
-    @NotNull(message = "Valor do serviço é obrigatório")
-    @Positive(message = "Valor do serviço deve ser positivo")
-    @DecimalMin(value = "0.01", message = "Valor deve ser maior que zero")
-    private Double vlServico;
-
-    @NotNull(message = "Tempo estimado é obrigatório")
-    @Positive(message = "Tempo estimado deve ser positivo")
-    private Integer tmpEstimado;
-}
+        @NotNull(message = "Tempo estimado é obrigatório")
+        @Positive(message = "Tempo estimado deve ser positivo")
+        Integer tmpEstimado
+) {}

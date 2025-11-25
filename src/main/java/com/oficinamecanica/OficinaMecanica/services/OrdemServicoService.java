@@ -30,35 +30,35 @@ public class OrdemServicoService {
 
     @Transactional
     public OrdemServicoResponseDTO criar(OrdemServicoRequestDTO dto) {
-        Cliente cliente = clienteRepository.findById(dto.getCdCliente())
+        Cliente cliente = clienteRepository.findById(dto.cdCliente())
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        Veiculo veiculo = veiculoRepository.findById(dto.getCdVeiculo())
+        Veiculo veiculo = veiculoRepository.findById(dto.cdVeiculo())
                 .orElseThrow(() -> new RuntimeException("Veículo não encontrado"));
 
-        Usuario mecanico = usuarioRepository.findById(dto.getCdMecanico())
+        Usuario mecanico = usuarioRepository.findById(dto.cdMecanico())
                 .orElseThrow(() -> new RuntimeException("Mecânico não encontrado"));
 
         OrdemServico ordem = OrdemServico.builder()
                 .cliente(cliente)
                 .veiculo(veiculo)
                 .mecanico(mecanico)
-                .tipoServico(dto.getTipoServico())
+                .tipoServico(dto.tipoServico())
                 .statusOrdemServico(StatusOrdemServico.AGUARDANDO)
                 .dataAbertura(LocalDateTime.now())
                 .vlPecas(0.0)
-                .vlMaoObra(dto.getVlMaoObra() != null ? dto.getVlMaoObra() : 0.0)
+                .vlMaoObra(dto.vlMaoObra() != null ? dto.vlMaoObra() : 0.0)
                 .vlTotal(0.0)
-                .desconto(dto.getDesconto() != null ? dto.getDesconto() : 0.0)
-                .observacoes(dto.getObservacoes())
-                .diagnostico(dto.getDiagnostico())
+                .desconto(dto.desconto() != null ? dto.desconto() : 0.0)
+                .observacoes(dto.observacoes())
+                .diagnostico(dto.diagnostico())
                 .aprovado(false)
                 .build();
 
         OrdemServico salva = ordemServicoRepository.save(ordem);
 
-        if (dto.getItens() != null && !dto.getItens().isEmpty()) {
-            adicionarItens(salva, dto.getItens());
+        if (dto.itens() != null && !dto.itens().isEmpty()) {
+            adicionarItens(salva, dto.itens());
         }
 
         return converterParaDTO(salva);
@@ -71,34 +71,34 @@ public class OrdemServicoService {
         for (OrdemServicoRequestDTO.ItemDTO itemDTO : itensDTO) {
             ItemOrdemServico item = new ItemOrdemServico();
             item.setOrdemServico(ordem);
-            item.setQuantidade(itemDTO.getQuantidade());
+            item.setQuantidade(itemDTO.quantidade());
 
-            if (itemDTO.getCdProduto() != null) {
-                Produto produto = produtoRepository.findById(itemDTO.getCdProduto())
+            if (itemDTO.cdProduto() != null) {
+                Produto produto = produtoRepository.findById(itemDTO.cdProduto())
                         .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
 
-                if (produto.getQtdEstoque() < itemDTO.getQuantidade()) {
+                if (produto.getQtdEstoque() < itemDTO.quantidade()) {
                     throw new RuntimeException("Estoque insuficiente para o produto: " + produto.getNmProduto());
                 }
 
                 item.setProduto(produto);
                 item.setVlUnitario(produto.getVlVenda());
-                item.setVlTotal(produto.getVlVenda() * itemDTO.getQuantidade());
+                item.setVlTotal(produto.getVlVenda() * itemDTO.quantidade());
                 totalPecas += item.getVlTotal();
 
                 if (ordem.getTipoServico() == TipoServico.ORDEM_DE_SERVICO) {
-                    produto.setQtdEstoque(produto.getQtdEstoque() - itemDTO.getQuantidade());
+                    produto.setQtdEstoque(produto.getQtdEstoque() - itemDTO.quantidade());
                     produtoRepository.save(produto);
                 }
             }
 
-            if (itemDTO.getCdServico() != null) {
-                Servico servico = servicoRepository.findById(itemDTO.getCdServico())
+            if (itemDTO.cdServico() != null) {
+                Servico servico = servicoRepository.findById(itemDTO.cdServico())
                         .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
-                
+
                 item.setServico(servico);
                 item.setVlUnitario(servico.getVlServico());
-                item.setVlTotal(servico.getVlServico() * itemDTO.getQuantidade());
+                item.setVlTotal(servico.getVlServico() * itemDTO.quantidade());
             }
 
             itemOrdemServicoRepository.save(item);
@@ -207,25 +207,25 @@ public class OrdemServicoService {
     }
 
     private OrdemServicoResponseDTO converterParaDTO(OrdemServico ordem) {
-        return OrdemServicoResponseDTO.builder()
-                .cdOrdemServico(ordem.getCdOrdemServico())
-                .cdCliente(ordem.getCliente().getCdCliente())
-                .nmCliente(ordem.getCliente().getNmCliente())
-                .cdVeiculo(ordem.getVeiculo().getCdVeiculo())
-                .placa(ordem.getVeiculo().getPlaca())
-                .cdMecanico(ordem.getMecanico().getCdUsuario())
-                .nmMecanico(ordem.getMecanico().getNmUsuario())
-                .tipoServico(ordem.getTipoServico())
-                .statusOrdemServico(ordem.getStatusOrdemServico())
-                .dataAbertura(ordem.getDataAbertura())
-                .dataFechamento(ordem.getDataFechamento())
-                .vlPecas(ordem.getVlPecas())
-                .vlMaoObra(ordem.getVlMaoObra())
-                .vlTotal(ordem.getVlTotal())
-                .desconto(ordem.getDesconto())
-                .observacoes(ordem.getObservacoes())
-                .diagnostico(ordem.getDiagnostico())
-                .aprovado(ordem.getAprovado())
-                .build();
+        return new OrdemServicoResponseDTO(
+                ordem.getCdOrdemServico(),
+                ordem.getCliente().getCdCliente(),
+                ordem.getCliente().getNmCliente(),
+                ordem.getVeiculo().getCdVeiculo(),
+                ordem.getVeiculo().getPlaca(),
+                ordem.getMecanico().getCdUsuario(),
+                ordem.getMecanico().getNmUsuario(),
+                ordem.getTipoServico(),
+                ordem.getStatusOrdemServico(),
+                ordem.getDataAbertura(),
+                ordem.getDataFechamento(),
+                ordem.getVlPecas(),
+                ordem.getVlMaoObra(),
+                ordem.getVlTotal(),
+                ordem.getDesconto(),
+                ordem.getObservacoes(),
+                ordem.getDiagnostico(),
+                ordem.getAprovado()
+        );
     }
 }
