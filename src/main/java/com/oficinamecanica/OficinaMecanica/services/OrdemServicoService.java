@@ -1,6 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
 import com.oficinamecanica.OficinaMecanica.dto.request.OrdemServicoRequestDTO;
+import com.oficinamecanica.OficinaMecanica.dto.response.ItemOrdemServicoResponseDTO;
 import com.oficinamecanica.OficinaMecanica.dto.response.OrdemServicoResponseDTO;
 import com.oficinamecanica.OficinaMecanica.enums.FormaPagamento;
 import com.oficinamecanica.OficinaMecanica.enums.StatusOrdemServico;
@@ -111,8 +112,11 @@ public class OrdemServicoService {
 
     @Transactional(readOnly = true)
     public OrdemServicoResponseDTO buscarPorId(Integer id) {
-        OrdemServico ordem = ordemServicoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Ordem de serviço não encontrada"));
+        // ✅ USAR FETCH JOIN PARA BUSCAR OS ITENS
+        OrdemServico ordem = ordemServicoRepository.findByIdWithItens(id);
+        if (ordem == null) {
+            throw new RuntimeException("Ordem de serviço não encontrada");
+        }
         return converterParaDTO(ordem);
     }
 
@@ -206,7 +210,31 @@ public class OrdemServicoService {
         ordemServicoRepository.save(ordem);
     }
 
+    // ✅ MÉTODO PARA CONVERTER ITEM
+    private ItemOrdemServicoResponseDTO converterItemParaDTO(ItemOrdemServico item) {
+        return new ItemOrdemServicoResponseDTO(
+                item.getCdItemOrdemServico(),
+                item.getProduto() != null ? item.getProduto().getCdProduto() : null,
+                item.getProduto() != null ? item.getProduto().getNmProduto() : null,
+                item.getServico() != null ? item.getServico().getCdServico() : null,
+                item.getServico() != null ? item.getServico().getNmServico() : null,
+                item.getQuantidade(),
+                item.getVlUnitario(),
+                item.getVlTotal()
+        );
+    }
+
+    // ✅ MÉTODO ATUALIZADO PARA INCLUIR OS ITENS
     private OrdemServicoResponseDTO converterParaDTO(OrdemServico ordem) {
+        // Buscar os itens da ordem
+        List<ItemOrdemServico> itens = itemOrdemServicoRepository
+                .findByOrdemServico_CdOrdemServico(ordem.getCdOrdemServico());
+
+        // Converter os itens para DTO
+        List<ItemOrdemServicoResponseDTO> itensDTO = itens.stream()
+                .map(this::converterItemParaDTO)
+                .collect(Collectors.toList());
+
         return new OrdemServicoResponseDTO(
                 ordem.getCdOrdemServico(),
                 ordem.getCliente().getCdCliente(),
@@ -225,7 +253,8 @@ public class OrdemServicoService {
                 ordem.getDesconto(),
                 ordem.getObservacoes(),
                 ordem.getDiagnostico(),
-                ordem.getAprovado()
+                ordem.getAprovado(),
+                itensDTO // ✅ INCLUIR OS ITENS
         );
     }
 }

@@ -3,6 +3,7 @@ package com.oficinamecanica.OficinaMecanica.dto.response;
 import com.oficinamecanica.OficinaMecanica.enums.StatusOrdemServico;
 import com.oficinamecanica.OficinaMecanica.enums.TipoServico;
 import java.time.LocalDateTime;
+import java.util.List;
 
 public record OrdemServicoResponseDTO(
         Integer cdOrdemServico,
@@ -22,5 +23,6 @@ public record OrdemServicoResponseDTO(
         Double desconto,
         String observacoes,
         String diagnostico,
-        Boolean aprovado
+        Boolean aprovado,
+        List<ItemOrdemServicoResponseDTO> itens
 ) {}
