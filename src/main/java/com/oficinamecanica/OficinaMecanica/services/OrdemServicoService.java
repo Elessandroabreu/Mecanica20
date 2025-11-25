@@ -210,7 +210,7 @@ public class OrdemServicoService {
         ordemServicoRepository.save(ordem);
     }
 
-    // ✅ MÉTODO PARA CONVERTER ITEM
+
     private ItemOrdemServicoResponseDTO converterItemParaDTO(ItemOrdemServico item) {
         return new ItemOrdemServicoResponseDTO(
                 item.getCdItemOrdemServico(),
@@ -224,7 +224,7 @@ public class OrdemServicoService {
         );
     }
 
-    // ✅ MÉTODO ATUALIZADO PARA INCLUIR OS ITENS
+
     private OrdemServicoResponseDTO converterParaDTO(OrdemServico ordem) {
         // Buscar os itens da ordem
         List<ItemOrdemServico> itens = itemOrdemServicoRepository
