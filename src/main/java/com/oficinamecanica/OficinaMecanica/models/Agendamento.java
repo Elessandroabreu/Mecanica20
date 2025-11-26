@@ -39,9 +39,4 @@ public class Agendamento {
 
     @Column(name = "OBSERVACOES", length = 1000)
     private String observacoes;
-
-    @PrePersist
-    protected void onCreate() {
-        this.dataAgendamento = LocalDateTime.now();
-    }
 }
