@@ -12,15 +12,7 @@ public interface ServicoRepository extends JpaRepository<Servico, Integer> {
     // Listar apenas serviços ativos
     List<Servico> findByAtivoTrue();
 
-    // Listar serviços inativos
-    List<Servico> findByAtivoFalse();
-
-    // Buscar por nome
+        // Buscar por nome
     List<Servico> findByNmServicoContainingIgnoreCase(String nmServico);
 
-    // Buscar por faixa de valor
-    List<Servico> findByVlServicoBetween(Double vlMin, Double vlMax);
-
-    // Buscar por tempo estimado
-    List<Servico> findByTmpEstimadoLessThanEqual(Integer tmpMaximo);
 }
