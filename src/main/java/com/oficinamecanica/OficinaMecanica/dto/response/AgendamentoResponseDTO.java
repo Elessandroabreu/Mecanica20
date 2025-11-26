@@ -11,7 +11,6 @@ public record AgendamentoResponseDTO(
         String placa,
         Integer cdMecanico,
         String nmMecanico,
-        LocalDateTime horario,
         StatusAgendamento status,
         String observacoes,
         LocalDateTime dataAgendamento

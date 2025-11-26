@@ -33,9 +33,6 @@ public class Agendamento {
     @Column(name = "DATAAGENDAMENTO", nullable = false)
     private LocalDateTime dataAgendamento;
 
-    @Column(name = "HORARIO", nullable = false)
-    private LocalDateTime horario;
-
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS", nullable = false, length = 20)
     private StatusAgendamento status = StatusAgendamento.AGENDADO;

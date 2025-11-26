@@ -30,6 +30,7 @@ public class AgendamentoService {
 
     @Transactional
     public AgendamentoResponseDTO criar(AgendamentoRequestDTO dto) {
+
         Cliente cliente = clienteRepository.findById(dto.cdCliente())
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
@@ -39,19 +40,13 @@ public class AgendamentoService {
         Usuario mecanico = usuarioRepository.findById(dto.cdMecanico())
                 .orElseThrow(() -> new RuntimeException("Mecânico não encontrado"));
 
-        // Validar disponibilidade do mecânico
-        if (agendamentoRepository.existsAgendamentoNoHorario(dto.cdMecanico(), dto.horario())) {
-            throw new RuntimeException("Mecânico já possui agendamento neste horário");
-        }
-
         Agendamento agendamento = Agendamento.builder()
                 .cliente(cliente)
                 .veiculo(veiculo)
                 .mecanico(mecanico)
-                .horario(dto.horario())
                 .observacoes(dto.observacoes())
-                .status(StatusAgendamento.AGENDADO)
-                .dataAgendamento(LocalDateTime.now())
+                .status(dto.status() != null ? dto.status() : StatusAgendamento.AGENDADO)
+                .dataAgendamento(dto.dataAgendamento().atStartOfDay())
                 .build();
 
         Agendamento salvo = agendamentoRepository.save(agendamento);
@@ -81,19 +76,13 @@ public class AgendamentoService {
 
     @Transactional
     public AgendamentoResponseDTO atualizar(Integer id, AgendamentoRequestDTO dto) {
+
         Agendamento agendamento = agendamentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
 
-        // Validar disponibilidade se horário foi alterado
-        if (!agendamento.getHorario().equals(dto.horario())) {
-            if (agendamentoRepository.existsAgendamentoNoHorario(dto.cdMecanico(), dto.horario())) {
-                throw new RuntimeException("Mecânico já possui agendamento neste horário");
-            }
-            agendamento.setHorario(dto.horario());
-        }
-
         agendamento.setObservacoes(dto.observacoes());
         agendamento.setStatus(dto.status());
+        agendamento.setDataAgendamento(dto.dataAgendamento().atStartOfDay());  // atualiza a data do agendamento
 
         Agendamento atualizado = agendamentoRepository.save(agendamento);
         return converterParaDTO(atualizado);
@@ -103,6 +92,7 @@ public class AgendamentoService {
     public void cancelar(Integer id) {
         Agendamento agendamento = agendamentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
+
         agendamento.setStatus(StatusAgendamento.CANCELADO);
         agendamentoRepository.save(agendamento);
     }
@@ -116,7 +106,6 @@ public class AgendamentoService {
                 agendamento.getVeiculo().getPlaca(),
                 agendamento.getMecanico().getCdUsuario(),
                 agendamento.getMecanico().getNmUsuario(),
-                agendamento.getHorario(),
                 agendamento.getStatus(),
                 agendamento.getObservacoes(),
                 agendamento.getDataAgendamento()
