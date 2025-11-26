@@ -11,6 +11,10 @@ import java.util.Optional;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
+    // No UsuarioRepository
+    @Query("SELECT u FROM Usuario u JOIN u.roles r WHERE r = 'ROLE_ATENDENTE' AND u.ativo = true")
+    List<Usuario> findAtendentesAtivos();
+
     // Buscar por email
     Optional<Usuario> findByEmail(String email);
 
