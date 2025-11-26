@@ -29,8 +29,6 @@ public record UsuarioRequestDTO(
         @NotNull(message = "Perfis são obrigatórios")
         Set<UserRole> roles,
 
-        @Pattern(regexp = "^\\(?\\d{2}\\)?[\\s-]?9?\\d{4}-?\\d{4}$",
-                message = "Telefone inválido. Formato: (XX) 9XXXX-XXXX")
         @Size(max = 20, message = "Telefone deve ter no máximo 20 caracteres")
         String nuTelefone,
 

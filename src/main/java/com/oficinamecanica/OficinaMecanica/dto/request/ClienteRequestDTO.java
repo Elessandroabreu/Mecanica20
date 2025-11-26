@@ -15,8 +15,6 @@ public record ClienteRequestDTO(
         @Size(max = 14, message = "CPF deve ter no máximo 14 caracteres")
         String nuCPF,
 
-        @Pattern(regexp = "^\\(?\\d{2}\\)?[\\s-]?9?\\d{4}-?\\d{4}$",
-                message = "Telefone inválido. Formato: (XX) 9XXXX-XXXX")
         @Size(max = 20, message = "Telefone deve ter no máximo 20 caracteres")
         String nuTelefone,
 
