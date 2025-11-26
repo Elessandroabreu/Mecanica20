@@ -123,9 +123,8 @@ public class UsuarioService {
                 usuario.getRoles(),
                 usuario.getNuTelefone(),
                 usuario.getNuCPF(),
-                usuario.getAtivo(),
-                usuario.getDataCadastro(),
-                usuario.getDataAtualizacao()
+                usuario.getAtivo()
+
         );
     }
 }

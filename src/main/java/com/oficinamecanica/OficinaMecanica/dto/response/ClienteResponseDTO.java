@@ -1,7 +1,5 @@
 package com.oficinamecanica.OficinaMecanica.dto.response;
 
-import java.time.LocalDateTime;
-
 public record ClienteResponseDTO(
         Integer cdCliente,
         String nmCliente,
@@ -9,6 +7,5 @@ public record ClienteResponseDTO(
         String nuTelefone,
         String dsEndereco,
         String email,
-        Boolean ativo,
-        LocalDateTime dataCadastro
+        Boolean ativo
 ) {}

@@ -43,12 +43,8 @@ public class Agendamento {
     @Column(name = "OBSERVACOES", length = 1000)
     private String observacoes;
 
-    @Column(name = "DATACADASTRO", nullable = false, updatable = false)
-    private LocalDateTime dataCadastro;
-
     @PrePersist
     protected void onCreate() {
-        this.dataCadastro = LocalDateTime.now();
-
+        this.dataAgendamento = LocalDateTime.now();
     }
 }

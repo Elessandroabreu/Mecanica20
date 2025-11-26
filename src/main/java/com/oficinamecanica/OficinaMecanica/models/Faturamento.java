@@ -36,12 +36,10 @@ public class Faturamento {
     @Column(name = "FORMAPAGAMENTO", nullable = false, length = 20)
     private FormaPagamento formaPagamento;
 
-    @Column(name = "DATACADASTRO", nullable = false, updatable = false)
-    private LocalDateTime dataCadastro;
-
     @PrePersist
     protected void onCreate() {
-        this.dataCadastro = LocalDateTime.now();
-
+        if (this.dataVenda == null) {
+            this.dataVenda = LocalDateTime.now();
+        }
     }
-  }
+}

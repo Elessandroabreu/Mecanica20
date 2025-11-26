@@ -4,7 +4,6 @@ import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.oficinamecanica.OficinaMecanica.enums.FormaPagamento;
 import jakarta.persistence.*;
 import lombok.*;
-
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -42,17 +41,12 @@ public class Venda {
     @Column(name = "FORMAPAGAMENTO", nullable = false, length = 20)
     private FormaPagamento formaPagamento;
 
-    @Column(name = "DATACADASTRO", nullable = false, updatable = false)
-    private LocalDateTime dataCadastro;
-
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<ItemVenda> itens;
 
     @PrePersist
     protected void onCreate() {
-        this.dataCadastro = LocalDateTime.now();
         this.dataVenda = LocalDateTime.now();
     }
-
 }

@@ -120,8 +120,8 @@ public class ProdutoService {
                 produto.getVlVenda(),
                 produto.getQtdEstoque(),
                 produto.getQtdMinimo(),
-                produto.getAtivo(),
-                produto.getDataCadastro()
+                produto.getAtivo()
+
         );
     }
 }

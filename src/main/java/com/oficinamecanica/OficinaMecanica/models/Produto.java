@@ -2,7 +2,6 @@ package com.oficinamecanica.OficinaMecanica.models;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "PRODUTO")
@@ -40,20 +39,4 @@ public class Produto {
 
     @Column(name = "ATIVO", nullable = false)
     private Boolean ativo = true;
-
-    @Column(name = "DATACADASTRO", nullable = false, updatable = false)
-    private LocalDateTime dataCadastro;
-
-    @Column(name = "DATAATUALIZACAO")
-    private LocalDateTime dataAtualizacao;
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.dataAtualizacao = LocalDateTime.now();
-    }
-
-    @PrePersist
-    protected void onCreate() {
-        this.dataCadastro = LocalDateTime.now();
-    }
 }

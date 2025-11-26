@@ -99,8 +99,8 @@ public class VeiculoService {
                 veiculo.getModelo(),
                 veiculo.getMarca(),
                 veiculo.getAno(),
-                veiculo.getCor(),
-                veiculo.getDataCadastro()
+                veiculo.getCor()
+
         );
     }
 }

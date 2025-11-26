@@ -81,8 +81,7 @@ public class ClienteService {
                 cliente.getNuTelefone(),
                 cliente.getDsEndereco(),
                 cliente.getEmail(),
-                cliente.getAtivo(),
-                cliente.getDataCadastro()
+                cliente.getAtivo()
         );
     }
 }

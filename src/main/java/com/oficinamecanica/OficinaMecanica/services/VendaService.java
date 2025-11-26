@@ -147,8 +147,7 @@ public class VendaService {
                 venda.getDataVenda(),
                 venda.getVlTotal(),
                 venda.getDesconto(),
-                venda.getFormaPagamento(),
-                venda.getDataCadastro()
+                venda.getFormaPagamento()
         );
     }
 }

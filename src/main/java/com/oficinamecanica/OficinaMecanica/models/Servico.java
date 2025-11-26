@@ -2,7 +2,6 @@ package com.oficinamecanica.OficinaMecanica.models;
 
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "SERVICO")
@@ -31,12 +30,4 @@ public class Servico {
 
     @Column(name = "ATIVO", nullable = false)
     private Boolean ativo = true;
-
-    @Column(name = "DATACADASTRO", nullable = false, updatable = false)
-    private LocalDateTime dataCadastro;
-
-    @PrePersist
-    protected void onCreate() {
-        this.dataCadastro = LocalDateTime.now();
-    }
 }

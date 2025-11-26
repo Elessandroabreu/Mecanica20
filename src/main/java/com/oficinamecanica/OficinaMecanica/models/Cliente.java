@@ -3,7 +3,6 @@ package com.oficinamecanica.OficinaMecanica.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
 import java.util.List;
 
 @Entity
@@ -37,12 +36,6 @@ public class Cliente {
     @Column(name = "ATIVO", nullable = false)
     private Boolean ativo = true;
 
-    @Column(name = "DATACADASTRO", nullable = false, updatable = false)
-    private LocalDateTime dataCadastro;
-
-    @Column(name = "DATAATUALIZACAO")
-    private LocalDateTime dataAtualizacao;
-
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Veiculo> veiculos;
@@ -54,14 +47,4 @@ public class Cliente {
     @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<Venda> vendas;
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.dataAtualizacao = LocalDateTime.now();
-    }
-
-    @PrePersist
-    protected void onCreate() {
-        this.dataCadastro = LocalDateTime.now();
-    }
 }

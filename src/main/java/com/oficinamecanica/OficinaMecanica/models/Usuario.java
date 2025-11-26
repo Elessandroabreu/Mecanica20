@@ -4,7 +4,6 @@ import com.oficinamecanica.OficinaMecanica.enums.AuthProvider;
 import com.oficinamecanica.OficinaMecanica.enums.UserRole;
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
 import java.util.Set;
 
 @Entity
@@ -34,9 +33,7 @@ public class Usuario {
     private AuthProvider provider = AuthProvider.LOCAL;
 
     @ElementCollection(fetch = FetchType.EAGER)
-    @CollectionTable(
-        name = "USUARIO_ROLE",
-        joinColumns = @JoinColumn(name = "CDUSUARIO")
+    @CollectionTable(name = "USUARIO_ROLE", joinColumns = @JoinColumn(name = "CDUSUARIO")
     )
     @Column(name = "ROLE", length = 20)
     @Enumerated(EnumType.STRING)
@@ -51,23 +48,6 @@ public class Usuario {
     @Column(name = "ATIVO", nullable = false)
     private Boolean ativo = true;
 
-    @Column(name = "DATACADASTRO", nullable = false, updatable = false)
-    private LocalDateTime dataCadastro;
-
-    @Column(name = "DATAATUALIZACAO")
-    private LocalDateTime dataAtualizacao;
-
     @Column(name = "PROVIDERID", unique = true, length = 255)
     private String providerId;
-
-    @PreUpdate
-    protected void onUpdate() {
-        this.dataAtualizacao = LocalDateTime.now();
-    }
-
-    @PrePersist
-    protected void onCreate() {
-        this.dataCadastro = LocalDateTime.now();
-    }
-
 }

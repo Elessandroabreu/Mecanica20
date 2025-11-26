@@ -68,17 +68,12 @@ public class OrdemServico {
     @Column(name = "APROVADO")
     private Boolean aprovado = false;
 
-    @Column(name = "DATACADASTRO", nullable = false, updatable = false)
-    private LocalDateTime dataCadastro;
-
     @OneToMany(mappedBy = "ordemServico", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<ItemOrdemServico> itens;
 
     @PrePersist
     protected void onCreate() {
-        this.dataCadastro = LocalDateTime.now();
         this.dataAbertura = LocalDateTime.now();
     }
-
 }

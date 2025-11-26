@@ -74,8 +74,8 @@ public class ServicoService {
                 servico.getDsServico(),
                 servico.getVlServico(),
                 servico.getTmpEstimado(),
-                servico.getAtivo(),
-                servico.getDataCadastro()
+                servico.getAtivo()
+
         );
     }
 }

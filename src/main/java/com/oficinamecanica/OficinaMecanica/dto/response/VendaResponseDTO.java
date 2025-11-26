@@ -12,6 +12,5 @@ public record VendaResponseDTO(
         LocalDateTime dataVenda,
         Double vlTotal,
         Double desconto,
-        FormaPagamento formaPagamento,
-        LocalDateTime dataCadastro
+        FormaPagamento formaPagamento
 ) {}
