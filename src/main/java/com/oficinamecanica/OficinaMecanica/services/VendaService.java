@@ -3,6 +3,7 @@ package com.oficinamecanica.OficinaMecanica.services;
 import com.oficinamecanica.OficinaMecanica.dto.request.VendaRequestDTO;
 import com.oficinamecanica.OficinaMecanica.dto.response.VendaResponseDTO;
 import com.oficinamecanica.OficinaMecanica.enums.FormaPagamento;
+import com.oficinamecanica.OficinaMecanica.enums.UserRole;
 import com.oficinamecanica.OficinaMecanica.models.*;
 import com.oficinamecanica.OficinaMecanica.repositories.*;
 import lombok.RequiredArgsConstructor;
@@ -29,8 +30,23 @@ public class VendaService {
         Cliente cliente = clienteRepository.findById(dto.cdCliente())
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
+        // ✅ VALIDAR SE CLIENTE ESTÁ ATIVO
+        if (!cliente.getAtivo()) {
+            throw new RuntimeException("Cliente inativo não pode realizar compras");
+        }
+
         Usuario atendente = usuarioRepository.findById(dto.cdAtendente())
                 .orElseThrow(() -> new RuntimeException("Atendente não encontrado"));
+
+        // ✅ VALIDAR SE USUÁRIO É ATENDENTE OU ADMIN
+        if (!atendente.getAtivo()) {
+            throw new RuntimeException("Atendente inativo não pode realizar vendas");
+        }
+
+        if (!atendente.getRoles().contains(UserRole.ROLE_ATENDENTE) &&
+                !atendente.getRoles().contains(UserRole.ROLE_ADMIN)) {
+            throw new RuntimeException("Usuário " + atendente.getNmUsuario() + " não possui perfil de atendente");
+        }
 
         Venda venda = Venda.builder()
                 .cliente(cliente)
@@ -59,6 +75,11 @@ public class VendaService {
         for (VendaRequestDTO.ItemVendaDTO itemDTO : itensDTO) {
             Produto produto = produtoRepository.findById(itemDTO.cdProduto())
                     .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
+
+            // ✅ VALIDAR SE PRODUTO ESTÁ ATIVO
+            if (!produto.getAtivo()) {
+                throw new RuntimeException("Produto inativo não pode ser vendido: " + produto.getNmProduto());
+            }
 
             if (produto.getQtdEstoque() < itemDTO.quantidade()) {
                 throw new RuntimeException("Estoque insuficiente para o produto: " + produto.getNmProduto());
@@ -90,7 +111,8 @@ public class VendaService {
                 .venda(venda)
                 .dataVenda(venda.getDataVenda())
                 .vlTotal(venda.getVlTotal())
-                .formaPagamento(FormaPagamento.valueOf(venda.getFormaPagamento().name()))
+                // ✅ CORRIGIDO: Não precisa converter, já é enum
+                .formaPagamento(venda.getFormaPagamento())
                 .build();
 
         faturamentoRepository.save(faturamento);

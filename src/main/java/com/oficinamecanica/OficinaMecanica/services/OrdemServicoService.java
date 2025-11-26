@@ -6,7 +6,6 @@ import com.oficinamecanica.OficinaMecanica.dto.response.OrdemServicoResponseDTO;
 import com.oficinamecanica.OficinaMecanica.enums.FormaPagamento;
 import com.oficinamecanica.OficinaMecanica.enums.StatusOrdemServico;
 import com.oficinamecanica.OficinaMecanica.enums.TipoServico;
-// Usando RuntimeException padrão do projeto
 import com.oficinamecanica.OficinaMecanica.models.*;
 import com.oficinamecanica.OficinaMecanica.repositories.*;
 import lombok.RequiredArgsConstructor;
@@ -36,14 +35,23 @@ public class OrdemServicoService {
     public OrdemServicoResponseDTO criar(OrdemServicoRequestDTO dto) {
         log.info("Criando nova ordem de serviço para cliente: {}", dto.cdCliente());
 
+        // Validar e buscar entidades
         Cliente cliente = clienteRepository.findById(dto.cdCliente())
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado com ID: " + dto.cdCliente()));
+
+        // ✅ VALIDAR SE CLIENTE ESTÁ ATIVO
+        if (!cliente.getAtivo()) {
+            throw new RuntimeException("Cliente inativo não pode criar ordens de serviço");
+        }
 
         Veiculo veiculo = veiculoRepository.findById(dto.cdVeiculo())
                 .orElseThrow(() -> new RuntimeException("Veículo não encontrado com ID: " + dto.cdVeiculo()));
 
         Usuario mecanico = usuarioRepository.findById(dto.cdMecanico())
                 .orElseThrow(() -> new RuntimeException("Mecânico não encontrado com ID: " + dto.cdMecanico()));
+
+        // ✅ VALIDAR SE É REALMENTE UM MECÂNICO
+        validarMecanico(mecanico);
 
         OrdemServico ordem = OrdemServico.builder()
                 .cliente(cliente)
@@ -64,6 +72,7 @@ public class OrdemServicoService {
         OrdemServico salva = ordemServicoRepository.save(ordem);
         log.info("Ordem de serviço criada com ID: {}", salva.getCdOrdemServico());
 
+        // ✅ CORRIGIDO: Passa o tipo de serviço para o método
         if (dto.itens() != null && !dto.itens().isEmpty()) {
             adicionarItens(salva, dto.itens());
         }
@@ -71,19 +80,28 @@ public class OrdemServicoService {
         return converterParaDTO(ordemServicoRepository.findByIdWithItens(salva.getCdOrdemServico()));
     }
 
+    // ✅ MÉTODO CORRIGIDO - Verifica o tipo antes de dar baixa
     @Transactional
     public void adicionarItens(OrdemServico ordem, List<OrdemServicoRequestDTO.ItemDTO> itensDTO) {
         double totalPecas = 0.0;
+        boolean darBaixaEstoque = (ordem.getTipoServico() == TipoServico.ORDEM_DE_SERVICO);
 
         for (OrdemServicoRequestDTO.ItemDTO itemDTO : itensDTO) {
             ItemOrdemServico item = new ItemOrdemServico();
             item.setOrdemServico(ordem);
             item.setQuantidade(itemDTO.quantidade());
 
+            // Processar PRODUTO
             if (itemDTO.cdProduto() != null) {
                 Produto produto = produtoRepository.findById(itemDTO.cdProduto())
                         .orElseThrow(() -> new RuntimeException("Produto não encontrado: " + itemDTO.cdProduto()));
 
+                // ✅ VALIDAR SE PRODUTO ESTÁ ATIVO
+                if (!produto.getAtivo()) {
+                    throw new RuntimeException("Produto inativo não pode ser adicionado: " + produto.getNmProduto());
+                }
+
+                // Validar estoque disponível (SEMPRE, mesmo para orçamento)
                 if (produto.getQtdEstoque() < itemDTO.quantidade()) {
                     throw new RuntimeException(
                             "Estoque insuficiente para " + produto.getNmProduto() +
@@ -97,17 +115,25 @@ public class OrdemServicoService {
                 item.setVlTotal(produto.getVlVenda() * itemDTO.quantidade());
                 totalPecas += item.getVlTotal();
 
-                // Só dá baixa se for ordem de serviço (não orçamento)
-                if (ordem.getTipoServico() == TipoServico.ORDEM_DE_SERVICO) {
+                // ✅ SÓ DÁ BAIXA NO ESTOQUE SE FOR ORDEM DE SERVIÇO (NÃO ORÇAMENTO)
+                if (darBaixaEstoque) {
                     produto.setQtdEstoque(produto.getQtdEstoque() - itemDTO.quantidade());
                     produtoRepository.save(produto);
                     log.debug("Estoque atualizado para produto {}: {}", produto.getNmProduto(), produto.getQtdEstoque());
+                } else {
+                    log.debug("Orçamento: Estoque NÃO alterado para {}", produto.getNmProduto());
                 }
             }
 
+            // Processar SERVIÇO
             if (itemDTO.cdServico() != null) {
                 Servico servico = servicoRepository.findById(itemDTO.cdServico())
                         .orElseThrow(() -> new RuntimeException("Serviço não encontrado: " + itemDTO.cdServico()));
+
+                // ✅ VALIDAR SE SERVIÇO ESTÁ ATIVO
+                if (!servico.getAtivo()) {
+                    throw new RuntimeException("Serviço inativo não pode ser adicionado: " + servico.getNmServico());
+                }
 
                 item.setServico(servico);
                 item.setVlUnitario(servico.getVlServico());
@@ -117,9 +143,20 @@ public class OrdemServicoService {
             itemOrdemServicoRepository.save(item);
         }
 
+        // Atualizar totais da ordem
         ordem.setVlPecas(totalPecas);
         ordem.setVlTotal(ordem.getVlPecas() + ordem.getVlMaoObra() - ordem.getDesconto());
         ordemServicoRepository.save(ordem);
+    }
+
+    // ✅ NOVO MÉTODO: Validar se usuário é mecânico
+    private void validarMecanico(Usuario usuario) {
+        if (!usuario.getAtivo()) {
+            throw new RuntimeException("Mecânico inativo não pode ser atribuído");
+        }
+        if (!usuario.getRoles().contains(com.oficinamecanica.OficinaMecanica.enums.UserRole.ROLE_MECANICO)) {
+            throw new RuntimeException("Usuário " + usuario.getNmUsuario() + " não possui perfil de mecânico");
+        }
     }
 
     @Transactional(readOnly = true)
@@ -153,6 +190,7 @@ public class OrdemServicoService {
                 .collect(Collectors.toList());
     }
 
+    // ✅ MÉTODO CORRIGIDO - Validação e baixa no mesmo loop
     @Transactional(rollbackFor = Exception.class)
     public OrdemServicoResponseDTO aprovarOrcamento(Integer id) {
         log.info("Aprovando orçamento ID: {}", id);
@@ -164,31 +202,40 @@ public class OrdemServicoService {
             throw new RuntimeException("Apenas orçamentos podem ser aprovados");
         }
 
-        // Validar estoque ANTES de aprovar
+        if (ordem.getAprovado()) {
+            throw new RuntimeException("Orçamento já foi aprovado anteriormente");
+        }
+
+        // ✅ CORRIGIDO: Validar e dar baixa no MESMO LOOP (evita race condition)
         List<ItemOrdemServico> itens = itemOrdemServicoRepository.findByOrdemServico_CdOrdemServico(id);
+
         for (ItemOrdemServico item : itens) {
             if (item.getProduto() != null) {
-                Produto produto = item.getProduto();
+                // Buscar produto atualizado do banco (evita usar cache)
+                Produto produto = produtoRepository.findById(item.getProduto().getCdProduto())
+                        .orElseThrow(() -> new RuntimeException("Produto não encontrado: " + item.getProduto().getCdProduto()));
+
+                // Validar estoque disponível
                 if (produto.getQtdEstoque() < item.getQuantidade()) {
                     throw new RuntimeException(
-                            "Estoque insuficiente para aprovar orçamento. Produto: " + produto.getNmProduto()
+                            "Estoque insuficiente para aprovar orçamento. Produto: " + produto.getNmProduto() +
+                                    ". Disponível: " + produto.getQtdEstoque() +
+                                    ", Necessário: " + item.getQuantidade()
                     );
                 }
+
+                // ✅ DAR BAIXA IMEDIATAMENTE APÓS VALIDAÇÃO
+                produto.setQtdEstoque(produto.getQtdEstoque() - item.getQuantidade());
+                produtoRepository.save(produto);
+                log.info("Estoque atualizado ao aprovar orçamento - Produto: {}, Novo estoque: {}",
+                        produto.getNmProduto(), produto.getQtdEstoque());
             }
         }
 
-        // Aprovar e dar baixa no estoque
+        // Aprovar e converter em ordem de serviço
         ordem.setAprovado(true);
         ordem.setTipoServico(TipoServico.ORDEM_DE_SERVICO);
         ordem.setStatusOrdemServico(StatusOrdemServico.AGUARDANDO);
-
-        for (ItemOrdemServico item : itens) {
-            if (item.getProduto() != null) {
-                Produto produto = item.getProduto();
-                produto.setQtdEstoque(produto.getQtdEstoque() - item.getQuantidade());
-                produtoRepository.save(produto);
-            }
-        }
 
         OrdemServico atualizada = ordemServicoRepository.save(ordem);
         log.info("Orçamento aprovado e convertido em ordem de serviço: {}", id);
@@ -205,6 +252,10 @@ public class OrdemServicoService {
 
         if (ordem.getStatusOrdemServico() == StatusOrdemServico.CONCLUIDA) {
             throw new RuntimeException("Ordem de serviço já foi concluída");
+        }
+
+        if (ordem.getStatusOrdemServico() == StatusOrdemServico.CANCELADA) {
+            throw new RuntimeException("Ordem de serviço cancelada não pode ser concluída");
         }
 
         ordem.setStatusOrdemServico(StatusOrdemServico.CONCLUIDA);
@@ -245,6 +296,10 @@ public class OrdemServicoService {
             throw new RuntimeException("Não é possível cancelar ordem de serviço concluída");
         }
 
+        if (ordem.getStatusOrdemServico() == StatusOrdemServico.CANCELADA) {
+            throw new RuntimeException("Ordem de serviço já está cancelada");
+        }
+
         // Devolver produtos ao estoque apenas se foi ordem de serviço (não orçamento)
         if (ordem.getTipoServico() == TipoServico.ORDEM_DE_SERVICO) {
             List<ItemOrdemServico> itens = itemOrdemServicoRepository.findByOrdemServico_CdOrdemServico(id);
@@ -277,7 +332,6 @@ public class OrdemServicoService {
     }
 
     private OrdemServicoResponseDTO converterParaDTO(OrdemServico ordem) {
-        // Usar itens já carregados pelo fetch join
         List<ItemOrdemServicoResponseDTO> itensDTO = ordem.getItens().stream()
                 .map(this::converterItemParaDTO)
                 .collect(Collectors.toList());

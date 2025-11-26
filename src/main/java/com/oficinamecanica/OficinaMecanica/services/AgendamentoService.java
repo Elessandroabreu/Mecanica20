@@ -1,8 +1,13 @@
+
+// ============================================
+// 1. AgendamentoService - CORRIGIDO
+// ============================================
 package com.oficinamecanica.OficinaMecanica.services;
 
 import com.oficinamecanica.OficinaMecanica.dto.request.AgendamentoRequestDTO;
 import com.oficinamecanica.OficinaMecanica.dto.response.AgendamentoResponseDTO;
 import com.oficinamecanica.OficinaMecanica.enums.StatusAgendamento;
+import com.oficinamecanica.OficinaMecanica.enums.UserRole;
 import com.oficinamecanica.OficinaMecanica.models.Agendamento;
 import com.oficinamecanica.OficinaMecanica.models.Cliente;
 import com.oficinamecanica.OficinaMecanica.models.Usuario;
@@ -34,11 +39,30 @@ public class AgendamentoService {
         Cliente cliente = clienteRepository.findById(dto.cdCliente())
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
+        // ✅ VALIDAR SE CLIENTE ESTÁ ATIVO
+        if (!cliente.getAtivo()) {
+            throw new RuntimeException("Cliente inativo não pode criar agendamentos");
+        }
+
         Veiculo veiculo = veiculoRepository.findById(dto.cdVeiculo())
                 .orElseThrow(() -> new RuntimeException("Veículo não encontrado"));
 
+        // ✅ VALIDAR SE VEÍCULO PERTENCE AO CLIENTE
+        if (!veiculo.getCliente().getCdCliente().equals(cliente.getCdCliente())) {
+            throw new RuntimeException("Veículo não pertence ao cliente informado");
+        }
+
         Usuario mecanico = usuarioRepository.findById(dto.cdMecanico())
                 .orElseThrow(() -> new RuntimeException("Mecânico não encontrado"));
+
+        // ✅ VALIDAR SE USUÁRIO É MECÂNICO
+        if (!mecanico.getAtivo()) {
+            throw new RuntimeException("Mecânico inativo não pode ser atribuído");
+        }
+
+        if (!mecanico.getRoles().contains(UserRole.ROLE_MECANICO)) {
+            throw new RuntimeException("Usuário " + mecanico.getNmUsuario() + " não possui perfil de mecânico");
+        }
 
         Agendamento agendamento = Agendamento.builder()
                 .cliente(cliente)
@@ -82,7 +106,7 @@ public class AgendamentoService {
 
         agendamento.setObservacoes(dto.observacoes());
         agendamento.setStatus(dto.status());
-        agendamento.setDataAgendamento(dto.dataAgendamento().atStartOfDay());  // atualiza a data do agendamento
+        agendamento.setDataAgendamento(dto.dataAgendamento().atStartOfDay());
 
         Agendamento atualizado = agendamentoRepository.save(agendamento);
         return converterParaDTO(atualizado);
