@@ -33,6 +33,24 @@ public class OrdemServicoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
+    @PatchMapping("/{id}/iniciar")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MECANICO')")
+    @Operation(summary = "Iniciar ordem de serviço")
+    public ResponseEntity<OrdemServicoResponseDTO> iniciar(@PathVariable Integer id) {
+        OrdemServicoResponseDTO response = ordemServicoService.iniciar(id);
+        return ResponseEntity.ok(response);
+    }
+
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @Operation(summary = "Atualizar ordem de serviço")
+    public ResponseEntity<OrdemServicoResponseDTO> atualizar(
+            @PathVariable Integer id,
+            @Valid @RequestBody OrdemServicoRequestDTO dto) {
+        OrdemServicoResponseDTO response = ordemServicoService.atualizar(id, dto);
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Buscar ordem de serviço por ID")

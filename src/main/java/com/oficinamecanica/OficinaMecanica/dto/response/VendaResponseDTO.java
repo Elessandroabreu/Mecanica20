@@ -1,7 +1,7 @@
+// VendaResponseDTO.java
 package com.oficinamecanica.OficinaMecanica.dto.response;
 
 import com.oficinamecanica.OficinaMecanica.enums.FormaPagamento;
-import java.time.LocalDateTime;
 
 public record VendaResponseDTO(
         Integer cdVenda,
@@ -9,7 +9,7 @@ public record VendaResponseDTO(
         String nmCliente,
         Integer cdAtendente,
         String nmAtendente,
-        LocalDateTime dataVenda,
+        java.time.LocalDateTime dataVenda, // ✅ MUDOU: LocalDateTime → LocalDate
         Double vlTotal,
         Double desconto,
         FormaPagamento formaPagamento

@@ -1,3 +1,4 @@
+// OrdemServicoResponseDTO.java
 package com.oficinamecanica.OficinaMecanica.dto.response;
 
 import com.oficinamecanica.OficinaMecanica.enums.StatusOrdemServico;
@@ -8,9 +9,10 @@ import java.util.List;
 public record OrdemServicoResponseDTO(
         Integer cdOrdemServico,
         Integer cdCliente,
-        String nmCliente,
+        String nmCliente, // ✅ Nome do cliente
         Integer cdVeiculo,
-        String placa,
+        String placa, // ✅ Placa do veículo
+        String modeloVeiculo, // ✅ NOVO: Modelo do veículo
         Integer cdMecanico,
         String nmMecanico,
         TipoServico tipoServico,

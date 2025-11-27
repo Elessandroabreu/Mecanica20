@@ -16,6 +16,7 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -347,6 +348,48 @@ public class OrdemServicoService {
         }
     }
 
+    @Transactional
+    public OrdemServicoResponseDTO iniciar(Integer id) {
+        log.info("Iniciando ordem de serviço ID: {}", id);
+
+        OrdemServico ordem = ordemServicoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Ordem de serviço não encontrada: " + id));
+
+        if (ordem.getStatusOrdemServico() != StatusOrdemServico.AGUARDANDO) {
+            throw new RuntimeException("Apenas ordens aguardando podem ser iniciadas");
+        }
+
+        ordem.setStatusOrdemServico(StatusOrdemServico.EM_ANDAMENTO);
+        OrdemServico atualizada = ordemServicoRepository.save(ordem);
+
+        return converterParaDTO(ordemServicoRepository.findByIdWithItens(atualizada.getCdOrdemServico()));
+    }
+
+    @Transactional
+    public OrdemServicoResponseDTO atualizar(Integer id, OrdemServicoRequestDTO dto) {
+        log.info("Atualizando ordem de serviço ID: {}", id);
+
+        OrdemServico ordem = ordemServicoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Ordem de serviço não encontrada: " + id));
+
+        if (ordem.getStatusOrdemServico() != StatusOrdemServico.AGUARDANDO) {
+            throw new RuntimeException("Apenas ordens aguardando podem ser editadas");
+        }
+
+        // Atualizar dados básicos
+        if (dto.observacoes() != null) {
+            ordem.setObservacoes(dto.observacoes());
+        }
+
+        if (dto.diagnostico() != null) {
+            ordem.setDiagnostico(dto.diagnostico());
+        }
+
+        OrdemServico atualizada = ordemServicoRepository.save(ordem);
+
+        return converterParaDTO(ordemServicoRepository.findByIdWithItens(atualizada.getCdOrdemServico()));
+    }
+
     @Transactional(rollbackFor = Exception.class)
     public void cancelar(Integer id) {
         log.info("Cancelando ordem de serviço ID: {}", id);
@@ -394,18 +437,21 @@ public class OrdemServicoService {
     }
 
     private OrdemServicoResponseDTO converterParaDTO(OrdemServico ordem) {
-        List<ItemOrdemServicoResponseDTO> itensDTO = ordem.getItens().stream()
+        List<ItemOrdemServicoResponseDTO> itensDTO = ordem.getItens() != null
+                ? ordem.getItens().stream()
                 .map(this::converterItemParaDTO)
-                .collect(Collectors.toList());
+                .collect(Collectors.toList())
+                : new ArrayList<>();
 
         return new OrdemServicoResponseDTO(
                 ordem.getCdOrdemServico(),
-                ordem.getCliente().getCdCliente(),
-                ordem.getCliente().getNmCliente(),
-                ordem.getVeiculo().getCdVeiculo(),
-                ordem.getVeiculo().getPlaca(),
-                ordem.getMecanico().getCdUsuario(),
-                ordem.getMecanico().getNmUsuario(),
+                ordem.getCliente() != null ? ordem.getCliente().getCdCliente() : null,
+                ordem.getCliente() != null ? ordem.getCliente().getNmCliente() : null, // ✅ Nome do cliente
+                ordem.getVeiculo() != null ? ordem.getVeiculo().getCdVeiculo() : null,
+                ordem.getVeiculo() != null ? ordem.getVeiculo().getPlaca() : null, // ✅ Placa
+                ordem.getVeiculo() != null ? ordem.getVeiculo().getModelo() : null, // ✅ NOVO: Modelo
+                ordem.getMecanico() != null ? ordem.getMecanico().getCdUsuario() : null,
+                ordem.getMecanico() != null ? ordem.getMecanico().getNmUsuario() : null,
                 ordem.getTipoServico(),
                 ordem.getStatusOrdemServico(),
                 ordem.getDataAbertura(),
