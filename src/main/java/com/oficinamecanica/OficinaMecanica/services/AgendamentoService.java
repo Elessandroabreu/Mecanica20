@@ -1,30 +1,38 @@
-
-// ============================================
-// 1. AgendamentoService - CORRIGIDO
-// ============================================
 package com.oficinamecanica.OficinaMecanica.services;
 
 import com.oficinamecanica.OficinaMecanica.dto.request.AgendamentoRequestDTO;
 import com.oficinamecanica.OficinaMecanica.dto.response.AgendamentoResponseDTO;
 import com.oficinamecanica.OficinaMecanica.enums.StatusAgendamento;
+import com.oficinamecanica.OficinaMecanica.enums.StatusOrdemServico;
 import com.oficinamecanica.OficinaMecanica.enums.UserRole;
 import com.oficinamecanica.OficinaMecanica.models.Agendamento;
 import com.oficinamecanica.OficinaMecanica.models.Cliente;
+import com.oficinamecanica.OficinaMecanica.models.OrdemServico;
 import com.oficinamecanica.OficinaMecanica.models.Usuario;
 import com.oficinamecanica.OficinaMecanica.models.Veiculo;
 import com.oficinamecanica.OficinaMecanica.repositories.AgendamentoRepository;
 import com.oficinamecanica.OficinaMecanica.repositories.ClienteRepository;
+import com.oficinamecanica.OficinaMecanica.repositories.OrdemServicoRepository;
 import com.oficinamecanica.OficinaMecanica.repositories.UsuarioRepository;
 import com.oficinamecanica.OficinaMecanica.repositories.VeiculoRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
 
+/**
+ * Serviço para gerenciar Agendamentos
+ *
+ * SINCRONIZAÇÃO COM ORDEM DE SERVIÇO:
+ * - Quando agendamento muda para EM_ANDAMENTO → OS muda para EM_ANDAMENTO
+ * - Quando agendamento muda para CONCLUIDO → OS muda para CONCLUIDA
+ * - Quando agendamento é CANCELADO → OS muda para CANCELADA
+ */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AgendamentoService {
@@ -33,37 +41,21 @@ public class AgendamentoService {
     private final ClienteRepository clienteRepository;
     private final VeiculoRepository veiculoRepository;
     private final UsuarioRepository usuarioRepository;
+    private final OrdemServicoRepository ordemServicoRepository;
 
+    // ========================================
+    // 1️⃣ CRIAR AGENDAMENTO
+    // ========================================
     @Transactional
     public AgendamentoResponseDTO criar(AgendamentoRequestDTO dto) {
+        log.info("📅 Criando agendamento para cliente: {}", dto.cdCliente());
 
-        Cliente cliente = clienteRepository.findById(dto.cdCliente())
-                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+        Cliente cliente = buscarClienteAtivo(dto.cdCliente());
+        Veiculo veiculo = buscarVeiculo(dto.cdVeiculo());
+        Usuario mecanico = buscarMecanicoAtivo(dto.cdMecanico());
 
-        // ✅ VALIDAR SE CLIENTE ESTÁ ATIVO
-        if (!cliente.getAtivo()) {
-            throw new RuntimeException("Cliente inativo não pode criar agendamentos");
-        }
-
-        Veiculo veiculo = veiculoRepository.findById(dto.cdVeiculo())
-                .orElseThrow(() -> new RuntimeException("Veículo não encontrado"));
-
-        // ✅ VALIDAR SE VEÍCULO PERTENCE AO CLIENTE
-        if (!veiculo.getCliente().getCdCliente().equals(cliente.getCdCliente())) {
-            throw new RuntimeException("Veículo não pertence ao cliente informado");
-        }
-
-        Usuario mecanico = usuarioRepository.findById(dto.cdMecanico())
-                .orElseThrow(() -> new RuntimeException("Mecânico não encontrado"));
-
-        // ✅ VALIDAR SE USUÁRIO É MECÂNICO
-        if (!mecanico.getAtivo()) {
-            throw new RuntimeException("Mecânico inativo não pode ser atribuído");
-        }
-
-        if (!mecanico.getRoles().contains(UserRole.ROLE_MECANICO)) {
-            throw new RuntimeException("Usuário " + mecanico.getNmUsuario() + " não possui perfil de mecânico");
-        }
+        // Validar disponibilidade do mecânico
+        validarDisponibilidadeMecanico(dto.cdMecanico(), dto.dataAgendamento());
 
         Agendamento agendamento = Agendamento.builder()
                 .cliente(cliente)
@@ -71,18 +63,104 @@ public class AgendamentoService {
                 .mecanico(mecanico)
                 .observacoes(dto.observacoes())
                 .status(dto.status() != null ? dto.status() : StatusAgendamento.AGENDADO)
-                .dataAgendamento(dto.dataAgendamento()) // ✅ SIMPLES: Apenas data
+                .dataAgendamento(dto.dataAgendamento())
                 .build();
 
         Agendamento salvo = agendamentoRepository.save(agendamento);
+        log.info("✅ Agendamento criado com ID: {}", salvo.getCdAgendamento());
+
         return converterParaDTO(salvo);
     }
+
+    // ========================================
+    // 2️⃣ ATUALIZAR STATUS DO AGENDAMENTO
+    // ========================================
+    @Transactional
+    public AgendamentoResponseDTO atualizarStatus(Integer id, StatusAgendamento novoStatus) {
+        log.info("🔄 Atualizando status do agendamento {} para: {}", id, novoStatus);
+
+        Agendamento agendamento = agendamentoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
+
+        StatusAgendamento statusAntigo = agendamento.getStatus();
+        agendamento.setStatus(novoStatus);
+
+        Agendamento atualizado = agendamentoRepository.save(agendamento);
+
+        // 🔹 SINCRONIZAR COM ORDEM DE SERVIÇO (se existir)
+        sincronizarComOrdemServico(agendamento, novoStatus);
+
+        log.info("✅ Status do agendamento alterado: {} → {}", statusAntigo, novoStatus);
+
+        return converterParaDTO(atualizado);
+    }
+
+    // ========================================
+    // 3️⃣ SINCRONIZAÇÃO BIDIRECIONAL
+    // ========================================
+
+    /**
+     * Sincroniza mudanças do Agendamento com a Ordem de Serviço vinculada
+     *
+     * MAPEAMENTO:
+     * - AGENDADO → AGUARDANDO
+     * - EM_ANDAMENTO → EM_ANDAMENTO
+     * - CONCLUIDO → CONCLUIDA
+     * - CANCELADO → CANCELADA
+     */
+    @Transactional
+    private void sincronizarComOrdemServico(Agendamento agendamento, StatusAgendamento novoStatus) {
+        if (agendamento.getOrdemServico() == null) {
+            log.info("ℹ️ Agendamento não possui OS vinculada");
+            return;
+        }
+
+        OrdemServico os = agendamento.getOrdemServico();
+        StatusOrdemServico novoStatusOS = mapearStatusAgendamentoParaOS(novoStatus);
+
+        if (novoStatusOS != null && os.getStatusOrdemServico() != novoStatusOS) {
+            os.setStatusOrdemServico(novoStatusOS);
+            ordemServicoRepository.save(os);
+
+            log.info("🔗 Ordem de Serviço {} sincronizada: {}",
+                    os.getCdOrdemServico(), novoStatusOS);
+        }
+    }
+
+    /**
+     * Mapeia status do Agendamento para status da Ordem de Serviço
+     */
+    private StatusOrdemServico mapearStatusAgendamentoParaOS(StatusAgendamento statusAgendamento) {
+        return switch (statusAgendamento) {
+            case AGENDADO -> StatusOrdemServico.AGUARDANDO;
+            case EM_ANDAMENTO -> StatusOrdemServico.EM_ANDAMENTO;
+            case CONCLUIDO -> StatusOrdemServico.CONCLUIDA;
+            case CANCELADO -> StatusOrdemServico.CANCELADA;
+        };
+    }
+
+    // ========================================
+    // 🔧 MÉTODOS DE CONSULTA
+    // ========================================
 
     @Transactional(readOnly = true)
     public AgendamentoResponseDTO buscarPorId(Integer id) {
         Agendamento agendamento = agendamentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
         return converterParaDTO(agendamento);
+    }
+
+    // ✅ NOVO: Listar TODOS os agendamentos (incluindo os criados automaticamente)
+    @Transactional(readOnly = true)
+    public List<AgendamentoResponseDTO> listarTodos() {
+        log.info("📋 Listando todos os agendamentos");
+        List<Agendamento> agendamentos = agendamentoRepository.findAll();
+        log.info("✅ Total de agendamentos encontrados: {}", agendamentos.size());
+
+        return agendamentos.stream()
+                .map(this::converterParaDTO)
+                .sorted((a, b) -> b.dataAgendamento().compareTo(a.dataAgendamento())) // Mais recentes primeiro
+                .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
@@ -101,12 +179,16 @@ public class AgendamentoService {
 
     @Transactional
     public AgendamentoResponseDTO atualizar(Integer id, AgendamentoRequestDTO dto) {
-
         Agendamento agendamento = agendamentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
 
         agendamento.setObservacoes(dto.observacoes());
-        agendamento.setStatus(dto.status());
+
+        // Se mudar status, usa o método específico para sincronizar
+        if (dto.status() != null && dto.status() != agendamento.getStatus()) {
+            return atualizarStatus(id, dto.status());
+        }
+
         agendamento.setDataAgendamento(dto.dataAgendamento());
 
         Agendamento atualizado = agendamentoRepository.save(agendamento);
@@ -115,11 +197,65 @@ public class AgendamentoService {
 
     @Transactional
     public void cancelar(Integer id) {
-        Agendamento agendamento = agendamentoRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
+        atualizarStatus(id, StatusAgendamento.CANCELADO);
+    }
 
-        agendamento.setStatus(StatusAgendamento.CANCELADO);
-        agendamentoRepository.save(agendamento);
+    // ========================================
+    // 🔧 MÉTODOS AUXILIARES
+    // ========================================
+
+    private void validarDisponibilidadeMecanico(Integer cdMecanico, LocalDate dataAgendamento) {
+        List<Agendamento> agendamentos = agendamentoRepository
+                .findByMecanico_CdUsuarioAndDataAgendamentoAndStatusNot(
+                        cdMecanico,
+                        dataAgendamento,
+                        StatusAgendamento.CANCELADO
+                );
+
+        if (!agendamentos.isEmpty()) {
+            throw new RuntimeException(
+                    "❌ Mecânico já possui agendamento para o dia " + dataAgendamento +
+                            ". Escolha outro dia ou outro mecânico."
+            );
+        }
+    }
+
+    private Cliente buscarClienteAtivo(Integer id) {
+        Cliente cliente = clienteRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+
+        if (!cliente.getAtivo()) {
+            throw new RuntimeException("❌ Cliente inativo não pode criar agendamentos");
+        }
+
+        return cliente;
+    }
+
+    private Veiculo buscarVeiculo(Integer id) {
+        Veiculo veiculo = veiculoRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Veículo não encontrado"));
+
+        // Validar se veículo pertence ao cliente
+        if (veiculo.getCliente() == null) {
+            throw new RuntimeException("❌ Veículo sem cliente associado");
+        }
+
+        return veiculo;
+    }
+
+    private Usuario buscarMecanicoAtivo(Integer id) {
+        Usuario mecanico = usuarioRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("Mecânico não encontrado"));
+
+        if (!mecanico.getAtivo()) {
+            throw new RuntimeException("❌ Mecânico inativo não pode ser atribuído");
+        }
+
+        if (!mecanico.getRoles().contains(UserRole.ROLE_MECANICO)) {
+            throw new RuntimeException("❌ Usuário não possui perfil de mecânico");
+        }
+
+        return mecanico;
     }
 
     private AgendamentoResponseDTO converterParaDTO(Agendamento agendamento) {
@@ -136,5 +272,4 @@ public class AgendamentoService {
                 agendamento.getDataAgendamento()
         );
     }
-
 }

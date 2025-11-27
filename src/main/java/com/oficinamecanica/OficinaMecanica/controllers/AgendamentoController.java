@@ -2,6 +2,7 @@ package com.oficinamecanica.OficinaMecanica.controllers;
 
 import com.oficinamecanica.OficinaMecanica.dto.request.AgendamentoRequestDTO;
 import com.oficinamecanica.OficinaMecanica.dto.response.AgendamentoResponseDTO;
+import com.oficinamecanica.OficinaMecanica.enums.StatusAgendamento;
 import com.oficinamecanica.OficinaMecanica.services.AgendamentoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -13,6 +14,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/api/agendamentos")
@@ -38,6 +40,16 @@ public class AgendamentoController {
         return ResponseEntity.ok(response);
     }
 
+    // ✅ NOVO: Listar TODOS os agendamentos (incluindo criados automaticamente)
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @Operation(summary = "Listar todos os agendamentos",
+            description = "Retorna todos os agendamentos, incluindo os criados automaticamente pelas OS")
+    public ResponseEntity<List<AgendamentoResponseDTO>> listarTodos() {
+        List<AgendamentoResponseDTO> response = agendamentoService.listarTodos();
+        return ResponseEntity.ok(response);
+    }
+
     @GetMapping("/mecanico/{cdMecanico}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Listar agendamentos de um mecânico")
@@ -58,8 +70,24 @@ public class AgendamentoController {
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Atualizar agendamento")
     public ResponseEntity<AgendamentoResponseDTO> atualizar(@PathVariable Integer id,
-                                                             @Valid @RequestBody AgendamentoRequestDTO dto) {
+                                                            @Valid @RequestBody AgendamentoRequestDTO dto) {
         AgendamentoResponseDTO response = agendamentoService.atualizar(id, dto);
+        return ResponseEntity.ok(response);
+    }
+
+    // ✅ Endpoint específico para MECÂNICO mudar status
+    @PatchMapping("/{id}/status")
+    @PreAuthorize("hasAnyRole('ADMIN', 'MECANICO')")
+    @Operation(summary = "Atualizar status do agendamento (sincroniza com OS)",
+            description = "Quando mecânico muda status, a Ordem de Serviço vinculada também é atualizada")
+    public ResponseEntity<AgendamentoResponseDTO> atualizarStatus(
+            @PathVariable Integer id,
+            @RequestBody Map<String, String> body) {
+
+        String statusStr = body.get("status");
+        StatusAgendamento novoStatus = StatusAgendamento.valueOf(statusStr);
+
+        AgendamentoResponseDTO response = agendamentoService.atualizarStatus(id, novoStatus);
         return ResponseEntity.ok(response);
     }
 
