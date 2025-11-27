@@ -17,9 +17,5 @@ public record ServicoRequestDTO(
         @NotNull(message = "Valor do serviço é obrigatório")
         @Positive(message = "Valor do serviço deve ser positivo")
         @DecimalMin(value = "0.01", message = "Valor deve ser maior que zero")
-        Double vlServico,
-
-        @NotNull(message = "Tempo estimado é obrigatório")
-        @Positive(message = "Tempo estimado deve ser positivo")
-        Integer tmpEstimado
+        Double vlServico
 ) {}

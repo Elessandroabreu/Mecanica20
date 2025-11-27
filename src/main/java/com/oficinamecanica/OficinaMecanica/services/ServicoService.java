@@ -23,7 +23,6 @@ public class ServicoService {
                 .nmServico(dto.nmServico())
                 .dsServico(dto.dsServico())
                 .vlServico(dto.vlServico())
-                .tmpEstimado(dto.tmpEstimado())
                 .ativo(true)
                 .build();
 
@@ -53,7 +52,6 @@ public class ServicoService {
         servico.setNmServico(dto.nmServico());
         servico.setDsServico(dto.dsServico());
         servico.setVlServico(dto.vlServico());
-        servico.setTmpEstimado(dto.tmpEstimado());
 
         Servico atualizado = servicoRepository.save(servico);
         return converterParaDTO(atualizado);
@@ -73,9 +71,7 @@ public class ServicoService {
                 servico.getNmServico(),
                 servico.getDsServico(),
                 servico.getVlServico(),
-                servico.getTmpEstimado(),
                 servico.getAtivo()
-
         );
     }
 }

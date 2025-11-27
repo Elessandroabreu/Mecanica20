@@ -5,6 +5,5 @@ public record ServicoResponseDTO(
         String nmServico,
         String dsServico,
         Double vlServico,
-        Integer tmpEstimado,
         Boolean ativo
 ) {}

@@ -25,9 +25,6 @@ public class Servico {
     @Column(name = "VLSERVICO", nullable = false)
     private Double vlServico;
 
-    @Column(name = "TMPESTIMADO", nullable = false)
-    private Integer tmpEstimado;
-
     @Column(name = "ATIVO", nullable = false)
     private Boolean ativo = true;
 }
