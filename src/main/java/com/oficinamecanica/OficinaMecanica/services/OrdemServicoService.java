@@ -88,7 +88,15 @@ public class OrdemServicoService {
             criarAgendamentoAutomatico(salva, dto.dataAgendamento());
         }
 
-        return converterParaDTO(ordemServicoRepository.findByIdWithItens(salva.getCdOrdemServico()));
+        // ✅ CRÍTICO: Buscar novamente COM os itens carregados
+        OrdemServico ordemComItens = ordemServicoRepository.findByIdWithItens(salva.getCdOrdemServico());
+
+        // ✅ VERIFICAÇÃO DE SEGURANÇA
+        if (ordemComItens == null) {
+            throw new RuntimeException("Erro ao carregar ordem de serviço criada");
+        }
+
+        return converterParaDTO(ordemComItens);
     }
 
     // ✅ NOVO MÉTODO: Validar disponibilidade do mecânico

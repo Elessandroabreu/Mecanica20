@@ -6,6 +6,7 @@ import com.oficinamecanica.OficinaMecanica.enums.TipoServico;
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 
 @Entity
@@ -74,7 +75,8 @@ public class OrdemServico {
 
     @OneToMany(mappedBy = "ordemServico", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<ItemOrdemServico> itens;
+    @Builder.Default // ✅ Adicionar esta anotação
+    private List<ItemOrdemServico> itens = new ArrayList<>();
 
     @PrePersist
     protected void onCreate() {
