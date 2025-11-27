@@ -4,6 +4,7 @@ import com.oficinamecanica.OficinaMecanica.dto.request.OrdemServicoRequestDTO;
 import com.oficinamecanica.OficinaMecanica.dto.response.ItemOrdemServicoResponseDTO;
 import com.oficinamecanica.OficinaMecanica.dto.response.OrdemServicoResponseDTO;
 import com.oficinamecanica.OficinaMecanica.enums.FormaPagamento;
+import com.oficinamecanica.OficinaMecanica.enums.StatusAgendamento;
 import com.oficinamecanica.OficinaMecanica.enums.StatusOrdemServico;
 import com.oficinamecanica.OficinaMecanica.enums.TipoServico;
 import com.oficinamecanica.OficinaMecanica.models.*;
@@ -13,6 +14,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -30,6 +32,7 @@ public class OrdemServicoService {
     private final ServicoRepository servicoRepository;
     private final ItemOrdemServicoRepository itemOrdemServicoRepository;
     private final FaturamentoRepository faturamentoRepository;
+    private final AgendamentoRepository agendamentoRepository;
 
     @Transactional
     public OrdemServicoResponseDTO criar(OrdemServicoRequestDTO dto) {
@@ -39,7 +42,6 @@ public class OrdemServicoService {
         Cliente cliente = clienteRepository.findById(dto.cdCliente())
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado com ID: " + dto.cdCliente()));
 
-        // ✅ VALIDAR SE CLIENTE ESTÁ ATIVO
         if (!cliente.getAtivo()) {
             throw new RuntimeException("Cliente inativo não pode criar ordens de serviço");
         }
@@ -50,8 +52,12 @@ public class OrdemServicoService {
         Usuario mecanico = usuarioRepository.findById(dto.cdMecanico())
                 .orElseThrow(() -> new RuntimeException("Mecânico não encontrado com ID: " + dto.cdMecanico()));
 
-        // ✅ VALIDAR SE É REALMENTE UM MECÂNICO
         validarMecanico(mecanico);
+
+        // ✅ VALIDAR DATA DE AGENDAMENTO (se for ordem de serviço)
+        if (dto.tipoServico() == TipoServico.ORDEM_DE_SERVICO && dto.dataAgendamento() != null) {
+            validarDisponibilidadeMecanico(dto.cdMecanico(), dto.dataAgendamento());
+        }
 
         OrdemServico ordem = OrdemServico.builder()
                 .cliente(cliente)
@@ -72,12 +78,52 @@ public class OrdemServicoService {
         OrdemServico salva = ordemServicoRepository.save(ordem);
         log.info("Ordem de serviço criada com ID: {}", salva.getCdOrdemServico());
 
-        // ✅ CORRIGIDO: Passa o tipo de serviço para o método
+        // Adicionar itens
         if (dto.itens() != null && !dto.itens().isEmpty()) {
             adicionarItens(salva, dto.itens());
         }
 
+        // ✅ CRIAR AGENDAMENTO AUTOMÁTICO (se for ordem de serviço e tiver data)
+        if (dto.tipoServico() == TipoServico.ORDEM_DE_SERVICO && dto.dataAgendamento() != null) {
+            criarAgendamentoAutomatico(salva, dto.dataAgendamento());
+        }
+
         return converterParaDTO(ordemServicoRepository.findByIdWithItens(salva.getCdOrdemServico()));
+    }
+
+    // ✅ NOVO MÉTODO: Validar disponibilidade do mecânico
+    private void validarDisponibilidadeMecanico(Integer cdMecanico, LocalDate dataAgendamento) {
+        // Buscar agendamentos do mecânico para aquele dia
+        List<Agendamento> agendamentos = agendamentoRepository
+                .findByMecanico_CdUsuarioAndDataAgendamentoAndStatusNot(
+                        cdMecanico,
+                        dataAgendamento,
+                        StatusAgendamento.CANCELADO
+                );
+
+        if (!agendamentos.isEmpty()) {
+            throw new RuntimeException(
+                    "Mecânico já possui agendamento para o dia " + dataAgendamento +
+                            ". Escolha outro dia ou outro mecânico."
+            );
+        }
+    }
+
+    // ✅ NOVO MÉTODO: Criar agendamento automático
+    private void criarAgendamentoAutomatico(OrdemServico ordem, LocalDate dataAgendamento) {
+        Agendamento agendamento = Agendamento.builder()
+                .cliente(ordem.getCliente())
+                .veiculo(ordem.getVeiculo())
+                .mecanico(ordem.getMecanico())
+                .dataAgendamento(dataAgendamento)
+                .status(StatusAgendamento.AGENDADO)
+                .observacoes("Agendamento criado automaticamente da OS #" + ordem.getCdOrdemServico())
+                .ordemServico(ordem)
+                .build();
+
+        agendamentoRepository.save(agendamento);
+        log.info("Agendamento criado automaticamente para OS {} no dia {}",
+                ordem.getCdOrdemServico(), dataAgendamento);
     }
 
     // ✅ MÉTODO CORRIGIDO - Verifica o tipo antes de dar baixa
@@ -190,9 +236,9 @@ public class OrdemServicoService {
                 .collect(Collectors.toList());
     }
 
-    // ✅ MÉTODO CORRIGIDO - Validação e baixa no mesmo loop
+    // ✅ MÉTODO ATUALIZADO - Aprovar orçamento com data de agendamento
     @Transactional(rollbackFor = Exception.class)
-    public OrdemServicoResponseDTO aprovarOrcamento(Integer id) {
+    public OrdemServicoResponseDTO aprovarOrcamento(Integer id, LocalDate dataAgendamento) {
         log.info("Aprovando orçamento ID: {}", id);
 
         OrdemServico ordem = ordemServicoRepository.findById(id)
@@ -206,16 +252,19 @@ public class OrdemServicoService {
             throw new RuntimeException("Orçamento já foi aprovado anteriormente");
         }
 
-        // ✅ CORRIGIDO: Validar e dar baixa no MESMO LOOP (evita race condition)
+        // ✅ VALIDAR DISPONIBILIDADE DO MECÂNICO (se data foi informada)
+        if (dataAgendamento != null) {
+            validarDisponibilidadeMecanico(ordem.getMecanico().getCdUsuario(), dataAgendamento);
+        }
+
+        // Validar e dar baixa no estoque
         List<ItemOrdemServico> itens = itemOrdemServicoRepository.findByOrdemServico_CdOrdemServico(id);
 
         for (ItemOrdemServico item : itens) {
             if (item.getProduto() != null) {
-                // Buscar produto atualizado do banco (evita usar cache)
                 Produto produto = produtoRepository.findById(item.getProduto().getCdProduto())
                         .orElseThrow(() -> new RuntimeException("Produto não encontrado: " + item.getProduto().getCdProduto()));
 
-                // Validar estoque disponível
                 if (produto.getQtdEstoque() < item.getQuantidade()) {
                     throw new RuntimeException(
                             "Estoque insuficiente para aprovar orçamento. Produto: " + produto.getNmProduto() +
@@ -224,7 +273,6 @@ public class OrdemServicoService {
                     );
                 }
 
-                // ✅ DAR BAIXA IMEDIATAMENTE APÓS VALIDAÇÃO
                 produto.setQtdEstoque(produto.getQtdEstoque() - item.getQuantidade());
                 produtoRepository.save(produto);
                 log.info("Estoque atualizado ao aprovar orçamento - Produto: {}, Novo estoque: {}",
@@ -238,6 +286,12 @@ public class OrdemServicoService {
         ordem.setStatusOrdemServico(StatusOrdemServico.AGUARDANDO);
 
         OrdemServico atualizada = ordemServicoRepository.save(ordem);
+
+        // ✅ CRIAR AGENDAMENTO AUTOMÁTICO (se data foi informada)
+        if (dataAgendamento != null) {
+            criarAgendamentoAutomatico(atualizada, dataAgendamento);
+        }
+
         log.info("Orçamento aprovado e convertido em ordem de serviço: {}", id);
 
         return converterParaDTO(ordemServicoRepository.findByIdWithItens(atualizada.getCdOrdemServico()));

@@ -39,4 +39,8 @@ public class Agendamento {
 
     @Column(name = "OBSERVACOES", length = 1000)
     private String observacoes;
+
+    @OneToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "CDORDEMSERVICO")
+    private OrdemServico ordemServico;
 }

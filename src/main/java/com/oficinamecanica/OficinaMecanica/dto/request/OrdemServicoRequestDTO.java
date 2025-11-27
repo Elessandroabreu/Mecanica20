@@ -4,6 +4,7 @@ import com.oficinamecanica.OficinaMecanica.enums.TipoServico;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
+import java.time.LocalDate;
 import java.util.List;
 
 public record OrdemServicoRequestDTO(
@@ -19,6 +20,9 @@ public record OrdemServicoRequestDTO(
         @NotNull(message = "Tipo de serviço é obrigatório")
         TipoServico tipoServico,
 
+        // ✅ NOVO CAMPO: Data para agendar o serviço
+        LocalDate dataAgendamento,
+
         @PositiveOrZero(message = "Valor da mão de obra deve ser zero ou positivo")
         Double vlMaoObra,
 
@@ -33,12 +37,12 @@ public record OrdemServicoRequestDTO(
 
         List<ItemDTO> itens
 ) {
-    public record ItemDTO(
-            Integer cdProduto,
-            Integer cdServico,
+        public record ItemDTO(
+                Integer cdProduto,
+                Integer cdServico,
 
-            @NotNull(message = "Quantidade é obrigatória")
-            @PositiveOrZero(message = "Quantidade deve ser zero ou positiva")
-            Integer quantidade
-    ) {}
+                @NotNull(message = "Quantidade é obrigatória")
+                @PositiveOrZero(message = "Quantidade deve ser zero ou positiva")
+                Integer quantidade
+        ) {}
 }

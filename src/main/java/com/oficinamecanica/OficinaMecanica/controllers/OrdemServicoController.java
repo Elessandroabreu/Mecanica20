@@ -13,6 +13,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Map;
 
@@ -59,8 +60,15 @@ public class OrdemServicoController {
     @PatchMapping("/{id}/aprovar-orcamento")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Aprovar orçamento e converter em ordem de serviço")
-    public ResponseEntity<OrdemServicoResponseDTO> aprovarOrcamento(@PathVariable Integer id) {
-        OrdemServicoResponseDTO response = ordemServicoService.aprovarOrcamento(id);
+    public ResponseEntity<OrdemServicoResponseDTO> aprovarOrcamento(
+            @PathVariable Integer id,
+            @RequestBody Map<String, String> body) {
+
+        // ✅ Receber dataAgendamento do body
+        String dataStr = body.get("dataAgendamento");
+        LocalDate dataAgendamento = dataStr != null ? LocalDate.parse(dataStr) : null;
+
+        OrdemServicoResponseDTO response = ordemServicoService.aprovarOrcamento(id, dataAgendamento);
         return ResponseEntity.ok(response);
     }
 

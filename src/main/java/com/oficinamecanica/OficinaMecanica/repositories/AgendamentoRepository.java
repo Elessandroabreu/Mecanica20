@@ -10,9 +10,9 @@ import org.springframework.stereotype.Repository;
 import java.time.LocalDate; // ✅ MUDOU
 import java.util.List;
 
+
 @Repository
 public interface AgendamentoRepository extends JpaRepository<Agendamento, Integer> {
-
 
     List<Agendamento> findByStatus(StatusAgendamento status);
 
@@ -22,4 +22,14 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Intege
 
     @Query("SELECT a FROM Agendamento a WHERE a.dataAgendamento >= :dataAtual AND a.status = 'AGENDADO'")
     List<Agendamento> findAgendamentosFuturos(@Param("dataAtual") LocalDate dataAtual);
+
+    // ✅ NOVO: Buscar agendamentos do mecânico em uma data (exceto cancelados)
+    @Query("SELECT a FROM Agendamento a WHERE a.mecanico.cdUsuario = :cdMecanico " +
+            "AND a.dataAgendamento = :dataAgendamento " +
+            "AND a.status != :status")
+    List<Agendamento> findByMecanico_CdUsuarioAndDataAgendamentoAndStatusNot(
+            @Param("cdMecanico") Integer cdMecanico,
+            @Param("dataAgendamento") LocalDate dataAgendamento,
+            @Param("status") StatusAgendamento status
+    );
 }

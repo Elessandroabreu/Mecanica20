@@ -68,6 +68,10 @@ public class OrdemServico {
     @Column(name = "APROVADO")
     private Boolean aprovado = false;
 
+    @OneToOne(mappedBy = "ordemServico", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
+    @JsonIgnore
+    private Agendamento agendamento;
+
     @OneToMany(mappedBy = "ordemServico", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<ItemOrdemServico> itens;
