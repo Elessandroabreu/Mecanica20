@@ -20,6 +20,7 @@ public record AgendamentoRequestDTO(
         @NotNull(message = "Data é obrigatória")
         LocalDate dataAgendamento,
 
+        @Size(max = 1000, message = "Observações deve ter no máximo 1000 caracteres")
         String observacoes,
 
         StatusAgendamento status

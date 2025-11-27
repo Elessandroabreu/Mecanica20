@@ -20,6 +20,7 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -70,7 +71,7 @@ public class AgendamentoService {
                 .mecanico(mecanico)
                 .observacoes(dto.observacoes())
                 .status(dto.status() != null ? dto.status() : StatusAgendamento.AGENDADO)
-                .dataAgendamento(dto.dataAgendamento().atStartOfDay())
+                .dataAgendamento(dto.dataAgendamento()) // ✅ SIMPLES: Apenas data
                 .build();
 
         Agendamento salvo = agendamentoRepository.save(agendamento);
@@ -93,7 +94,7 @@ public class AgendamentoService {
 
     @Transactional(readOnly = true)
     public List<AgendamentoResponseDTO> listarAgendamentosFuturos() {
-        return agendamentoRepository.findAgendamentosFuturos(LocalDateTime.now()).stream()
+        return agendamentoRepository.findAgendamentosFuturos(LocalDate.now()).stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }
@@ -106,7 +107,7 @@ public class AgendamentoService {
 
         agendamento.setObservacoes(dto.observacoes());
         agendamento.setStatus(dto.status());
-        agendamento.setDataAgendamento(dto.dataAgendamento().atStartOfDay());
+        agendamento.setDataAgendamento(dto.dataAgendamento());
 
         Agendamento atualizado = agendamentoRepository.save(agendamento);
         return converterParaDTO(atualizado);
@@ -135,4 +136,5 @@ public class AgendamentoService {
                 agendamento.getDataAgendamento()
         );
     }
+
 }

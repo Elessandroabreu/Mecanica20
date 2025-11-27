@@ -3,7 +3,7 @@ package com.oficinamecanica.OficinaMecanica.models;
 import com.oficinamecanica.OficinaMecanica.enums.StatusAgendamento;
 import jakarta.persistence.*;
 import lombok.*;
-import java.time.LocalDateTime;
+import java.time.LocalDate; // ✅ MUDOU: Era LocalDateTime
 
 @Entity
 @Table(name = "AGENDAMENTO")
@@ -31,7 +31,7 @@ public class Agendamento {
     private Usuario mecanico;
 
     @Column(name = "DATAAGENDAMENTO", nullable = false)
-    private LocalDateTime dataAgendamento;
+    private LocalDate dataAgendamento;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS", nullable = false, length = 20)
