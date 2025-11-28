@@ -1,6 +1,5 @@
 package com.oficinamecanica.OficinaMecanica.repositories;
 
-import com.oficinamecanica.OficinaMecanica.enums.StatusAgendamento;
 import com.oficinamecanica.OficinaMecanica.models.Agendamento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;

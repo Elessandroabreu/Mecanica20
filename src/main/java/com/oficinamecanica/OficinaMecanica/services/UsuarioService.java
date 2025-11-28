@@ -1,6 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.UsuarioRequestDTO;
+import com.oficinamecanica.OficinaMecanica.dto.request.UsuarioDTO;
 import com.oficinamecanica.OficinaMecanica.dto.response.UsuarioResponseDTO;
 import com.oficinamecanica.OficinaMecanica.models.Usuario;
 import com.oficinamecanica.OficinaMecanica.repositories.UsuarioRepository;
@@ -20,7 +20,7 @@ public class UsuarioService {
     private final PasswordEncoder passwordEncoder;
 
     @Transactional
-    public UsuarioResponseDTO criar(UsuarioRequestDTO dto) {
+    public UsuarioResponseDTO criar(UsuarioDTO dto) {
 
         if (usuarioRepository.existsByEmail(dto.email())) {
             throw new RuntimeException("Email já cadastrado");
@@ -82,7 +82,7 @@ public class UsuarioService {
     }
 
     @Transactional
-    public UsuarioResponseDTO atualizar(Integer id, UsuarioRequestDTO dto) {
+    public UsuarioResponseDTO atualizar(Integer id, UsuarioDTO dto) {
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 

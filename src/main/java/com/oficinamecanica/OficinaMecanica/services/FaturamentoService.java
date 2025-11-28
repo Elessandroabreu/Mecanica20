@@ -1,6 +1,5 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
-import com.oficinamecanica.OficinaMecanica.dto.response.FaturamentoResponseDTO;
 import com.oficinamecanica.OficinaMecanica.models.Faturamento;
 import com.oficinamecanica.OficinaMecanica.repositories.FaturamentoRepository;
 import lombok.RequiredArgsConstructor;

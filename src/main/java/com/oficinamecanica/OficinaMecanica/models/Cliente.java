@@ -21,10 +21,10 @@ public class Cliente {
     @Column(name = "NMCLIENTE", nullable = false, length = 120)
     private String nmCliente;
 
-    @Column(name = "NUCPF", length = 14, unique = true)
+    @Column(name = "CPF", nullable = false, length = 14, unique = true)
     private String nuCPF;
 
-    @Column(name = "NUTELEFONE", length = 20)
+    @Column(name = "TELEFONE", nullable = false,length = 20)
     private String nuTelefone;
 
     @Column(name = "DSENDERECO", length = 255)

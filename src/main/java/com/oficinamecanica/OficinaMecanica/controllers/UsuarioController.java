@@ -1,6 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.controllers;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.UsuarioRequestDTO;
+import com.oficinamecanica.OficinaMecanica.dto.request.UsuarioDTO;
 import com.oficinamecanica.OficinaMecanica.dto.response.UsuarioResponseDTO;
 import com.oficinamecanica.OficinaMecanica.services.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,7 +25,7 @@ public class UsuarioController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Criar novo usuário", description = "Apenas ADMIN pode criar usuários")
-    public ResponseEntity<UsuarioResponseDTO> criar(@Valid @RequestBody UsuarioRequestDTO dto) {
+    public ResponseEntity<UsuarioResponseDTO> criar(@Valid @RequestBody UsuarioDTO dto) {
         UsuarioResponseDTO response = usuarioService.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -58,7 +58,7 @@ public class UsuarioController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Atualizar usuário")
     public ResponseEntity<UsuarioResponseDTO> atualizar(@PathVariable Integer id,
-                                                        @Valid @RequestBody UsuarioRequestDTO dto) {
+                                                        @Valid @RequestBody UsuarioDTO dto) {
         UsuarioResponseDTO response = usuarioService.atualizar(id, dto);
         return ResponseEntity.ok(response);
     }

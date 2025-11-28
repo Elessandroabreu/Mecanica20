@@ -1,10 +1,8 @@
 package com.oficinamecanica.OficinaMecanica.enums;
 
-public enum StatusAgendamento {
+public enum Status {
     AGENDADO,
     EM_ANDAMENTO,
     CONCLUIDO,
     CANCELADO
-
-
 }

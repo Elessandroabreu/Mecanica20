@@ -1,7 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.oficinamecanica.OficinaMecanica.enums.StatusOrdemServico;
+import com.oficinamecanica.OficinaMecanica.enums.Status;
 import com.oficinamecanica.OficinaMecanica.enums.TipoServico;
 import jakarta.persistence.*;
 import lombok.*;
@@ -39,29 +39,27 @@ public class OrdemServico {
     private TipoServico tipoServico;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "STATUSORDEMSERVICO", nullable = false, length = 20)
-    private StatusOrdemServico statusOrdemServico = StatusOrdemServico.AGUARDANDO;
+    @Column(name = "STATUS", nullable = false, length = 20)
+    private Status status = Status.AGENDADO;
 
     @Column(name = "DATAABERTURA", nullable = false)
     private LocalDateTime dataAbertura;
 
-    @Column(name = "DATAFECHAMENTO")
-    private LocalDateTime dataFechamento;
-
+    // SOMENTE PRODUTOS
     @Column(name = "VLPECAS")
     private Double vlPecas = 0.0;
 
-    @Column(name = "VLMAOOBRA")
-    private Double vlMaoObra = 0.0;
+    // SOMENTE SERVIÇOS PADRÃO (classe Servico)
+    @Column(name = "VLSERVICOS")
+    private Double vlServicos = 0.0;
 
+    // MÃO DE OBRA AVULSA DIGITADA MANUALMENTE
+    @Column(name = "VLMAOOBRAEXTRA")
+    private Double vlMaoObraExtra = 0.0;
+
+    // SOMA TOTAL
     @Column(name = "VLTOTAL")
     private Double vlTotal = 0.0;
-
-    @Column(name = "DESCONTO")
-    private Double desconto = 0.0;
-
-    @Column(name = "OBSERVACOES", length = 1000)
-    private String observacoes;
 
     @Column(name = "DIAGNOSTICO", length = 1000)
     private String diagnostico;
@@ -75,7 +73,7 @@ public class OrdemServico {
 
     @OneToMany(mappedBy = "ordemServico", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
-    @Builder.Default // ✅ Adicionar esta anotação
+    @Builder.Default
     private List<ItemOrdemServico> itens = new ArrayList<>();
 
     @PrePersist

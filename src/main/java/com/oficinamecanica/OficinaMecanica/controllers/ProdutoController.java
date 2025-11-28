@@ -1,7 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.controllers;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.ProdutoRequestDTO;
-import com.oficinamecanica.OficinaMecanica.dto.response.ProdutoResponseDTO;
+import com.oficinamecanica.OficinaMecanica.dto.request.ProdutoDTO;
 import com.oficinamecanica.OficinaMecanica.services.ProdutoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,7 +24,7 @@ public class ProdutoController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Cadastrar novo produto")
-    public ResponseEntity<ProdutoResponseDTO> criar(@Valid @RequestBody ProdutoRequestDTO dto) {
+    public ResponseEntity<ProdutoResponseDTO> criar(@Valid @RequestBody ProdutoDTO dto) {
         ProdutoResponseDTO response = produtoService.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -58,7 +57,7 @@ public class ProdutoController {
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Atualizar produto")
     public ResponseEntity<ProdutoResponseDTO> atualizar(@PathVariable Integer id,
-                                                        @Valid @RequestBody ProdutoRequestDTO dto) {
+                                                        @Valid @RequestBody ProdutoDTO dto) {
         ProdutoResponseDTO response = produtoService.atualizar(id, dto);
         return ResponseEntity.ok(response);
     }

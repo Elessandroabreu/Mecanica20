@@ -1,6 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.controllers;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.ClienteRequestDTO;
+import com.oficinamecanica.OficinaMecanica.dto.request.ClienteDTO;
 import com.oficinamecanica.OficinaMecanica.dto.response.ClienteResponseDTO;
 import com.oficinamecanica.OficinaMecanica.services.ClienteService;
 import io.swagger.v3.oas.annotations.Operation;
@@ -25,7 +25,7 @@ public class ClienteController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Cadastrar novo cliente")
-    public ResponseEntity<ClienteResponseDTO> criar(@Valid @RequestBody ClienteRequestDTO dto) {
+    public ResponseEntity<ClienteResponseDTO> criar(@Valid @RequestBody ClienteDTO dto) {
         ClienteResponseDTO response = clienteService.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -50,7 +50,7 @@ public class ClienteController {
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Atualizar cliente")
     public ResponseEntity<ClienteResponseDTO> atualizar(@PathVariable Integer id,
-                                                        @Valid @RequestBody ClienteRequestDTO dto) {
+                                                        @Valid @RequestBody ClienteDTO dto) {
         ClienteResponseDTO response = clienteService.atualizar(id, dto);
         return ResponseEntity.ok(response);
     }

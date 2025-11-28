@@ -1,7 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.ProdutoRequestDTO;
-import com.oficinamecanica.OficinaMecanica.dto.response.ProdutoResponseDTO;
+import com.oficinamecanica.OficinaMecanica.dto.request.ProdutoDTO;
 import com.oficinamecanica.OficinaMecanica.models.Produto;
 import com.oficinamecanica.OficinaMecanica.repositories.ProdutoRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,7 @@ public class ProdutoService {
     private final ProdutoRepository produtoRepository;
 
     @Transactional
-    public ProdutoResponseDTO criar(ProdutoRequestDTO dto) {
+    public ProdutoResponseDTO criar(ProdutoDTO dto) {
         Produto produto = Produto.builder()
                 .nmProduto(dto.nmProduto())
                 .dsProduto(dto.dsProduto())
@@ -63,7 +62,7 @@ public class ProdutoService {
     }
 
     @Transactional
-    public ProdutoResponseDTO atualizar(Integer id, ProdutoRequestDTO dto) {
+    public ProdutoResponseDTO atualizar(Integer id, ProdutoDTO dto) {
         Produto produto = produtoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
 

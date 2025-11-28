@@ -1,8 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.controllers;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.OrdemServicoRequestDTO;
-import com.oficinamecanica.OficinaMecanica.dto.response.OrdemServicoResponseDTO;
-import com.oficinamecanica.OficinaMecanica.enums.StatusOrdemServico;
+import com.oficinamecanica.OficinaMecanica.dto.request.OrdemServicoDTO;
+import com.oficinamecanica.OficinaMecanica.enums.Status;
 import com.oficinamecanica.OficinaMecanica.services.OrdemServicoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,7 +27,7 @@ public class OrdemServicoController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Criar nova ordem de serviço ou orçamento")
-    public ResponseEntity<OrdemServicoResponseDTO> criar(@Valid @RequestBody OrdemServicoRequestDTO dto) {
+    public ResponseEntity<OrdemServicoResponseDTO> criar(@Valid @RequestBody OrdemServicoDTO dto) {
         OrdemServicoResponseDTO response = ordemServicoService.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -46,7 +45,7 @@ public class OrdemServicoController {
     @Operation(summary = "Atualizar ordem de serviço")
     public ResponseEntity<OrdemServicoResponseDTO> atualizar(
             @PathVariable Integer id,
-            @Valid @RequestBody OrdemServicoRequestDTO dto) {
+            @Valid @RequestBody OrdemServicoDTO dto) {
         OrdemServicoResponseDTO response = ordemServicoService.atualizar(id, dto);
         return ResponseEntity.ok(response);
     }
@@ -62,7 +61,7 @@ public class OrdemServicoController {
     @GetMapping("/status/{status}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Listar ordens por status")
-    public ResponseEntity<List<OrdemServicoResponseDTO>> listarPorStatus(@PathVariable StatusOrdemServico status) {
+    public ResponseEntity<List<OrdemServicoResponseDTO>> listarPorStatus(@PathVariable Status status) {
         List<OrdemServicoResponseDTO> response = ordemServicoService.listarPorStatus(status);
         return ResponseEntity.ok(response);
     }

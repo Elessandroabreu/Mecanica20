@@ -2,11 +2,10 @@ package com.oficinamecanica.OficinaMecanica.dto.request;
 
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.br.CPF;
 
-public record ClienteRequestDTO(
+public record ClienteDTO(
         @NotBlank(message = "Nome do cliente é obrigatório")
         @Size(max = 120, message = "Nome deve ter no máximo 120 caracteres")
         String nmCliente,
@@ -14,14 +13,14 @@ public record ClienteRequestDTO(
         @NotBlank(message = "CPF obrigatório")
         @CPF(message = "CPF inválido")
         @Size(max = 14, message = "CPF deve ter no máximo 14 caracteres")
-        String nuCPF,
+        String CPF,
 
         @NotBlank
         @Size(max = 20, message = "Telefone deve ter no máximo 20 caracteres")
-        String nuTelefone,
+        String telefone,
 
         @Size(max = 255, message = "Endereço deve ter no máximo 255 caracteres")
-        String dsEndereco,
+        String endereco,
 
         @NotBlank(message = "E-mail obrigatório")
         @Email(message = "Email inválido")

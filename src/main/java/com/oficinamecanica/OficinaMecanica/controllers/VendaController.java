@@ -1,7 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.controllers;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.VendaRequestDTO;
-import com.oficinamecanica.OficinaMecanica.dto.response.VendaResponseDTO;
+import com.oficinamecanica.OficinaMecanica.dto.request.VendaDTO;
 import com.oficinamecanica.OficinaMecanica.services.VendaService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -28,7 +27,7 @@ public class VendaController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Realizar nova venda no balcão")
-    public ResponseEntity<VendaResponseDTO> criar(@Valid @RequestBody VendaRequestDTO dto) {
+    public ResponseEntity<VendaResponseDTO> criar(@Valid @RequestBody VendaDTO dto) {
         VendaResponseDTO response = vendaService.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

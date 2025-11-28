@@ -22,20 +22,17 @@ public class Produto {
     @Column(name = "DSPRODUTO", length = 500)
     private String dsProduto;
 
-    @Column(name = "CATEGORIA", length = 100)
+    @Column(name = "CATEGORIA", nullable = false, length = 100)
     private String categoria;
 
-    @Column(name = "VLCUSTO", nullable = false)
-    private Double vlCusto;
+    @Column(name = "VLPRODUTO", nullable = false)
+    private Double vlProduto;
 
-    @Column(name = "VLVENDA", nullable = false)
-    private Double vlVenda;
-
-    @Column(name = "QTDESTOQUE", nullable = false)
+    @Column(name = "QTDESTOQUE")
     private Integer qtdEstoque = 0;
 
-    @Column(name = "QTDMINIMO", nullable = false)
-    private Integer qtdMinimo = 5;
+    @Column(name = "QTDMINIMOESTOQUE", nullable = false)
+    private Integer qtdMinimoEstoque = 5;
 
     @Column(name = "ATIVO", nullable = false)
     private Boolean ativo = true;

@@ -1,11 +1,8 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.OrdemServicoRequestDTO;
-import com.oficinamecanica.OficinaMecanica.dto.response.ItemOrdemServicoResponseDTO;
-import com.oficinamecanica.OficinaMecanica.dto.response.OrdemServicoResponseDTO;
+import com.oficinamecanica.OficinaMecanica.dto.request.OrdemServicoDTO;
 import com.oficinamecanica.OficinaMecanica.enums.FormaPagamento;
-import com.oficinamecanica.OficinaMecanica.enums.StatusAgendamento;
-import com.oficinamecanica.OficinaMecanica.enums.StatusOrdemServico;
+import com.oficinamecanica.OficinaMecanica.enums.Status;
 import com.oficinamecanica.OficinaMecanica.enums.TipoServico;
 import com.oficinamecanica.OficinaMecanica.models.*;
 import com.oficinamecanica.OficinaMecanica.repositories.*;
@@ -48,7 +45,7 @@ public class OrdemServicoService {
     // 1️⃣ CRIAR ORÇAMENTO OU ORDEM DE SERVIÇO
     // ========================================
     @Transactional
-    public OrdemServicoResponseDTO criar(OrdemServicoRequestDTO dto) {
+    public OrdemServicoResponseDTO criar(OrdemServicoDTO dto) {
         log.info("🆕 Criando {} para cliente: {}", dto.tipoServico(), dto.cdCliente());
 
         // Validar entidades
@@ -67,7 +64,7 @@ public class OrdemServicoService {
                 .veiculo(veiculo)
                 .mecanico(mecanico)
                 .tipoServico(dto.tipoServico())
-                .statusOrdemServico(StatusOrdemServico.AGUARDANDO)
+                .statusOrdemServico(Status.AGUARDANDO)
                 .dataAbertura(LocalDateTime.now())
                 .vlPecas(0.0)
                 .vlMaoObra(dto.vlMaoObra() != null ? dto.vlMaoObra() : 0.0)
@@ -149,7 +146,7 @@ public class OrdemServicoService {
         // Converter orçamento em ordem de serviço
         ordem.setAprovado(true);
         ordem.setTipoServico(TipoServico.ORDEM_DE_SERVICO);
-        ordem.setStatusOrdemServico(StatusOrdemServico.AGUARDANDO);
+        ordem.setStatusOrdemServico(Status.AGUARDANDO);
 
         OrdemServico atualizada = ordemServicoRepository.save(ordem);
 
@@ -173,11 +170,11 @@ public class OrdemServicoService {
         OrdemServico ordem = ordemServicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ordem de serviço não encontrada: " + id));
 
-        if (ordem.getStatusOrdemServico() != StatusOrdemServico.AGUARDANDO) {
+        if (ordem.getStatusOrdemServico() != Status.AGUARDANDO) {
             throw new RuntimeException("❌ Apenas ordens AGUARDANDO podem ser iniciadas");
         }
 
-        ordem.setStatusOrdemServico(StatusOrdemServico.EM_ANDAMENTO);
+        ordem.setStatusOrdemServico(Status.EM_ANDAMENTO);
         OrdemServico atualizada = ordemServicoRepository.save(ordem);
 
         // 🔹 ATUALIZAR AGENDAMENTO (se existir)
@@ -198,16 +195,16 @@ public class OrdemServicoService {
         OrdemServico ordem = ordemServicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ordem de serviço não encontrada: " + id));
 
-        if (ordem.getStatusOrdemServico() == StatusOrdemServico.CONCLUIDA) {
+        if (ordem.getStatusOrdemServico() == Status.CONCLUIDA) {
             throw new RuntimeException("❌ Ordem de serviço já foi concluída");
         }
 
-        if (ordem.getStatusOrdemServico() == StatusOrdemServico.CANCELADA) {
+        if (ordem.getStatusOrdemServico() == Status.CANCELADA) {
             throw new RuntimeException("❌ Ordem de serviço cancelada não pode ser concluída");
         }
 
         // Concluir OS
-        ordem.setStatusOrdemServico(StatusOrdemServico.CONCLUIDA);
+        ordem.setStatusOrdemServico(Status.CONCLUIDA);
         ordem.setDataFechamento(LocalDateTime.now());
 
         OrdemServico concluida = ordemServicoRepository.save(ordem);
@@ -233,11 +230,11 @@ public class OrdemServicoService {
         OrdemServico ordem = ordemServicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ordem de serviço não encontrada: " + id));
 
-        if (ordem.getStatusOrdemServico() == StatusOrdemServico.CONCLUIDA) {
+        if (ordem.getStatusOrdemServico() == Status.CONCLUIDA) {
             throw new RuntimeException("❌ Não é possível cancelar ordem de serviço concluída");
         }
 
-        if (ordem.getStatusOrdemServico() == StatusOrdemServico.CANCELADA) {
+        if (ordem.getStatusOrdemServico() == Status.CANCELADA) {
             throw new RuntimeException("❌ Ordem de serviço já está cancelada");
         }
 
@@ -259,7 +256,7 @@ public class OrdemServicoService {
         }
 
         // Cancelar OS
-        ordem.setStatusOrdemServico(StatusOrdemServico.CANCELADA);
+        ordem.setStatusOrdemServico(Status.CANCELADA);
         ordemServicoRepository.save(ordem);
 
         // 🔹 CANCELAR AGENDAMENTO (se existir)
@@ -277,11 +274,11 @@ public class OrdemServicoService {
      * REGRA: Só dá baixa no estoque se for ORDEM_DE_SERVICO (não ORCAMENTO)
      */
     @Transactional
-    private void adicionarItens(OrdemServico ordem, List<OrdemServicoRequestDTO.ItemDTO> itensDTO) {
+    private void adicionarItens(OrdemServico ordem, List<OrdemServicoDTO.ItemDTO> itensDTO) {
         double totalPecas = 0.0;
         boolean darBaixaEstoque = (ordem.getTipoServico() == TipoServico.ORDEM_DE_SERVICO);
 
-        for (OrdemServicoRequestDTO.ItemDTO itemDTO : itensDTO) {
+        for (OrdemServicoDTO.ItemDTO itemDTO : itensDTO) {
             ItemOrdemServico item = new ItemOrdemServico();
             item.setOrdemServico(ordem);
             item.setQuantidade(itemDTO.quantidade());
@@ -465,7 +462,7 @@ public class OrdemServicoService {
     }
 
     @Transactional(readOnly = true)
-    public List<OrdemServicoResponseDTO> listarPorStatus(StatusOrdemServico status) {
+    public List<OrdemServicoResponseDTO> listarPorStatus(Status status) {
         return ordemServicoRepository.findByStatusOrdemServico(status).stream()
                 .map(ordem -> converterParaDTO(
                         ordemServicoRepository.findByIdWithItens(ordem.getCdOrdemServico())
@@ -483,11 +480,11 @@ public class OrdemServicoService {
     }
 
     @Transactional
-    public OrdemServicoResponseDTO atualizar(Integer id, OrdemServicoRequestDTO dto) {
+    public OrdemServicoResponseDTO atualizar(Integer id, OrdemServicoDTO dto) {
         OrdemServico ordem = ordemServicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ordem de serviço não encontrada: " + id));
 
-        if (ordem.getStatusOrdemServico() != StatusOrdemServico.AGUARDANDO) {
+        if (ordem.getStatusOrdemServico() != Status.AGUARDANDO) {
             throw new RuntimeException("❌ Apenas ordens AGUARDANDO podem ser editadas");
         }
 

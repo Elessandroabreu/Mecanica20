@@ -25,8 +25,8 @@ public class Usuario {
     @Column(name = "EMAIL", nullable = false, unique = true, length = 150)
     private String email;
 
-    @Column(name = "PASSWORD", length = 255)
-    private String password;
+    @Column(name = "SENHA", length = 255)
+    private String senha;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "PROVIDER", nullable = false, length = 20)
@@ -39,10 +39,10 @@ public class Usuario {
     @Enumerated(EnumType.STRING)
     private Set<UserRole> roles;
 
-    @Column(name = "NUTELEFONE", length = 20)
+    @Column(name = "TELEFONE", length = 20)
     private String nuTelefone;
 
-    @Column(name = "NUCPF", length = 14, unique = true)
+    @Column(name = "CPF", length = 14, unique = true)
     private String nuCPF;
 
     @Column(name = "ATIVO", nullable = false)

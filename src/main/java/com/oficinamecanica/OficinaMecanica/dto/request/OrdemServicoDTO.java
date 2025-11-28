@@ -7,7 +7,7 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 
-public record OrdemServicoRequestDTO(
+public record OrdemServicoDTO(
         @NotNull(message = "Cliente é obrigatório")
         Integer cdCliente,
 
@@ -20,7 +20,6 @@ public record OrdemServicoRequestDTO(
         @NotNull(message = "Tipo de serviço é obrigatório")
         TipoServico tipoServico,
 
-        // ✅ NOVO CAMPO: Data para agendar o serviço
         LocalDate dataAgendamento,
 
         @PositiveOrZero(message = "Valor da mão de obra deve ser zero ou positivo")

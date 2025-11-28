@@ -1,7 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.VeiculoRequestDTO;
-import com.oficinamecanica.OficinaMecanica.dto.response.VeiculoResponseDTO;
+import com.oficinamecanica.OficinaMecanica.dto.request.VeiculoDTO;
 import com.oficinamecanica.OficinaMecanica.models.Cliente;
 import com.oficinamecanica.OficinaMecanica.models.Veiculo;
 import com.oficinamecanica.OficinaMecanica.repositories.ClienteRepository;
@@ -47,7 +46,7 @@ public class VeiculoService {
     }
 
     @Transactional
-    public VeiculoResponseDTO criar(VeiculoRequestDTO dto) {
+    public VeiculoResponseDTO criar(VeiculoDTO dto) {
         // Valida se cliente existe
         Cliente cliente = clienteRepository.findById(dto.cdCliente())
                 .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
@@ -71,7 +70,7 @@ public class VeiculoService {
     }
 
     @Transactional
-    public VeiculoResponseDTO atualizar(Integer id, VeiculoRequestDTO dto) {
+    public VeiculoResponseDTO atualizar(Integer id, VeiculoDTO dto) {
         Veiculo veiculo = veiculoRepository.findById(id)
                 .orElseThrow(() -> new EntityNotFoundException("Veículo não encontrado"));
 

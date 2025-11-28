@@ -1,8 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.controllers;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.AgendamentoRequestDTO;
-import com.oficinamecanica.OficinaMecanica.dto.response.AgendamentoResponseDTO;
-import com.oficinamecanica.OficinaMecanica.enums.StatusAgendamento;
+import com.oficinamecanica.OficinaMecanica.dto.request.AgendamentoDTO;
 import com.oficinamecanica.OficinaMecanica.services.AgendamentoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -27,7 +25,7 @@ public class AgendamentoController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Criar novo agendamento")
-    public ResponseEntity<AgendamentoResponseDTO> criar(@Valid @RequestBody AgendamentoRequestDTO dto) {
+    public ResponseEntity<AgendamentoResponseDTO> criar(@Valid @RequestBody AgendamentoDTO dto) {
         AgendamentoResponseDTO response = agendamentoService.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -70,7 +68,7 @@ public class AgendamentoController {
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Atualizar agendamento")
     public ResponseEntity<AgendamentoResponseDTO> atualizar(@PathVariable Integer id,
-                                                            @Valid @RequestBody AgendamentoRequestDTO dto) {
+                                                            @Valid @RequestBody AgendamentoDTO dto) {
         AgendamentoResponseDTO response = agendamentoService.atualizar(id, dto);
         return ResponseEntity.ok(response);
     }

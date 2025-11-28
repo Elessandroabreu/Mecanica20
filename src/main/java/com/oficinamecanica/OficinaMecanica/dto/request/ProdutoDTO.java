@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
-public record ProdutoRequestDTO(
+public record ProdutoDTO(
         @NotBlank(message = "Nome do produto é obrigatório")
         @Size(max = 150, message = "Nome deve ter no máximo 150 caracteres")
         String nmProduto,
@@ -33,7 +33,7 @@ public record ProdutoRequestDTO(
         @PositiveOrZero(message = "Quantidade mínima deve ser zero ou positiva")
         Integer qtdMinimo
 ) {
-    public ProdutoRequestDTO {
+    public ProdutoDTO {
         if (vlVenda != null && vlCusto != null && vlVenda <= vlCusto) {
             throw new IllegalArgumentException("Preço de venda deve ser maior que o custo");
         }

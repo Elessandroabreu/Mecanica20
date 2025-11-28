@@ -1,9 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.AgendamentoRequestDTO;
-import com.oficinamecanica.OficinaMecanica.dto.response.AgendamentoResponseDTO;
-import com.oficinamecanica.OficinaMecanica.enums.StatusAgendamento;
-import com.oficinamecanica.OficinaMecanica.enums.StatusOrdemServico;
+import com.oficinamecanica.OficinaMecanica.dto.request.AgendamentoDTO;
+import com.oficinamecanica.OficinaMecanica.enums.Status;
 import com.oficinamecanica.OficinaMecanica.enums.UserRole;
 import com.oficinamecanica.OficinaMecanica.models.Agendamento;
 import com.oficinamecanica.OficinaMecanica.models.Cliente;
@@ -47,7 +45,7 @@ public class AgendamentoService {
     // 1️⃣ CRIAR AGENDAMENTO
     // ========================================
     @Transactional
-    public AgendamentoResponseDTO criar(AgendamentoRequestDTO dto) {
+    public AgendamentoResponseDTO criar(AgendamentoDTO dto) {
         log.info("📅 Criando agendamento para cliente: {}", dto.cdCliente());
 
         Cliente cliente = buscarClienteAtivo(dto.cdCliente());
@@ -116,7 +114,7 @@ public class AgendamentoService {
         }
 
         OrdemServico os = agendamento.getOrdemServico();
-        StatusOrdemServico novoStatusOS = mapearStatusAgendamentoParaOS(novoStatus);
+        Status novoStatusOS = mapearStatusAgendamentoParaOS(novoStatus);
 
         if (novoStatusOS != null && os.getStatusOrdemServico() != novoStatusOS) {
             os.setStatusOrdemServico(novoStatusOS);
@@ -130,12 +128,12 @@ public class AgendamentoService {
     /**
      * Mapeia status do Agendamento para status da Ordem de Serviço
      */
-    private StatusOrdemServico mapearStatusAgendamentoParaOS(StatusAgendamento statusAgendamento) {
+    private Status mapearStatusAgendamentoParaOS(StatusAgendamento statusAgendamento) {
         return switch (statusAgendamento) {
-            case AGENDADO -> StatusOrdemServico.AGUARDANDO;
-            case EM_ANDAMENTO -> StatusOrdemServico.EM_ANDAMENTO;
-            case CONCLUIDO -> StatusOrdemServico.CONCLUIDA;
-            case CANCELADO -> StatusOrdemServico.CANCELADA;
+            case AGENDADO -> Status.AGUARDANDO;
+            case EM_ANDAMENTO -> Status.EM_ANDAMENTO;
+            case CONCLUIDO -> Status.CONCLUIDA;
+            case CANCELADO -> Status.CANCELADA;
         };
     }
 
@@ -178,7 +176,7 @@ public class AgendamentoService {
     }
 
     @Transactional
-    public AgendamentoResponseDTO atualizar(Integer id, AgendamentoRequestDTO dto) {
+    public AgendamentoResponseDTO atualizar(Integer id, AgendamentoDTO dto) {
         Agendamento agendamento = agendamentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
 

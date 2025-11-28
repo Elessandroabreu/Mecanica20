@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.PositiveOrZero;
 import java.util.List;
 
-public record VendaRequestDTO(
+public record VendaDTO(
         @NotNull(message = "Cliente é obrigatório")
         Integer cdCliente,
 

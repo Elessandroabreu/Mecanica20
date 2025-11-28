@@ -1,6 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.ClienteRequestDTO;
+import com.oficinamecanica.OficinaMecanica.dto.request.ClienteDTO;
 import com.oficinamecanica.OficinaMecanica.dto.response.ClienteResponseDTO;
 import com.oficinamecanica.OficinaMecanica.models.Cliente;
 import com.oficinamecanica.OficinaMecanica.repositories.ClienteRepository;
@@ -18,16 +18,16 @@ public class ClienteService {
     private final ClienteRepository clienteRepository;
 
     @Transactional
-    public ClienteResponseDTO criar(ClienteRequestDTO dto) {
+    public ClienteResponseDTO criar(ClienteDTO dto) {
         if (dto.nuCPF() != null && clienteRepository.existsByNuCPF(dto.nuCPF())) {
             throw new RuntimeException("CPF já cadastrado");
         }
 
         Cliente cliente = Cliente.builder()
                 .nmCliente(dto.nmCliente())
-                .nuCPF(dto.nuCPF())
-                .nuTelefone(dto.nuTelefone())
-                .dsEndereco(dto.dsEndereco())
+                .CPF(dto.CPF())
+                .Telefone(dto.Telefone())
+                .Endereco(dto.Endereco())
                 .email(dto.email())
                 .ativo(true)
                 .build();
@@ -51,7 +51,7 @@ public class ClienteService {
     }
 
     @Transactional
-    public ClienteResponseDTO atualizar(Integer id, ClienteRequestDTO dto) {
+    public ClienteResponseDTO atualizar(Integer id, ClienteDTO dto) {
         Cliente cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 

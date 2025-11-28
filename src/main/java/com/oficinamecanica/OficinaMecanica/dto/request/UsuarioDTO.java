@@ -5,12 +5,11 @@ import com.oficinamecanica.OficinaMecanica.enums.UserRole;
 import jakarta.validation.constraints.Email;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
-import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.br.CPF;
 import java.util.Set;
 
-public record UsuarioRequestDTO(
+public record UsuarioDTO(
         @NotBlank(message = "Nome é obrigatório")
         @Size(max = 120, message = "Nome deve ter no máximo 120 caracteres")
         String nmUsuario,
@@ -41,7 +40,7 @@ public record UsuarioRequestDTO(
 
         Boolean ativo
 ) {
-    public UsuarioRequestDTO {
+    public UsuarioDTO {
         if (ativo == null) {
             ativo = true;
         }

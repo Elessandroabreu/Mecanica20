@@ -1,7 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.repositories;
 
-import com.oficinamecanica.OficinaMecanica.enums.StatusOrdemServico;
-import com.oficinamecanica.OficinaMecanica.enums.TipoServico;
+import com.oficinamecanica.OficinaMecanica.enums.Status;
 import com.oficinamecanica.OficinaMecanica.models.OrdemServico;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -14,7 +13,7 @@ import java.util.List;
 public interface OrdemServicoRepository extends JpaRepository<OrdemServico, Integer> {
 
     // Listar por status
-    List<OrdemServico> findByStatusOrdemServico(StatusOrdemServico status);
+    List<OrdemServico> findByStatusOrdemServico(Status status);
 
     // Listar ordens de um mecânico
     List<OrdemServico> findByMecanico_CdUsuario(Integer cdMecanico);

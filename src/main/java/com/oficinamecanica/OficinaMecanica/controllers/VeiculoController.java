@@ -1,7 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.controllers;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.VeiculoRequestDTO;
-import com.oficinamecanica.OficinaMecanica.dto.response.VeiculoResponseDTO;
+import com.oficinamecanica.OficinaMecanica.dto.request.VeiculoDTO;
 import com.oficinamecanica.OficinaMecanica.services.VeiculoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,7 +24,7 @@ public class VeiculoController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Cadastrar novo veículo")
-    public ResponseEntity<VeiculoResponseDTO> criar(@Valid @RequestBody VeiculoRequestDTO dto) {
+    public ResponseEntity<VeiculoResponseDTO> criar(@Valid @RequestBody VeiculoDTO dto) {
         VeiculoResponseDTO response = veiculoService.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -58,7 +57,7 @@ public class VeiculoController {
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Atualizar veículo")
     public ResponseEntity<VeiculoResponseDTO> atualizar(@PathVariable Integer id,
-                                                        @Valid @RequestBody VeiculoRequestDTO dto) {
+                                                        @Valid @RequestBody VeiculoDTO dto) {
         VeiculoResponseDTO response = veiculoService.atualizar(id, dto);
         return ResponseEntity.ok(response);
     }

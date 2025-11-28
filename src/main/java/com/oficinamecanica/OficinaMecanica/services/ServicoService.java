@@ -1,7 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.ServicoRequestDTO;
-import com.oficinamecanica.OficinaMecanica.dto.response.ServicoResponseDTO;
+import com.oficinamecanica.OficinaMecanica.dto.request.ServicoDTO;
 import com.oficinamecanica.OficinaMecanica.models.Servico;
 import com.oficinamecanica.OficinaMecanica.repositories.ServicoRepository;
 import lombok.RequiredArgsConstructor;
@@ -18,7 +17,7 @@ public class ServicoService {
     private final ServicoRepository servicoRepository;
 
     @Transactional
-    public ServicoResponseDTO criar(ServicoRequestDTO dto) {
+    public ServicoResponseDTO criar(ServicoDTO dto) {
         Servico servico = Servico.builder()
                 .nmServico(dto.nmServico())
                 .dsServico(dto.dsServico())
@@ -45,7 +44,7 @@ public class ServicoService {
     }
 
     @Transactional
-    public ServicoResponseDTO atualizar(Integer id, ServicoRequestDTO dto) {
+    public ServicoResponseDTO atualizar(Integer id, ServicoDTO dto) {
         Servico servico = servicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
 

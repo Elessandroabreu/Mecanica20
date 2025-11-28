@@ -1,6 +1,5 @@
 package com.oficinamecanica.OficinaMecanica.controllers;
 
-import com.oficinamecanica.OficinaMecanica.dto.response.FaturamentoResponseDTO;
 import com.oficinamecanica.OficinaMecanica.services.FaturamentoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -1,7 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.controllers;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.ServicoRequestDTO;
-import com.oficinamecanica.OficinaMecanica.dto.response.ServicoResponseDTO;
+import com.oficinamecanica.OficinaMecanica.dto.request.ServicoDTO;
 import com.oficinamecanica.OficinaMecanica.services.ServicoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,7 +24,7 @@ public class ServicoController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Cadastrar novo tipo de serviço")
-    public ResponseEntity<ServicoResponseDTO> criar(@Valid @RequestBody ServicoRequestDTO dto) {
+    public ResponseEntity<ServicoResponseDTO> criar(@Valid @RequestBody ServicoDTO dto) {
         ServicoResponseDTO response = servicoService.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
@@ -50,7 +49,7 @@ public class ServicoController {
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Atualizar serviço")
     public ResponseEntity<ServicoResponseDTO> atualizar(@PathVariable Integer id,
-                                                        @Valid @RequestBody ServicoRequestDTO dto) {
+                                                        @Valid @RequestBody ServicoDTO dto) {
         ServicoResponseDTO response = servicoService.atualizar(id, dto);
         return ResponseEntity.ok(response);
     }

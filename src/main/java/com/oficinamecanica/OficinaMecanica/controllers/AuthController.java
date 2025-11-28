@@ -1,7 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.controllers;
 
 import com.oficinamecanica.OficinaMecanica.dto.request.LoginRequestDTO;
-import com.oficinamecanica.OficinaMecanica.dto.request.UsuarioRequestDTO;
+import com.oficinamecanica.OficinaMecanica.dto.request.UsuarioDTO;
 import com.oficinamecanica.OficinaMecanica.dto.response.AuthResponseDTO;
 import com.oficinamecanica.OficinaMecanica.dto.response.UsuarioResponseDTO;
 import com.oficinamecanica.OficinaMecanica.security.JwtTokenProvider;
@@ -58,7 +58,7 @@ public class AuthController {
 
     @PostMapping("/register")
     @Operation(summary = "Registrar novo usuário", description = "Cadastra um novo usuário LOCAL (com senha)")
-    public ResponseEntity<UsuarioResponseDTO> register(@Valid @RequestBody UsuarioRequestDTO dto) {
+    public ResponseEntity<UsuarioResponseDTO> register(@Valid @RequestBody UsuarioDTO dto) {
         UsuarioResponseDTO response = usuarioService.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }

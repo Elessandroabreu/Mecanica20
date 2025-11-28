@@ -1,7 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.VendaRequestDTO;
-import com.oficinamecanica.OficinaMecanica.dto.response.VendaResponseDTO;
+import com.oficinamecanica.OficinaMecanica.dto.request.VendaDTO;
 import com.oficinamecanica.OficinaMecanica.enums.UserRole;
 import com.oficinamecanica.OficinaMecanica.models.*;
 import com.oficinamecanica.OficinaMecanica.repositories.*;
@@ -25,7 +24,7 @@ public class VendaService {
     private final FaturamentoRepository faturamentoRepository;
 
     @Transactional
-    public VendaResponseDTO criar(VendaRequestDTO dto) {
+    public VendaResponseDTO criar(VendaDTO dto) {
         Cliente cliente = clienteRepository.findById(dto.cdCliente())
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
@@ -68,10 +67,10 @@ public class VendaService {
     }
 
     @Transactional
-    public void adicionarItens(Venda venda, List<VendaRequestDTO.ItemVendaDTO> itensDTO) {
+    public void adicionarItens(Venda venda, List<VendaDTO.ItemVendaDTO> itensDTO) {
         double total = 0.0;
 
-        for (VendaRequestDTO.ItemVendaDTO itemDTO : itensDTO) {
+        for (VendaDTO.ItemVendaDTO itemDTO : itensDTO) {
             Produto produto = produtoRepository.findById(itemDTO.cdProduto())
                     .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
 
