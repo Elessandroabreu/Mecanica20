@@ -43,9 +43,9 @@ public class ClienteService {
         // 3. CRIAR ENTIDADE CLIENTE
         ClienteModel cliente = ClienteModel.builder()
                 .nmCliente(dto.nmCliente())
-                .CPF(dto.CPF())
-                .Telefone(dto.Telefone())
-                .Endereco(dto.Endereco())
+                .cpf(dto.CPF())
+                .telefone(dto.Telefone())
+                .endereco(dto.Endereco())
                 .email(dto.email())
                 .ativo(true)
                 .build();
@@ -123,7 +123,7 @@ public class ClienteService {
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
         // 2. VALIDAR CPF ÚNICO (se mudou o CPF)
-        if (!cliente.getCPF().equals(dto.CPF()) &&
+        if (!cliente.getCpf().equals(dto.CPF()) &&
                 clienteRepository.existsByCPF(dto.CPF())) {
             throw new RuntimeException("CPF já cadastrado");
         }
@@ -137,7 +137,7 @@ public class ClienteService {
 
         // 4. ATUALIZAR CAMPOS
         cliente.setNmCliente(dto.nmCliente());
-        cliente.setCPF(dto.CPF());
+        cliente.setCpf(dto.CPF());
         cliente.setEmail(dto.email());
         cliente.setTelefone(dto.Telefone());
         cliente.setEndereco(dto.Endereco());
@@ -173,7 +173,7 @@ public class ClienteService {
         return new ClienteDTO(
                 cliente.getCdCliente(),
                 cliente.getNmCliente(),
-                cliente.getCPF(),
+                cliente.getCpf(),
                 cliente.getTelefone(),
                 cliente.getEndereco(),
                 cliente.getEmail(),

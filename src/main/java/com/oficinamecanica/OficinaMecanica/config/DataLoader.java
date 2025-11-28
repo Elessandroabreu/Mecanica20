@@ -52,8 +52,8 @@ public class DataLoader {
                     .senha(senhaCriptografada)
                     .provider(AuthProvider.LOCAL)
                     .roles(Set.of(UserRole.ROLE_ADMIN))
-                    .Telefone("(48) 99999-0001")
-                    .CPF("123.456.789-01")
+                    .telefone("(48) 99999-0001")
+                    .cpf("123.456.789-01")
                     .ativo(true)
                     .build();
 
@@ -67,8 +67,8 @@ public class DataLoader {
                     .senha(senhaCriptografada)
                     .provider(AuthProvider.LOCAL)
                     .roles(Set.of(UserRole.ROLE_ATENDENTE))
-                    .Telefone("(48) 99999-0002")
-                    .CPF("234.567.890-12")
+                    .telefone("(48) 99999-0002")
+                    .cpf("234.567.890-12")
                     .ativo(true)
                     .build();
 
@@ -82,8 +82,8 @@ public class DataLoader {
                     .senha(senhaCriptografada)
                     .provider(AuthProvider.LOCAL)
                     .roles(Set.of(UserRole.ROLE_MECANICO))
-                    .Telefone("(48) 99999-0003")
-                    .CPF("345.678.901-23")
+                    .telefone("(48) 99999-0003")
+                    .cpf("345.678.901-23")
                     .ativo(true)
                     .build();
 

@@ -42,8 +42,8 @@ public class UsuarioService {
                 .senha(dto.password() != null ? passwordEncoder.encode(dto.password()) : null)
                 .provider(dto.provider())
                 .roles(dto.roles())
-                .Telefone(dto.Telefone())
-                .CPF(dto.CPF())
+                .telefone(dto.Telefone())
+                .cpf(dto.CPF())
                 .providerId(dto.providerId())
                 .ativo(dto.ativo() != null ? dto.ativo() : true)
                 .build();
@@ -105,7 +105,7 @@ public class UsuarioService {
 
         // Validar CPF único (se mudou)
         if (dto.CPF() != null &&
-                !dto.CPF().equals(usuario.getCPF()) &&
+                !dto.CPF().equals(usuario.getCpf()) &&
                 usuarioRepository.existsByCPF(dto.CPF())) {
             throw new RuntimeException("CPF já cadastrado");
         }
@@ -120,7 +120,7 @@ public class UsuarioService {
         }
 
         usuario.setTelefone(dto.Telefone());
-        usuario.setCPF(dto.CPF());
+        usuario.setCpf(dto.CPF());
         usuario.setRoles(dto.roles());
         usuario.setAtivo(dto.ativo() != null ? dto.ativo() : true);
 
@@ -152,7 +152,7 @@ public class UsuarioService {
                 usuario.getProvider(),
                 usuario.getRoles(),
                 usuario.getTelefone(),
-                usuario.getCPF(),
+                usuario.getCpf(),
                 usuario.getAtivo()
         );
     }
