@@ -2,6 +2,7 @@ package com.oficinamecanica.OficinaMecanica.models;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.oficinamecanica.OficinaMecanica.enums.Status;
+import com.oficinamecanica.OficinaMecanica.enums.TipoOrdemOrcamento;
 import com.oficinamecanica.OficinaMecanica.enums.TipoServico;
 import jakarta.persistence.*;
 import lombok.*;
@@ -35,15 +36,15 @@ public class OrdemServico {
     private Usuario mecanico;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "TIPOSERVICO", nullable = false, length = 20)
-    private TipoServico tipoServico;
+    @Column(name = "TIPOORDEMORCAMENTO", nullable = false, length = 20)
+    private TipoOrdemOrcamento tipoOrdemOrcamento;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS", nullable = false, length = 20)
     private Status status = Status.AGENDADO;
 
-    @Column(name = "DATAABERTURA", nullable = false)
-    private LocalDateTime dataAbertura;
+    @Column(name = "DATAAGENDAMENTO", nullable = false)
+    private LocalDateTime dataAgendamento;
 
     // SOMENTE PRODUTOS
     @Column(name = "VLPECAS")
