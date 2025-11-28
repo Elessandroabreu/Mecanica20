@@ -1,6 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.dto;
 
-import com.oficinamecanica.OficinaMecanica.enums.TipoServico;
+import com.oficinamecanica.OficinaMecanica.enums.TipoOrdemOrcamento;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
@@ -18,7 +18,7 @@ public record OrdemServicoDTO(
         Integer cdMecanico,
 
         @NotNull(message = "Tipo de serviço é obrigatório")
-        TipoServico tipoServico,
+        TipoOrdemOrcamento tipoServico,
 
         LocalDate dataAgendamento,
 

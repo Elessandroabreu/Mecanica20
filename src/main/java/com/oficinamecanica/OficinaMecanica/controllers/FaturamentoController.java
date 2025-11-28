@@ -1,5 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.controllers;
 
+import com.oficinamecanica.OficinaMecanica.dto.FaturamentoDTO;
 import com.oficinamecanica.OficinaMecanica.services.FaturamentoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -11,6 +12,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.time.LocalDateTime;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController

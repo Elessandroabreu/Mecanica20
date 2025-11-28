@@ -1,5 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
+import com.oficinamecanica.OficinaMecanica.dto.FaturamentoDTO;
 import com.oficinamecanica.OficinaMecanica.models.Faturamento;
 import com.oficinamecanica.OficinaMecanica.repositories.FaturamentoRepository;
 import lombok.RequiredArgsConstructor;
@@ -17,14 +18,14 @@ public class FaturamentoService {
     private final FaturamentoRepository faturamentoRepository;
 
     @Transactional(readOnly = true)
-    public FaturamentoResponseDTO buscarPorId(Integer id) {
+    public FaturamentoDTO buscarPorId(Integer id) {
         Faturamento faturamento = faturamentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Faturamento não encontrado"));
         return converterParaDTO(faturamento);
     }
 
     @Transactional(readOnly = true)
-    public List<FaturamentoResponseDTO> listarPorPeriodo(LocalDateTime dataInicio, LocalDateTime dataFim) {
+    public List<FaturamentoDTO> listarPorPeriodo(LocalDateTime dataInicio, LocalDateTime dataFim) {
         return faturamentoRepository.findFaturamentosNoPeriodo(dataInicio, dataFim).stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
@@ -37,7 +38,7 @@ public class FaturamentoService {
     }
 
     @Transactional(readOnly = true)
-    public List<FaturamentoResponseDTO> listarFaturamentoDoDia() {
+    public List<FaturamentoDTO> listarFaturamentoDoDia() {
         return faturamentoRepository.findFaturamentosDoDia(LocalDateTime.now()).stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
@@ -49,27 +50,14 @@ public class FaturamentoService {
         return total != null ? total : 0.0;
     }
 
-    private FaturamentoResponseDTO converterParaDTO(Faturamento faturamento) {
-        String nomeCliente = null;
-        String tipoTransacao = null;
-
-        if (faturamento.getVenda() != null) {
-            nomeCliente = faturamento.getVenda().getClienteModel().getNmCliente();
-            tipoTransacao = "VENDA";
-        } else if (faturamento.getOrdemServico() != null) {
-            nomeCliente = faturamento.getOrdemServico().getClienteModel().getNmCliente();
-            tipoTransacao = "SERVICO";
-        }
-
-        return new FaturamentoResponseDTO(
+    private FaturamentoDTO converterParaDTO(Faturamento faturamento) {
+        return new FaturamentoDTO(
                 faturamento.getCdFaturamento(),
                 faturamento.getVenda() != null ? faturamento.getVenda().getCdVenda() : null,
                 faturamento.getOrdemServico() != null ? faturamento.getOrdemServico().getCdOrdemServico() : null,
                 faturamento.getDataVenda(),
                 faturamento.getVlTotal(),
-                faturamento.getFormaPagamento(),
-                nomeCliente,
-                tipoTransacao
+                faturamento.getFormaPagamento()
         );
     }
 }

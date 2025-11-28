@@ -18,30 +18,34 @@ public class ClienteService {
 
     @Transactional
     public ClienteDTO criar(ClienteDTO dto) {
-        // ✅ VALIDAÇÃO: CPF já existe?
-        if (dto.nuCPF() != null && clienteRepository.existsByNuCPF(dto.nuCPF())) {
+        // Validar CPF único
+        if (dto.CPF() != null && clienteRepository.existsByNuCPF(dto.CPF())) {
             throw new RuntimeException("CPF já cadastrado");
         }
 
-        // ✅ CRIAR ENTIDADE com nomes corretos dos campos
-        ClienteModel clienteModel = ClienteModel.builder()
+        // Validar email único
+        if (dto.email() != null && clienteRepository.existsByEmail(dto.email())) {
+            throw new RuntimeException("Email já cadastrado");
+        }
+
+        ClienteModel cliente = ClienteModel.builder()
                 .nmCliente(dto.nmCliente())
-                .CPF(dto.nuCPF())           // ✅ CORRIGIDO
-                .Telefone(dto.nuTelefone()) // ✅ CORRIGIDO
-                .Endereco(dto.dsEndereco()) // ✅ CORRIGIDO
+                .CPF(dto.CPF())
+                .Telefone(dto.Telefone())
+                .Endereco(dto.Endereco())
                 .email(dto.email())
                 .ativo(true)
                 .build();
 
-        ClienteModel salvo = clienteRepository.save(clienteModel);
+        ClienteModel salvo = clienteRepository.save(cliente);
         return converterParaDTO(salvo);
     }
 
     @Transactional(readOnly = true)
     public ClienteDTO buscarPorId(Integer id) {
-        ClienteModel clienteModel = clienteRepository.findById(id)
+        ClienteModel cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
-        return converterParaDTO(clienteModel);
+        return converterParaDTO(cliente);
     }
 
     @Transactional(readOnly = true)
@@ -51,40 +55,72 @@ public class ClienteService {
                 .collect(Collectors.toList());
     }
 
+    @Transactional(readOnly = true)
+    public List<ClienteDTO> listarTodos() {
+        return clienteRepository.findAll().stream()
+                .map(this::converterParaDTO)
+                .collect(Collectors.toList());
+    }
+
+    @Transactional(readOnly = true)
+    public ClienteDTO buscarPorCpf(String cpf) {
+        ClienteModel cliente = clienteRepository.findByNuCPF(cpf)
+                .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
+        return converterParaDTO(cliente);
+    }
+
+    @Transactional(readOnly = true)
+    public List<ClienteDTO> buscarPorNome(String nome) {
+        return clienteRepository.findByNmClienteContainingIgnoreCase(nome).stream()
+                .map(this::converterParaDTO)
+                .collect(Collectors.toList());
+    }
+
     @Transactional
     public ClienteDTO atualizar(Integer id, ClienteDTO dto) {
-        ClienteModel clienteModel = clienteRepository.findById(id)
+        ClienteModel cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        // ✅ ATUALIZAR com nomes corretos
-        clienteModel.setNmCliente(dto.nmCliente());
-        clienteModel.setCPF(dto.nuCPF());           // ✅ CORRIGIDO
-        clienteModel.setTelefone(dto.nuTelefone()); // ✅ CORRIGIDO
-        clienteModel.setEndereco(dto.dsEndereco()); // ✅ CORRIGIDO
-        clienteModel.setEmail(dto.email());
+        // Validar CPF único (se mudou)
+        if (!cliente.getCPF().equals(dto.CPF()) && clienteRepository.existsByNuCPF(dto.CPF())) {
+            throw new RuntimeException("CPF já cadastrado");
+        }
 
-        ClienteModel atualizado = clienteRepository.save(clienteModel);
+        // Validar email único (se mudou)
+        if (dto.email() != null && !dto.email().equals(cliente.getEmail()) &&
+                clienteRepository.existsByEmail(dto.email())) {
+            throw new RuntimeException("Email já cadastrado");
+        }
+
+        cliente.setNmCliente(dto.nmCliente());
+        cliente.setCPF(dto.CPF());
+        cliente.setEmail(dto.email());
+        cliente.setTelefone(dto.Telefone());
+        cliente.setEndereco(dto.Endereco());
+
+        ClienteModel atualizado = clienteRepository.save(cliente);
         return converterParaDTO(atualizado);
     }
 
     @Transactional
     public void deletar(Integer id) {
-        ClienteModel clienteModel = clienteRepository.findById(id)
+        ClienteModel cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
-        clienteModel.setAtivo(false);
-        clienteRepository.save(clienteModel);
+
+        // Soft delete
+        cliente.setAtivo(false);
+        clienteRepository.save(cliente);
     }
 
-    // ✅ CONVERTER ENTIDADE → DTO
-    private ClienteDTO converterParaDTO(ClienteModel clienteModel) {
+    private ClienteDTO converterParaDTO(ClienteModel cliente) {
         return new ClienteDTO(
-                clienteModel.getCdCliente(),
-                clienteModel.getNmCliente(),
-                clienteModel.getCPF(),
-                clienteModel.getTelefone(),
-                clienteModel.getEndereco(),
-                clienteModel.getEmail(),
-                clienteModel.getAtivo()
+                cliente.getCdCliente(),
+                cliente.getNmCliente(),
+                cliente.getCPF(),
+                cliente.getTelefone(),
+                cliente.getEndereco(),
+                cliente.getEmail(),
+                cliente.getAtivo()
         );
     }
 }

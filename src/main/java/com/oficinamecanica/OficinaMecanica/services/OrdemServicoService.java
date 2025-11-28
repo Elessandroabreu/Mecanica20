@@ -7,7 +7,7 @@ import com.oficinamecanica.OficinaMecanica.enums.TipoOrdemOrcamento;
 import com.oficinamecanica.OficinaMecanica.models.*;
 import com.oficinamecanica.OficinaMecanica.repositories.*;
 import lombok.RequiredArgsConstructor;
-import lombok.extern.Slf4j;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -73,7 +73,6 @@ public class OrdemServicoService {
                 .vlServicos(0.0)
                 .vlMaoObraExtra(dto.vlMaoObra() != null ? dto.vlMaoObra() : 0.0)
                 .vlTotal(0.0)
-                .observacoes(dto.observacoes())
                 .diagnostico(dto.diagnostico())
                 .aprovado(false)
                 .itens(new ArrayList<>())
