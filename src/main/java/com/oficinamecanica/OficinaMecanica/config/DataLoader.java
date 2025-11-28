@@ -49,11 +49,11 @@ public class DataLoader {
             Usuario admin = Usuario.builder()
                     .nmUsuario("João Admin Silva")
                     .email("admin@oficina.com")
-                    .password(senhaCriptografada)
+                    .senha(senhaCriptografada)
                     .provider(AuthProvider.LOCAL)
                     .roles(Set.of(UserRole.ROLE_ADMIN))
-                    .nuTelefone("(48) 99999-0001")
-                    .nuCPF("123.456.789-01")
+                    .Telefone("(48) 99999-0001")
+                    .CPF("123.456.789-01")
                     .ativo(true)
                     .build();
 
@@ -64,11 +64,11 @@ public class DataLoader {
             Usuario atendente = Usuario.builder()
                     .nmUsuario("Maria Atendente Santos")
                     .email("atendente@oficina.com")
-                    .password(senhaCriptografada)
+                    .senha(senhaCriptografada)
                     .provider(AuthProvider.LOCAL)
                     .roles(Set.of(UserRole.ROLE_ATENDENTE))
-                    .nuTelefone("(48) 99999-0002")
-                    .nuCPF("234.567.890-12")
+                    .Telefone("(48) 99999-0002")
+                    .CPF("234.567.890-12")
                     .ativo(true)
                     .build();
 
@@ -79,11 +79,11 @@ public class DataLoader {
             Usuario mecanico = Usuario.builder()
                     .nmUsuario("Carlos Mecânico Souza")
                     .email("mecanico@oficina.com")
-                    .password(senhaCriptografada)
+                    .senha(senhaCriptografada)
                     .provider(AuthProvider.LOCAL)
                     .roles(Set.of(UserRole.ROLE_MECANICO))
-                    .nuTelefone("(48) 99999-0003")
-                    .nuCPF("345.678.901-23")
+                    .Telefone("(48) 99999-0003")
+                    .CPF("345.678.901-23")
                     .ativo(true)
                     .build();
 

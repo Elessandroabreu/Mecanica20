@@ -12,8 +12,8 @@ import java.util.List;
 @Repository
 public interface VendaRepository extends JpaRepository<Venda, Integer> {
 
-    // Listar vendas de um cliente
-    List<Venda> findByCliente_CdCliente(Integer cdCliente);
+    // ✅ CORRIGIDO: Model usa clienteModel
+    List<Venda> findByClienteModel_CdCliente(Integer cdCliente);
 
     // Listar vendas de um atendente
     List<Venda> findByAtendente_CdUsuario(Integer cdAtendente);

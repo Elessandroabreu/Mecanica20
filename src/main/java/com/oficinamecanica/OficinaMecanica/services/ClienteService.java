@@ -4,6 +4,7 @@ import com.oficinamecanica.OficinaMecanica.dto.ClienteDTO;
 import com.oficinamecanica.OficinaMecanica.models.ClienteModel;
 import com.oficinamecanica.OficinaMecanica.repositories.ClienteRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -14,11 +15,11 @@ import java.util.stream.Collectors;
  * Service responsável pela lógica de negócio de Clientes
  * Gerencia: criar, buscar, atualizar e deletar clientes
  */
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class ClienteService {
 
-    // Injeção do Repository para acessar o banco de dados
     private final ClienteRepository clienteRepository;
 
     /**
@@ -27,8 +28,10 @@ public class ClienteService {
      */
     @Transactional
     public ClienteDTO criar(ClienteDTO dto) {
+        log.info("👤 Criando cliente: {}", dto.nmCliente());
+
         // 1. VALIDAR SE CPF JÁ EXISTE
-        if (dto.CPF() != null && clienteRepository.existsByNuCPF(dto.CPF())) {
+        if (dto.CPF() != null && clienteRepository.existsByCPF(dto.CPF())) {
             throw new RuntimeException("CPF já cadastrado");
         }
 
@@ -38,29 +41,28 @@ public class ClienteService {
         }
 
         // 3. CRIAR ENTIDADE CLIENTE
-        // Atenção: os campos do banco são com MAIÚSCULAS!
         ClienteModel cliente = ClienteModel.builder()
                 .nmCliente(dto.nmCliente())
-                .CPF(dto.CPF())              // Campo do banco: CPF
-                .Telefone(dto.Telefone())    // Campo do banco: Telefone
-                .Endereco(dto.Endereco())    // Campo do banco: Endereco
+                .CPF(dto.CPF())
+                .Telefone(dto.Telefone())
+                .Endereco(dto.Endereco())
                 .email(dto.email())
-                .ativo(true)                 // Novo cliente sempre começa ativo
+                .ativo(true)
                 .build();
 
         // 4. SALVAR NO BANCO
         ClienteModel salvo = clienteRepository.save(cliente);
 
-        // 5. CONVERTER PARA DTO E RETORNAR
+        log.info("✅ Cliente criado: ID {} - {}", salvo.getCdCliente(), salvo.getNmCliente());
+
         return converterParaDTO(salvo);
     }
 
     /**
      * BUSCAR CLIENTE POR ID
      */
-    @Transactional(readOnly = true) // Só leitura
+    @Transactional(readOnly = true)
     public ClienteDTO buscarPorId(Integer id) {
-        // Busca no banco, se não achar lança erro
         ClienteModel cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
@@ -69,14 +71,14 @@ public class ClienteService {
 
     /**
      * LISTAR TODOS OS CLIENTES ATIVOS
-     * Retorna apenas clientes com ativo = true
      */
     @Transactional(readOnly = true)
     public List<ClienteDTO> listarAtivos() {
-        // Busca todos os clientes ativos
+        log.info("📋 Listando clientes ativos");
+
         return clienteRepository.findByAtivoTrue().stream()
-                .map(this::converterParaDTO) // Converte cada um para DTO
-                .collect(Collectors.toList()); // Junta tudo em uma lista
+                .map(this::converterParaDTO)
+                .collect(Collectors.toList());
     }
 
     /**
@@ -94,14 +96,13 @@ public class ClienteService {
      */
     @Transactional(readOnly = true)
     public ClienteDTO buscarPorCpf(String cpf) {
-        ClienteModel cliente = clienteRepository.findByNuCPF(cpf)
+        ClienteModel cliente = clienteRepository.findByCPF(cpf)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
         return converterParaDTO(cliente);
     }
 
     /**
      * BUSCAR CLIENTES POR NOME (busca parcial)
-     * Exemplo: buscar "João" retorna "João Silva", "Maria João", etc
      */
     @Transactional(readOnly = true)
     public List<ClienteDTO> buscarPorNome(String nome) {
@@ -115,13 +116,15 @@ public class ClienteService {
      */
     @Transactional
     public ClienteDTO atualizar(Integer id, ClienteDTO dto) {
+        log.info("🔄 Atualizando cliente ID: {}", id);
+
         // 1. BUSCAR CLIENTE EXISTENTE
         ClienteModel cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
         // 2. VALIDAR CPF ÚNICO (se mudou o CPF)
         if (!cliente.getCPF().equals(dto.CPF()) &&
-                clienteRepository.existsByNuCPF(dto.CPF())) {
+                clienteRepository.existsByCPF(dto.CPF())) {
             throw new RuntimeException("CPF já cadastrado");
         }
 
@@ -141,29 +144,30 @@ public class ClienteService {
 
         // 5. SALVAR E RETORNAR
         ClienteModel atualizado = clienteRepository.save(cliente);
+
+        log.info("✅ Cliente atualizado: {}", atualizado.getNmCliente());
+
         return converterParaDTO(atualizado);
     }
 
     /**
      * DELETAR CLIENTE (SOFT DELETE)
-     * Não remove do banco, apenas marca como inativo
      */
     @Transactional
     public void deletar(Integer id) {
-        // Buscar cliente
+        log.info("🗑️ Deletando cliente ID: {}", id);
+
         ClienteModel cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        // Marcar como inativo (soft delete)
         cliente.setAtivo(false);
         clienteRepository.save(cliente);
-    }
 
-    // ========== MÉTODO AUXILIAR ==========
+        log.info("✅ Cliente marcado como inativo");
+    }
 
     /**
      * CONVERTER MODEL PARA DTO
-     * Transforma a entidade do banco em DTO
      */
     private ClienteDTO converterParaDTO(ClienteModel cliente) {
         return new ClienteDTO(

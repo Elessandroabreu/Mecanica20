@@ -7,6 +7,12 @@ import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 import java.util.List;
 
+/**
+ * DTO para Ordem de Serviço e Orçamentos
+ *
+ * IMPORTANTE: O Model OrdemServico NÃO TEM o campo "observacoes"
+ * Observações ficam no AgendamentoModel relacionado
+ */
 public record OrdemServicoDTO(
         @NotNull(message = "Cliente é obrigatório")
         Integer cdCliente,
@@ -26,10 +32,7 @@ public record OrdemServicoDTO(
         Double vlMaoObra,
 
         @PositiveOrZero(message = "Desconto deve ser zero ou positivo")
-        Double desconto,
-
-        @Size(max = 1000, message = "Observações deve ter no máximo 1000 caracteres")
-        String observacoes,
+        Double desconto, // ⚠️ NOTA: Este campo não existe no Model, está aqui apenas para compatibilidade do DTO
 
         @Size(max = 1000, message = "Diagnóstico deve ter no máximo 1000 caracteres")
         String diagnostico,

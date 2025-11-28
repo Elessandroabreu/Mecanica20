@@ -7,6 +7,8 @@ import jakarta.validation.constraints.Positive;
 import jakarta.validation.constraints.Size;
 
 public record ServicoDTO(
+        Integer cdServico, // ✅ ADICIONADO - para retorno
+
         @NotBlank(message = "Nome do serviço é obrigatório")
         @Size(max = 150, message = "Nome deve ter no máximo 150 caracteres")
         String nmServico,
@@ -17,5 +19,7 @@ public record ServicoDTO(
         @NotNull(message = "Valor do serviço é obrigatório")
         @Positive(message = "Valor do serviço deve ser positivo")
         @DecimalMin(value = "0.01", message = "Valor deve ser maior que zero")
-        Double vlServico
+        Double vlServico,
+
+        Boolean ativo // ✅ ADICIONADO - para retorno
 ) {}

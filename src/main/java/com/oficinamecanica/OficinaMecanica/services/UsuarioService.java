@@ -5,6 +5,7 @@ import com.oficinamecanica.OficinaMecanica.dto.UsuarioResponseDTO;
 import com.oficinamecanica.OficinaMecanica.models.Usuario;
 import com.oficinamecanica.OficinaMecanica.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -12,6 +13,7 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class UsuarioService {
@@ -21,28 +23,35 @@ public class UsuarioService {
 
     @Transactional
     public UsuarioResponseDTO criar(UsuarioDTO dto) {
+        log.info("👤 Criando usuário: {}", dto.email());
 
+        // Validar email único
         if (usuarioRepository.existsByEmail(dto.email())) {
             throw new RuntimeException("Email já cadastrado");
         }
 
-        if (dto.nuCPF() != null && usuarioRepository.existsByNuCPF(dto.nuCPF())) {
+        // Validar CPF único
+        if (dto.CPF() != null && usuarioRepository.existsByCPF(dto.CPF())) {
             throw new RuntimeException("CPF já cadastrado");
         }
 
+        // Criar usuário
         Usuario usuario = Usuario.builder()
                 .nmUsuario(dto.nmUsuario())
                 .email(dto.email())
-                .password(dto.password() != null ? passwordEncoder.encode(dto.password()) : null)
+                .senha(dto.password() != null ? passwordEncoder.encode(dto.password()) : null)
                 .provider(dto.provider())
                 .roles(dto.roles())
-                .nuTelefone(dto.nuTelefone())
-                .nuCPF(dto.nuCPF())
+                .Telefone(dto.Telefone())
+                .CPF(dto.CPF())
                 .providerId(dto.providerId())
                 .ativo(dto.ativo() != null ? dto.ativo() : true)
                 .build();
 
         Usuario salvo = usuarioRepository.save(usuario);
+
+        log.info("✅ Usuário criado: ID {} - {}", salvo.getCdUsuario(), salvo.getEmail());
+
         return converterParaDTO(salvo);
     }
 
@@ -83,35 +92,56 @@ public class UsuarioService {
 
     @Transactional
     public UsuarioResponseDTO atualizar(Integer id, UsuarioDTO dto) {
+        log.info("🔄 Atualizando usuário ID: {}", id);
+
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
+        // Validar email único (se mudou)
         if (!usuario.getEmail().equals(dto.email()) &&
                 usuarioRepository.existsByEmail(dto.email())) {
             throw new RuntimeException("Email já cadastrado");
         }
 
+        // Validar CPF único (se mudou)
+        if (dto.CPF() != null &&
+                !dto.CPF().equals(usuario.getCPF()) &&
+                usuarioRepository.existsByCPF(dto.CPF())) {
+            throw new RuntimeException("CPF já cadastrado");
+        }
+
+        // Atualizar campos
         usuario.setNmUsuario(dto.nmUsuario());
         usuario.setEmail(dto.email());
+
+        // Atualizar senha apenas se foi fornecida
         if (dto.password() != null && !dto.password().isEmpty()) {
-            usuario.setPassword(passwordEncoder.encode(dto.password()));
+            usuario.setSenha(passwordEncoder.encode(dto.password()));
         }
-        usuario.setNuTelefone(dto.nuTelefone());
-        usuario.setNuCPF(dto.nuCPF());
+
+        usuario.setTelefone(dto.Telefone());
+        usuario.setCPF(dto.CPF());
         usuario.setRoles(dto.roles());
         usuario.setAtivo(dto.ativo() != null ? dto.ativo() : true);
 
         Usuario atualizado = usuarioRepository.save(usuario);
+
+        log.info("✅ Usuário atualizado: {}", atualizado.getEmail());
+
         return converterParaDTO(atualizado);
     }
 
     @Transactional
     public void deletar(Integer id) {
+        log.info("🗑️ Deletando usuário ID: {}", id);
+
         Usuario usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         usuario.setAtivo(false);
         usuarioRepository.save(usuario);
+
+        log.info("✅ Usuário marcado como inativo");
     }
 
     private UsuarioResponseDTO converterParaDTO(Usuario usuario) {
@@ -121,10 +151,9 @@ public class UsuarioService {
                 usuario.getEmail(),
                 usuario.getProvider(),
                 usuario.getRoles(),
-                usuario.getNuTelefone(),
-                usuario.getNuCPF(),
+                usuario.getTelefone(),
+                usuario.getCPF(),
                 usuario.getAtivo()
-
         );
     }
 }

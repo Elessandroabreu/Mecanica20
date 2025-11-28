@@ -11,7 +11,7 @@ import java.util.Optional;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
-    // No UsuarioRepository
+    // Buscar atendentes ativos - CORRIGIDO
     @Query("SELECT u FROM Usuario u JOIN u.roles r WHERE r = 'ROLE_ATENDENTE' AND u.ativo = true")
     List<Usuario> findAtendentesAtivos();
 
@@ -28,6 +28,6 @@ public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
     // Verificar se email já existe
     boolean existsByEmail(String email);
 
-    // Verificar se CPF já existe
-    boolean existsByNuCPF(String nuCPF);
+    // CORRIGIDO: Model usa CPF, não nuCPF
+    boolean existsByCPF(String CPF);
 }

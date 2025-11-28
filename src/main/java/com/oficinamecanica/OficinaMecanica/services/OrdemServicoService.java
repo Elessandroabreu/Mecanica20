@@ -419,12 +419,17 @@ public class OrdemServicoService {
             throw new RuntimeException("Apenas ordens AGENDADAS podem ser editadas");
         }
 
-        if (dto.observacoes() != null) {
-            ordem.setObservacoes(dto.observacoes());
-        }
-
+        // ✅ REMOVIDO: ordem.setObservacoes() - campo não existe no Model
+        // Apenas atualizar diagnóstico
         if (dto.diagnostico() != null) {
             ordem.setDiagnostico(dto.diagnostico());
+        }
+
+        // ✅ NOVO: Atualizar vlMaoObraExtra se fornecido
+        if (dto.vlMaoObra() != null) {
+            ordem.setVlMaoObraExtra(dto.vlMaoObra());
+            // Recalcular total
+            ordem.setVlTotal(ordem.getVlPecas() + ordem.getVlServicos() + ordem.getVlMaoObraExtra());
         }
 
         OrdemServico atualizada = ordemServicoRepository.save(ordem);
@@ -450,8 +455,7 @@ public class OrdemServicoService {
                 ordem.getTipoOrdemOrcamento(),
                 ordem.getDataAgendamento() != null ? ordem.getDataAgendamento().toLocalDate() : null,
                 ordem.getVlMaoObraExtra(),
-                0.0, // desconto
-                ordem.getObservacoes(),
+                0.0, // desconto - não existe no Model
                 ordem.getDiagnostico(),
                 itensDTO
         );

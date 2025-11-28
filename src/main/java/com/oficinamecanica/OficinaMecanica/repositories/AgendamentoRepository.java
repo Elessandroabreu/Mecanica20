@@ -17,12 +17,12 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentoModel, I
 
     List<AgendamentoModel> findByMecanico_CdUsuario(Integer cdMecanico);
 
-    List<AgendamentoModel> findByCliente_CdCliente(Integer cdCliente);
+    // ✅ CORRIGIDO: Model usa cdCliente
+    List<AgendamentoModel> findByCdCliente_CdCliente(Integer cdCliente);
 
     @Query("SELECT a FROM AgendamentoModel a WHERE a.dataAgendamento >= :dataAtual AND a.status = 'AGENDADO'")
     List<AgendamentoModel> findAgendamentosFuturos(@Param("dataAtual") LocalDate dataAtual);
 
-    // ✅ Buscar agendamentos do mecânico em uma data (exceto cancelados)
     @Query("SELECT a FROM AgendamentoModel a WHERE a.mecanico.cdUsuario = :cdMecanico " +
             "AND a.dataAgendamento = :dataAgendamento " +
             "AND a.status != :status")
@@ -32,7 +32,6 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentoModel, I
             @Param("status") Status status
     );
 
-    // ✅ NOVO: Buscar agendamentos vinculados a uma Ordem de Serviço
     @Query("SELECT a FROM AgendamentoModel a WHERE a.ordemServico.cdOrdemServico = :cdOrdemServico")
     List<AgendamentoModel> findByOrdemServico_CdOrdemServico(@Param("cdOrdemServico") Integer cdOrdemServico);
 }
