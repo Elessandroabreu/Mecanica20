@@ -24,33 +24,33 @@ public class ServicoController {
     @PostMapping
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Cadastrar novo tipo de serviço")
-    public ResponseEntity<ServicoResponseDTO> criar(@Valid @RequestBody ServicoDTO dto) {
-        ServicoResponseDTO response = servicoService.criar(dto);
+    public ResponseEntity<ServicoDTO> criar(@Valid @RequestBody ServicoDTO dto) {
+        ServicoDTO response = servicoService.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Buscar serviço por ID")
-    public ResponseEntity<ServicoResponseDTO> buscarPorId(@PathVariable Integer id) {
-        ServicoResponseDTO response = servicoService.buscarPorId(id);
+    public ResponseEntity<ServicoDTO> buscarPorId(@PathVariable Integer id) {
+        ServicoDTO response = servicoService.buscarPorId(id);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Listar serviços ativos")
-    public ResponseEntity<List<ServicoResponseDTO>> listarAtivos() {
-        List<ServicoResponseDTO> response = servicoService.listarAtivos();
+    public ResponseEntity<List<ServicoDTO>> listarAtivos() {
+        List<ServicoDTO> response = servicoService.listarAtivos();
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasRole('ADMIN')")
     @Operation(summary = "Atualizar serviço")
-    public ResponseEntity<ServicoResponseDTO> atualizar(@PathVariable Integer id,
-                                                        @Valid @RequestBody ServicoDTO dto) {
-        ServicoResponseDTO response = servicoService.atualizar(id, dto);
+    public ResponseEntity<ServicoDTO> atualizar(@PathVariable Integer id,
+                                                @Valid @RequestBody ServicoDTO dto) {
+        ServicoDTO response = servicoService.atualizar(id, dto);
         return ResponseEntity.ok(response);
     }
 

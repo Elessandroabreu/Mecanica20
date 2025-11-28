@@ -24,30 +24,28 @@ public class VendaService {
     private final FaturamentoRepository faturamentoRepository;
 
     @Transactional
-    public VendaResponseDTO criar(VendaDTO dto) {
-        ClienteModel clienteModel = clienteRepository.findById(dto.cdCliente())
+    public VendaDTO criar(VendaDTO dto) {
+        ClienteModel cliente = clienteRepository.findById(dto.cdCliente())
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        // ✅ VALIDAR SE CLIENTE ESTÁ ATIVO
-        if (!clienteModel.getAtivo()) {
+        if (!cliente.getAtivo()) {
             throw new RuntimeException("Cliente inativo não pode realizar compras");
         }
 
         Usuario atendente = usuarioRepository.findById(dto.cdAtendente())
                 .orElseThrow(() -> new RuntimeException("Atendente não encontrado"));
 
-        // ✅ VALIDAR SE USUÁRIO É ATENDENTE OU ADMIN
         if (!atendente.getAtivo()) {
             throw new RuntimeException("Atendente inativo não pode realizar vendas");
         }
 
         if (!atendente.getRoles().contains(UserRole.ROLE_ATENDENTE) &&
                 !atendente.getRoles().contains(UserRole.ROLE_ADMIN)) {
-            throw new RuntimeException("Usuário " + atendente.getNmUsuario() + " não possui perfil de atendente");
+            throw new RuntimeException("Usuário não possui perfil de atendente");
         }
 
         Venda venda = Venda.builder()
-                .clienteModel(clienteModel)
+                .clienteModel(cliente)
                 .atendente(atendente)
                 .dataVenda(LocalDateTime.now())
                 .vlTotal(0.0)
@@ -74,21 +72,20 @@ public class VendaService {
             Produto produto = produtoRepository.findById(itemDTO.cdProduto())
                     .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
 
-            // ✅ VALIDAR SE PRODUTO ESTÁ ATIVO
             if (!produto.getAtivo()) {
-                throw new RuntimeException("Produto inativo não pode ser vendido: " + produto.getNmProduto());
+                throw new RuntimeException("Produto inativo: " + produto.getNmProduto());
             }
 
             if (produto.getQtdEstoque() < itemDTO.quantidade()) {
-                throw new RuntimeException("Estoque insuficiente para o produto: " + produto.getNmProduto());
+                throw new RuntimeException("Estoque insuficiente para: " + produto.getNmProduto());
             }
 
             ItemVenda item = ItemVenda.builder()
                     .venda(venda)
                     .produto(produto)
                     .quantidade(itemDTO.quantidade())
-                    .vlUnitario(produto.getVlVenda())
-                    .vlTotal(produto.getVlVenda() * itemDTO.quantidade())
+                    .vlUnitario(produto.getVlProduto())
+                    .vlTotal(produto.getVlProduto() * itemDTO.quantidade())
                     .build();
 
             itemVendaRepository.save(item);
@@ -109,7 +106,6 @@ public class VendaService {
                 .venda(venda)
                 .dataVenda(venda.getDataVenda())
                 .vlTotal(venda.getVlTotal())
-                // ✅ CORRIGIDO: Não precisa converter, já é enum
                 .formaPagamento(venda.getFormaPagamento())
                 .build();
 
@@ -117,35 +113,35 @@ public class VendaService {
     }
 
     @Transactional(readOnly = true)
-    public VendaResponseDTO buscarPorId(Integer id) {
+    public VendaDTO buscarPorId(Integer id) {
         Venda venda = vendaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Venda não encontrada"));
         return converterParaDTO(venda);
     }
 
     @Transactional(readOnly = true)
-    public List<VendaResponseDTO> listarTodas() {
+    public List<VendaDTO> listarTodas() {
         return vendaRepository.findAll().stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<VendaResponseDTO> listarPorCliente(Integer cdCliente) {
-        return vendaRepository.findByCliente_CdCliente(cdCliente).stream()
+    public List<VendaDTO> listarPorCliente(Integer cdCliente) {
+        return vendaRepository.findByClienteModel_CdCliente(cdCliente).stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<VendaResponseDTO> listarPorAtendente(Integer cdAtendente) {
+    public List<VendaDTO> listarPorAtendente(Integer cdAtendente) {
         return vendaRepository.findByAtendente_CdUsuario(cdAtendente).stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<VendaResponseDTO> listarPorPeriodo(LocalDateTime dataInicio, LocalDateTime dataFim) {
+    public List<VendaDTO> listarPorPeriodo(LocalDateTime dataInicio, LocalDateTime dataFim) {
         return vendaRepository.findVendasNoPeriodo(dataInicio, dataFim).stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
@@ -157,17 +153,22 @@ public class VendaService {
         return total != null ? total : 0.0;
     }
 
-    private VendaResponseDTO converterParaDTO(Venda venda) {
-        return new VendaResponseDTO(
-                venda.getCdVenda(),
+    private VendaDTO converterParaDTO(Venda venda) {
+        List<VendaDTO.ItemVendaDTO> itensDTO = venda.getItens() != null
+                ? venda.getItens().stream()
+                .map(item -> new VendaDTO.ItemVendaDTO(
+                        item.getProduto().getCdProduto(),
+                        item.getQuantidade()
+                ))
+                .collect(Collectors.toList())
+                : List.of();
+
+        return new VendaDTO(
                 venda.getClienteModel().getCdCliente(),
-                venda.getClienteModel().getNmCliente(),
                 venda.getAtendente().getCdUsuario(),
-                venda.getAtendente().getNmUsuario(),
-                venda.getDataVenda(),
-                venda.getVlTotal(),
                 venda.getDesconto(),
-                venda.getFormaPagamento()
+                venda.getFormaPagamento(),
+                itensDTO
         );
     }
 }

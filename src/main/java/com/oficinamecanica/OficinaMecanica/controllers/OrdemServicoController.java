@@ -77,25 +77,24 @@ public class OrdemServicoController {
     @PatchMapping("/{id}/aprovar-orcamento")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Aprovar orçamento e converter em ordem de serviço")
-    public ResponseEntity<OrdemServicoResponseDTO> aprovarOrcamento(
+    public ResponseEntity<OrdemServicoDTO> aprovarOrcamento(
             @PathVariable Integer id,
             @RequestBody Map<String, String> body) {
 
-        // ✅ Receber dataAgendamento do body
         String dataStr = body.get("dataAgendamento");
         LocalDate dataAgendamento = dataStr != null ? LocalDate.parse(dataStr) : null;
 
-        OrdemServicoResponseDTO response = ordemServicoService.aprovarOrcamento(id, dataAgendamento);
+        OrdemServicoDTO response = ordemServicoService.aprovarOrcamento(id, dataAgendamento);
         return ResponseEntity.ok(response);
     }
 
     @PatchMapping("/{id}/concluir")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Concluir ordem de serviço e gerar faturamento")
-    public ResponseEntity<OrdemServicoResponseDTO> concluir(@PathVariable Integer id,
-                                                             @RequestBody Map<String, String> body) {
+    public ResponseEntity<OrdemServicoDTO> concluir(@PathVariable Integer id,
+                                                    @RequestBody Map<String, String> body) {
         String formaPagamento = body.get("formaPagamento");
-        OrdemServicoResponseDTO response = ordemServicoService.concluir(id, formaPagamento);
+        OrdemServicoDTO response = ordemServicoService.concluir(id, formaPagamento);
         return ResponseEntity.ok(response);
     }
 

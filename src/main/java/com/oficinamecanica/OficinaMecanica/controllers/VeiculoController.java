@@ -57,7 +57,7 @@ public class VeiculoController {
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Atualizar veículo")
     public ResponseEntity<VeiculoDTO> atualizar(@PathVariable Integer id,
-                                                        @Valid @RequestBody VeiculoDTO dto) {
+                                                @Valid @RequestBody VeiculoDTO dto) {
         VeiculoDTO response = veiculoService.atualizar(id, dto);
         return ResponseEntity.ok(response);
     }

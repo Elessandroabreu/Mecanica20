@@ -39,11 +39,9 @@ public class AgendamentoController {
         return ResponseEntity.ok(response);
     }
 
-    // ✅ NOVO: Listar TODOS os agendamentos (incluindo criados automaticamente)
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
-    @Operation(summary = "Listar todos os agendamentos",
-            description = "Retorna todos os agendamentos, incluindo os criados automaticamente pelas OS")
+    @Operation(summary = "Listar todos os agendamentos")
     public ResponseEntity<List<AgendamentoDTO>> listarTodos() {
         List<AgendamentoDTO> response = agendamentoService.listarTodos();
         return ResponseEntity.ok(response);
@@ -69,16 +67,14 @@ public class AgendamentoController {
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Atualizar agendamento")
     public ResponseEntity<AgendamentoDTO> atualizar(@PathVariable Integer id,
-                                                            @Valid @RequestBody AgendamentoDTO dto) {
+                                                    @Valid @RequestBody AgendamentoDTO dto) {
         AgendamentoDTO response = agendamentoService.atualizar(id, dto);
         return ResponseEntity.ok(response);
     }
 
-    // ✅ Endpoint específico para MECÂNICO mudar status
     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'MECANICO')")
-    @Operation(summary = "Atualizar status do agendamento (sincroniza com OS)",
-            description = "Quando mecânico muda status, a Ordem de Serviço vinculada também é atualizada")
+    @Operation(summary = "Atualizar status do agendamento")
     public ResponseEntity<AgendamentoDTO> atualizarStatus(
             @PathVariable Integer id,
             @RequestBody Map<String, String> body) {

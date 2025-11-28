@@ -19,7 +19,7 @@ import java.util.Map;
 @Tag(name = "Faturamento", description = "Endpoints para gerenciamento de faturamento")
 public class FaturamentoController {
 
-    p
+
     private final FaturamentoService faturamentoService;
 
     @GetMapping("/{id}")

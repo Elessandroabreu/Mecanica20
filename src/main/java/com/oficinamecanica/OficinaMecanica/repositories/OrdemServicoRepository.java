@@ -1,6 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.repositories;
 
 import com.oficinamecanica.OficinaMecanica.enums.Status;
+import com.oficinamecanica.OficinaMecanica.enums.TipoOrdemOrcamento;
 import com.oficinamecanica.OficinaMecanica.models.OrdemServico;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -13,13 +14,13 @@ import java.util.List;
 public interface OrdemServicoRepository extends JpaRepository<OrdemServico, Integer> {
 
     // Listar por status
-    List<OrdemServico> findByStatusOrdemServico(Status status);
+    List<OrdemServico> findByStatus(Status status);
 
     // Listar ordens de um mecânico
     List<OrdemServico> findByMecanico_CdUsuario(Integer cdMecanico);
 
     // Listar orçamentos pendentes (aguardando aprovação)
-    @Query("SELECT o FROM OrdemServico o WHERE o.tipoServico = 'ORCAMENTO' AND o.aprovado = false")
+    @Query("SELECT o FROM OrdemServico o WHERE o.tipoOrdemOrcamento = 'ORCAMENTO' AND o.aprovado = false")
     List<OrdemServico> findOrcamentosPendentes();
 
     // Listar ordens com itens (fetch join) - IMPORTANTE para evitar N+1
