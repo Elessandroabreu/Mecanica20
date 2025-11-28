@@ -40,10 +40,10 @@ public class Usuario {
     private Set<UserRole> roles;
 
     @Column(name = "TELEFONE", length = 20)
-    private String nuTelefone;
+    private String Telefone;
 
     @Column(name = "CPF", length = 14, unique = true)
-    private String nuCPF;
+    private String CPF;
 
     @Column(name = "ATIVO", nullable = false)
     private Boolean ativo = true;
