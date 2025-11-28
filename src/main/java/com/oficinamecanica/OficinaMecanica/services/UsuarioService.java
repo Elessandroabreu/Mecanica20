@@ -42,7 +42,7 @@ public class UsuarioService {
                 .senha(dto.password() != null ? passwordEncoder.encode(dto.password()) : null)
                 .provider(dto.provider())
                 .roles(dto.roles())
-                .telefone(dto.Telefone())
+                .telefone(dto.telefone())
                 .cpf(dto.cpf())
                 .providerId(dto.providerId())
                 .ativo(dto.ativo() != null ? dto.ativo() : true)
@@ -119,7 +119,7 @@ public class UsuarioService {
             usuario.setSenha(passwordEncoder.encode(dto.password()));
         }
 
-        usuario.setTelefone(dto.Telefone());
+        usuario.setTelefone(dto.telefone());
         usuario.setCpf(dto.cpf());
         usuario.setRoles(dto.roles());
         usuario.setAtivo(dto.ativo() != null ? dto.ativo() : true);

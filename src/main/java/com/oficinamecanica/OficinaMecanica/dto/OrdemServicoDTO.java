@@ -31,9 +31,6 @@ public record OrdemServicoDTO(
         @PositiveOrZero(message = "Valor da mão de obra deve ser zero ou positivo")
         Double vlMaoObra,
 
-        @PositiveOrZero(message = "Desconto deve ser zero ou positivo")
-        Double desconto, // ⚠️ NOTA: Este campo não existe no Model, está aqui apenas para compatibilidade do DTO
-
         @Size(max = 1000, message = "Diagnóstico deve ter no máximo 1000 caracteres")
         String diagnostico,
 

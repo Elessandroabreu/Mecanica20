@@ -29,7 +29,7 @@ public record UsuarioDTO(
         Set<UserRole> roles,
 
         @Size(max = 15, message = "Telefone deve ter no máximo 20 caracteres")
-        String Telefone,
+        String telefone,
 
         @NotBlank(message = "CPF obrigatório")
         @CPF(message = "CPF inválido")

@@ -22,7 +22,7 @@ public class ProdutoService {
                 .nmProduto(dto.nmProduto())
                 .dsProduto(dto.dsProduto())
                 .categoria(dto.categoria())
-                .vlProduto(dto.vlVenda()) // ✅ CORRIGIDO: Produto só tem vlProduto
+                .vlProduto(dto.vlProduto()) // ✅ CORRIGIDO: Produto só tem vlProduto
                 .qtdEstoque(dto.qtdEstoque())
                 .qtdMinimoEstoque(dto.qtdMinimo()) // ✅ CORRIGIDO: nome do campo no model
                 .ativo(true)
@@ -61,9 +61,10 @@ public class ProdutoService {
         produto.setNmProduto(dto.nmProduto());
         produto.setDsProduto(dto.dsProduto());
         produto.setCategoria(dto.categoria());
-        produto.setVlProduto(dto.vlVenda()); // ✅ CORRIGIDO
+        produto.setVlProduto(dto.vlProduto());
         produto.setQtdEstoque(dto.qtdEstoque());
-        produto.setQtdMinimoEstoque(dto.qtdMinimo()); // ✅ CORRIGIDO
+        produto.setQtdMinimoEstoque(dto.qtdMinimo());
+
 
         Produto atualizado = produtoRepository.save(produto);
         return converterParaDTO(atualizado);
@@ -84,7 +85,6 @@ public class ProdutoService {
                 produto.getNmProduto(),
                 produto.getDsProduto(),
                 produto.getCategoria(),
-                produto.getVlProduto(), // custo = venda (seu model só tem vlProduto)
                 produto.getVlProduto(), // venda
                 produto.getQtdEstoque(),
                 produto.getQtdMinimoEstoque(),

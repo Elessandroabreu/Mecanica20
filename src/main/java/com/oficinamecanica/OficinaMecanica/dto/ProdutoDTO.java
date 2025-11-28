@@ -19,13 +19,9 @@ public record ProdutoDTO(
         @Size(max = 100, message = "Categoria deve ter no máximo 100 caracteres")
         String categoria,
 
-        @NotNull(message = "Valor de custo é obrigatório")
-        @Positive(message = "Valor de custo deve ser positivo")
-        Double vlCusto,
-
         @NotNull(message = "Valor de venda é obrigatório")
         @Positive(message = "Valor de venda deve ser positivo")
-        Double vlVenda,
+        Double vlProduto,
 
         @NotNull(message = "Quantidade em estoque é obrigatória")
         @PositiveOrZero(message = "Quantidade em estoque deve ser zero ou positiva")
@@ -35,11 +31,6 @@ public record ProdutoDTO(
         @PositiveOrZero(message = "Quantidade mínima deve ser zero ou positiva")
         Integer qtdMinimo,
 
-        Boolean ativo // ✅ ADICIONADO - para retorno
-) {
-    public ProdutoDTO {
-        if (vlVenda != null && vlCusto != null && vlVenda <= vlCusto) {
-            throw new IllegalArgumentException("Preço de venda deve ser maior que o custo");
-        }
-    }
-}
+        Boolean ativo
+) {}
+
