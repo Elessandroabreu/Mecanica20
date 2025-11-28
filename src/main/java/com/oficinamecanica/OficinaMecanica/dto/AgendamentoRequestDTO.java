@@ -3,11 +3,12 @@ package com.oficinamecanica.OficinaMecanica.dto;
 import com.oficinamecanica.OficinaMecanica.enums.Status;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
-
 import java.time.LocalDate;
 
-public record AgendamentoDTO(
-
+/**
+ * DTO de Request para criar/atualizar Agendamento
+ */
+public record AgendamentoRequestDTO(
         @NotNull(message = "Cliente é obrigatório")
         Integer cdCliente,
 
@@ -21,7 +22,5 @@ public record AgendamentoDTO(
         LocalDate dataAgendamento,
 
         @Size(max = 1000, message = "Observações deve ter no máximo 1000 caracteres")
-        String observacoes,
-
-        Status status
+        String observacoes
 ) {}

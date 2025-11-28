@@ -1,6 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
-import com.oficinamecanica.OficinaMecanica.dto.OrdemServicoDTO;
+import com.oficinamecanica.OficinaMecanica.dto.OrdemServicoRequestDTO;
 import com.oficinamecanica.OficinaMecanica.enums.FormaPagamento;
 import com.oficinamecanica.OficinaMecanica.enums.Status;
 import com.oficinamecanica.OficinaMecanica.enums.TipoOrdemOrcamento;
@@ -33,7 +33,7 @@ public class OrdemServicoService {
 
     // CRIAR ORDEM OU ORÇAMENTO
     @Transactional
-    public OrdemServicoDTO criar(OrdemServicoDTO dto) {
+    public OrdemServicoRequestDTO criar(OrdemServicoRequestDTO dto) {
         log.info("🆕 Criando {} para cliente: {}", dto.tipoServico(), dto.cdCliente());
 
         // Buscar entidades
@@ -97,14 +97,14 @@ public class OrdemServicoService {
 
     // ADICIONAR ITENS
     @Transactional
-    private void adicionarItens(OrdemServico ordem, List<OrdemServicoDTO.ItemDTO> itensDTO) {
+    private void adicionarItens(OrdemServico ordem, List<OrdemServicoRequestDTO.ItemDTO> itensDTO) {
         double totalPecas = 0.0;
         double totalServicos = 0.0;
 
         // Só dá baixa se for ORDEM_DE_SERVICO
         boolean darBaixaEstoque = (ordem.getTipoOrdemOrcamento() == TipoOrdemOrcamento.ORDEM_DE_SERVICO);
 
-        for (OrdemServicoDTO.ItemDTO itemDTO : itensDTO) {
+        for (OrdemServicoRequestDTO.ItemDTO itemDTO : itensDTO) {
             ItemOrdemServico item = new ItemOrdemServico();
             item.setOrdemServico(ordem);
             item.setQuantidade(itemDTO.quantidade());
@@ -165,7 +165,7 @@ public class OrdemServicoService {
 
     // APROVAR ORÇAMENTO
     @Transactional
-    public OrdemServicoDTO aprovarOrcamento(Integer id, LocalDate dataAgendamento) {
+    public OrdemServicoRequestDTO aprovarOrcamento(Integer id, LocalDate dataAgendamento) {
         log.info("📋 Aprovando orçamento ID: {}", id);
 
         OrdemServico ordem = ordemServicoRepository.findById(id)
@@ -227,7 +227,7 @@ public class OrdemServicoService {
 
     // INICIAR
     @Transactional
-    public OrdemServicoDTO iniciar(Integer id) {
+    public OrdemServicoRequestDTO iniciar(Integer id) {
         log.info("▶️ Iniciando OS: {}", id);
 
         OrdemServico ordem = ordemServicoRepository.findById(id)
@@ -249,7 +249,7 @@ public class OrdemServicoService {
 
     // CONCLUIR
     @Transactional
-    public OrdemServicoDTO concluir(Integer id, String formaPagamento) {
+    public OrdemServicoRequestDTO concluir(Integer id, String formaPagamento) {
         log.info("✅ Concluindo OS: {}", id);
 
         OrdemServico ordem = ordemServicoRepository.findById(id)
@@ -381,7 +381,7 @@ public class OrdemServicoService {
 
     // BUSCAR POR ID
     @Transactional(readOnly = true)
-    public OrdemServicoDTO buscarPorId(Integer id) {
+    public OrdemServicoRequestDTO buscarPorId(Integer id) {
         OrdemServico ordem = ordemServicoRepository.findByIdWithItens(id);
         if (ordem == null) {
             throw new RuntimeException("Ordem não encontrada");
@@ -391,7 +391,7 @@ public class OrdemServicoService {
 
     // LISTAR POR STATUS
     @Transactional(readOnly = true)
-    public List<OrdemServicoDTO> listarPorStatus(Status status) {
+    public List<OrdemServicoRequestDTO> listarPorStatus(Status status) {
         return ordemServicoRepository.findByStatus(status).stream()
                 .map(ordem -> converterParaDTO(
                         ordemServicoRepository.findByIdWithItens(ordem.getCdOrdemServico())
@@ -401,7 +401,7 @@ public class OrdemServicoService {
 
     // LISTAR ORÇAMENTOS PENDENTES
     @Transactional(readOnly = true)
-    public List<OrdemServicoDTO> listarOrcamentosPendentes() {
+    public List<OrdemServicoRequestDTO> listarOrcamentosPendentes() {
         return ordemServicoRepository.findOrcamentosPendentes().stream()
                 .map(ordem -> converterParaDTO(
                         ordemServicoRepository.findByIdWithItens(ordem.getCdOrdemServico())
@@ -411,7 +411,7 @@ public class OrdemServicoService {
 
     // ATUALIZAR
     @Transactional
-    public OrdemServicoDTO atualizar(Integer id, OrdemServicoDTO dto) {
+    public OrdemServicoRequestDTO atualizar(Integer id, OrdemServicoRequestDTO dto) {
         OrdemServico ordem = ordemServicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ordem não encontrada"));
 
@@ -437,10 +437,10 @@ public class OrdemServicoService {
     }
 
     // CONVERTER PARA DTO
-    private OrdemServicoDTO converterParaDTO(OrdemServico ordem) {
-        List<OrdemServicoDTO.ItemDTO> itensDTO = ordem.getItens() != null
+    private OrdemServicoRequestDTO converterParaDTO(OrdemServico ordem) {
+        List<OrdemServicoRequestDTO.ItemDTO> itensDTO = ordem.getItens() != null
                 ? ordem.getItens().stream()
-                .map(item -> new OrdemServicoDTO.ItemDTO(
+                .map(item -> new OrdemServicoRequestDTO.ItemDTO(
                         item.getProduto() != null ? item.getProduto().getCdProduto() : null,
                         item.getServico() != null ? item.getServico().getCdServico() : null,
                         item.getQuantidade()
@@ -448,14 +448,14 @@ public class OrdemServicoService {
                 .toList()
                 : new ArrayList<>();
 
-        return new OrdemServicoDTO(
+        return new OrdemServicoRequestDTO(
                 ordem.getClienteModel().getCdCliente(),
                 ordem.getVeiculo().getCdVeiculo(),
                 ordem.getMecanico().getCdUsuario(),
                 ordem.getTipoOrdemOrcamento(),
                 ordem.getDataAgendamento() != null ? ordem.getDataAgendamento().toLocalDate() : null,
                 ordem.getVlMaoObraExtra(),
-                0.0, // desconto - não existe no Model
+                0.0,
                 ordem.getDiagnostico(),
                 itensDTO
         );
