@@ -1,4 +1,4 @@
-package com.oficinamecanica.OficinaMecanica.dto.request;
+package com.oficinamecanica.OficinaMecanica.dto;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;

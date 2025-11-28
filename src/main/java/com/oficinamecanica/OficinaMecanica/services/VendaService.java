@@ -1,6 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.VendaDTO;
+import com.oficinamecanica.OficinaMecanica.dto.VendaDTO;
 import com.oficinamecanica.OficinaMecanica.enums.UserRole;
 import com.oficinamecanica.OficinaMecanica.models.*;
 import com.oficinamecanica.OficinaMecanica.repositories.*;

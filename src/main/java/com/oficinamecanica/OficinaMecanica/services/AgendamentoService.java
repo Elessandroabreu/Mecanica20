@@ -1,6 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.AgendamentoDTO;
+import com.oficinamecanica.OficinaMecanica.dto.AgendamentoDTO;
 import com.oficinamecanica.OficinaMecanica.enums.Status;
 import com.oficinamecanica.OficinaMecanica.enums.UserRole;
 import com.oficinamecanica.OficinaMecanica.models.Agendamento;

@@ -1,4 +1,4 @@
-package com.oficinamecanica.OficinaMecanica.dto.request;
+package com.oficinamecanica.OficinaMecanica.dto;
 
 import com.oficinamecanica.OficinaMecanica.enums.AuthProvider;
 import com.oficinamecanica.OficinaMecanica.enums.UserRole;

@@ -1,6 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.controllers;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.ProdutoDTO;
+import com.oficinamecanica.OficinaMecanica.dto.ProdutoDTO;
 import com.oficinamecanica.OficinaMecanica.services.ProdutoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

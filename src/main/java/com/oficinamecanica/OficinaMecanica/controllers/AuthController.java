@@ -1,9 +1,9 @@
 package com.oficinamecanica.OficinaMecanica.controllers;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.LoginRequestDTO;
-import com.oficinamecanica.OficinaMecanica.dto.request.UsuarioDTO;
-import com.oficinamecanica.OficinaMecanica.dto.response.AuthResponseDTO;
-import com.oficinamecanica.OficinaMecanica.dto.response.UsuarioResponseDTO;
+import com.oficinamecanica.OficinaMecanica.dto.LoginRequestDTO;
+import com.oficinamecanica.OficinaMecanica.dto.UsuarioDTO;
+import com.oficinamecanica.OficinaMecanica.dto.AuthResponseDTO;
+import com.oficinamecanica.OficinaMecanica.dto.UsuarioResponseDTO;
 import com.oficinamecanica.OficinaMecanica.security.JwtTokenProvider;
 import com.oficinamecanica.OficinaMecanica.services.UsuarioService;
 import io.swagger.v3.oas.annotations.Operation;

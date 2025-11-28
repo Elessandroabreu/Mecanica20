@@ -1,6 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.ClienteDTO;
+import com.oficinamecanica.OficinaMecanica.dto.ClienteDTO;
 import com.oficinamecanica.OficinaMecanica.dto.response.ClienteResponseDTO;
 import com.oficinamecanica.OficinaMecanica.models.Cliente;
 import com.oficinamecanica.OficinaMecanica.repositories.ClienteRepository;

@@ -1,4 +1,4 @@
-package com.oficinamecanica.OficinaMecanica.dto.response;
+package com.oficinamecanica.OficinaMecanica.dto;
 
 public record AuthResponseDTO(
         String accessToken,

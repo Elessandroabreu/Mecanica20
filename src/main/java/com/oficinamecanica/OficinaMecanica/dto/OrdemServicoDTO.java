@@ -1,4 +1,4 @@
-package com.oficinamecanica.OficinaMecanica.dto.request;
+package com.oficinamecanica.OficinaMecanica.dto;
 
 import com.oficinamecanica.OficinaMecanica.enums.TipoServico;
 import jakarta.validation.constraints.NotNull;

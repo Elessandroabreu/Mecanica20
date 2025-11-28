@@ -1,7 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.UsuarioDTO;
-import com.oficinamecanica.OficinaMecanica.dto.response.UsuarioResponseDTO;
+import com.oficinamecanica.OficinaMecanica.dto.UsuarioDTO;
+import com.oficinamecanica.OficinaMecanica.dto.UsuarioResponseDTO;
 import com.oficinamecanica.OficinaMecanica.models.Usuario;
 import com.oficinamecanica.OficinaMecanica.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;

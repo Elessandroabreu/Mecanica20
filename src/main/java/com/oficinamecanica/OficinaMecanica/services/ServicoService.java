@@ -1,6 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.ServicoDTO;
+import com.oficinamecanica.OficinaMecanica.dto.ServicoDTO;
 import com.oficinamecanica.OficinaMecanica.models.Servico;
 import com.oficinamecanica.OficinaMecanica.repositories.ServicoRepository;
 import lombok.RequiredArgsConstructor;

@@ -1,6 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.controllers;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.AgendamentoDTO;
+import com.oficinamecanica.OficinaMecanica.dto.AgendamentoDTO;
 import com.oficinamecanica.OficinaMecanica.services.AgendamentoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;

@@ -1,6 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.controllers;
 
-import com.oficinamecanica.OficinaMecanica.dto.request.OrdemServicoDTO;
+import com.oficinamecanica.OficinaMecanica.dto.OrdemServicoDTO;
 import com.oficinamecanica.OficinaMecanica.enums.Status;
 import com.oficinamecanica.OficinaMecanica.services.OrdemServicoService;
 import io.swagger.v3.oas.annotations.Operation;
