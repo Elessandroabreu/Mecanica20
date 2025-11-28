@@ -10,7 +10,7 @@ public record UsuarioResponseDTO(
         String email,
         AuthProvider provider,
         Set<UserRole> roles,
-        String Telefone,
-        String CPF,
+        String telefone,
+        String cpf,
         Boolean ativo
 ) {}

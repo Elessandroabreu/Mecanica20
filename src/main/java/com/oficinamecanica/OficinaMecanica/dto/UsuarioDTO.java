@@ -34,7 +34,7 @@ public record UsuarioDTO(
         @NotBlank(message = "CPF obrigatório")
         @CPF(message = "CPF inválido")
         @Size(max = 14, message = "CPF deve ter no máximo 14 caracteres")
-        String CPF,
+        String cpf,
 
         String providerId,
 

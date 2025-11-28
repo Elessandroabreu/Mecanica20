@@ -31,7 +31,7 @@ public class UsuarioService {
         }
 
         // Validar CPF único
-        if (dto.CPF() != null && usuarioRepository.existsByCPF(dto.CPF())) {
+        if (dto.cpf() != null && usuarioRepository.existsByCpf(dto.cpf())) {
             throw new RuntimeException("CPF já cadastrado");
         }
 
@@ -43,7 +43,7 @@ public class UsuarioService {
                 .provider(dto.provider())
                 .roles(dto.roles())
                 .telefone(dto.Telefone())
-                .cpf(dto.CPF())
+                .cpf(dto.cpf())
                 .providerId(dto.providerId())
                 .ativo(dto.ativo() != null ? dto.ativo() : true)
                 .build();
@@ -104,9 +104,9 @@ public class UsuarioService {
         }
 
         // Validar CPF único (se mudou)
-        if (dto.CPF() != null &&
-                !dto.CPF().equals(usuario.getCpf()) &&
-                usuarioRepository.existsByCPF(dto.CPF())) {
+        if (dto.cpf() != null &&
+                !dto.cpf().equals(usuario.getCpf()) &&
+                usuarioRepository.existsByCpf(dto.cpf())) {
             throw new RuntimeException("CPF já cadastrado");
         }
 
@@ -120,7 +120,7 @@ public class UsuarioService {
         }
 
         usuario.setTelefone(dto.Telefone());
-        usuario.setCpf(dto.CPF());
+        usuario.setCpf(dto.cpf());
         usuario.setRoles(dto.roles());
         usuario.setAtivo(dto.ativo() != null ? dto.ativo() : true);
 

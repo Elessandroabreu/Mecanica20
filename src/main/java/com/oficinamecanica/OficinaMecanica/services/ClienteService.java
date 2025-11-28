@@ -31,7 +31,7 @@ public class ClienteService {
         log.info("👤 Criando cliente: {}", dto.nmCliente());
 
         // 1. VALIDAR SE CPF JÁ EXISTE
-        if (dto.CPF() != null && clienteRepository.existsByCPF(dto.CPF())) {
+        if (dto.cpf() != null && clienteRepository.existsByCpf(dto.cpf())) {
             throw new RuntimeException("CPF já cadastrado");
         }
 
@@ -43,9 +43,9 @@ public class ClienteService {
         // 3. CRIAR ENTIDADE CLIENTE
         ClienteModel cliente = ClienteModel.builder()
                 .nmCliente(dto.nmCliente())
-                .cpf(dto.CPF())
-                .telefone(dto.Telefone())
-                .endereco(dto.Endereco())
+                .cpf(dto.cpf())
+                .telefone(dto.telefone())
+                .endereco(dto.endereco())
                 .email(dto.email())
                 .ativo(true)
                 .build();
@@ -96,7 +96,7 @@ public class ClienteService {
      */
     @Transactional(readOnly = true)
     public ClienteDTO buscarPorCpf(String cpf) {
-        ClienteModel cliente = clienteRepository.findByCPF(cpf)
+        ClienteModel cliente = clienteRepository.findByCpf(cpf)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
         return converterParaDTO(cliente);
     }
@@ -123,8 +123,8 @@ public class ClienteService {
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
         // 2. VALIDAR CPF ÚNICO (se mudou o CPF)
-        if (!cliente.getCpf().equals(dto.CPF()) &&
-                clienteRepository.existsByCPF(dto.CPF())) {
+        if (!cliente.getCpf().equals(dto.cpf()) &&
+                clienteRepository.existsByCpf(dto.cpf())) {
             throw new RuntimeException("CPF já cadastrado");
         }
 
@@ -137,10 +137,10 @@ public class ClienteService {
 
         // 4. ATUALIZAR CAMPOS
         cliente.setNmCliente(dto.nmCliente());
-        cliente.setCpf(dto.CPF());
+        cliente.setCpf(dto.cpf());
         cliente.setEmail(dto.email());
-        cliente.setTelefone(dto.Telefone());
-        cliente.setEndereco(dto.Endereco());
+        cliente.setTelefone(dto.telefone());
+        cliente.setEndereco(dto.endereco());
 
         // 5. SALVAR E RETORNAR
         ClienteModel atualizado = clienteRepository.save(cliente);

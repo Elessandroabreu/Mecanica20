@@ -14,10 +14,10 @@ public interface ClienteRepository extends JpaRepository<ClienteModel, Integer> 
     List<ClienteModel> findByAtivoTrue();
 
     // Buscar por CPF - CORRIGIDO: Model usa CPF, não nuCPF
-    Optional<ClienteModel> findByCPF(String CPF);
+    Optional<ClienteModel> findByCpf(String cpf);
 
     // Verificar se CPF já existe - CORRIGIDO
-    boolean existsByCPF(String CPF);
+    boolean existsByCpf(String cpf);
 
     // Verificar se email já existe
     boolean existsByEmail(String email);

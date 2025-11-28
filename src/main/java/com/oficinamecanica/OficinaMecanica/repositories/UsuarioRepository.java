@@ -11,23 +11,18 @@ import java.util.Optional;
 @Repository
 public interface UsuarioRepository extends JpaRepository<Usuario, Integer> {
 
-    // Buscar atendentes ativos - CORRIGIDO
     @Query("SELECT u FROM Usuario u JOIN u.roles r WHERE r = 'ROLE_ATENDENTE' AND u.ativo = true")
     List<Usuario> findAtendentesAtivos();
 
-    // Buscar por email
     Optional<Usuario> findByEmail(String email);
 
-    // Listar apenas usuários ativos
     List<Usuario> findByAtivoTrue();
 
-    // Buscar mecânicos ativos
     @Query("SELECT u FROM Usuario u JOIN u.roles r WHERE r = 'ROLE_MECANICO' AND u.ativo = true")
     List<Usuario> findMecanicosAtivos();
 
-    // Verificar se email já existe
     boolean existsByEmail(String email);
 
-    // CORRIGIDO: Model usa CPF, não nuCPF
-    boolean existsByCPF(String CPF);
+    // ✅ CORRIGIDO: cpf em camelCase
+    boolean existsByCpf(String cpf);
 }
