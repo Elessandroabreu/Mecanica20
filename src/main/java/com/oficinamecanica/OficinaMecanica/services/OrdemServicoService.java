@@ -1,6 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
 import com.oficinamecanica.OficinaMecanica.dto.OrdemServicoRequestDTO;
+import com.oficinamecanica.OficinaMecanica.dto.OrdemServicoResponseDTO;
 import com.oficinamecanica.OficinaMecanica.enums.FormaPagamento;
 import com.oficinamecanica.OficinaMecanica.enums.Status;
 import com.oficinamecanica.OficinaMecanica.enums.TipoOrdemOrcamento;
@@ -20,6 +21,8 @@ import java.util.List;
 @Service
 @RequiredArgsConstructor
 public class OrdemServicoService {
+
+
 
     private final OrdemServicoRepository ordemServicoRepository;
     private final ClienteRepository clienteRepository;
@@ -436,27 +439,48 @@ public class OrdemServicoService {
         return converterParaDTO(ordemServicoRepository.findByIdWithItens(atualizada.getCdOrdemServico()));
     }
 
-    // CONVERTER PARA DTO
-    private OrdemServicoRequestDTO converterParaDTO(OrdemServico ordem) {
-        List<OrdemServicoRequestDTO.ItemDTO> itensDTO = ordem.getItens() != null
+    private OrdemServicoResponseDTO converterParaDTO(OrdemServico ordem) {
+        // Converter itens
+        List<OrdemServicoResponseDTO.ItemResponseDTO> itensDTO = ordem.getItens() != null
                 ? ordem.getItens().stream()
-                .map(item -> new OrdemServicoRequestDTO.ItemDTO(
+                .map(item -> new OrdemServicoResponseDTO.ItemResponseDTO(
+                        item.getCdItemOrdemServico(),
                         item.getProduto() != null ? item.getProduto().getCdProduto() : null,
+                        item.getProduto() != null ? item.getProduto().getNmProduto() : null,
                         item.getServico() != null ? item.getServico().getCdServico() : null,
-                        item.getQuantidade()
+                        item.getServico() != null ? item.getServico().getNmServico() : null,
+                        item.getQuantidade(),
+                        item.getVlUnitario(),
+                        item.getVlTotal()
                 ))
                 .toList()
                 : new ArrayList<>();
 
-        return new OrdemServicoRequestDTO(
+        return new OrdemServicoResponseDTO(
+                ordem.getCdOrdemServico(),
+                // Cliente
                 ordem.getClienteModel().getCdCliente(),
+                ordem.getClienteModel().getNmCliente(),
+                // Veículo
                 ordem.getVeiculo().getCdVeiculo(),
+                ordem.getVeiculo().getPlaca(),
+                ordem.getVeiculo().getModelo(),
+                ordem.getVeiculo().getMarca(),
+                // Mecânico
                 ordem.getMecanico().getCdUsuario(),
+                ordem.getMecanico().getNmUsuario(),
+                // Dados da OS
                 ordem.getTipoOrdemOrcamento(),
-                ordem.getDataAgendamento() != null ? ordem.getDataAgendamento().toLocalDate() : null,
+                ordem.getStatus(),
+                ordem.getDataAgendamento(),
+                ordem.getDataAbertura(),
+                // Valores
+                ordem.getVlPecas(),
+                ordem.getVlServicos(),
                 ordem.getVlMaoObraExtra(),
-                0.0,
+                ordem.getVlTotal(),
                 ordem.getDiagnostico(),
+                ordem.getAprovado(),
                 itensDTO
         );
     }

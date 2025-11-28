@@ -25,7 +25,7 @@ public record OrdemServicoRequestDTO(
         @PositiveOrZero(message = "Valor da mão de obra deve ser zero ou positivo")
         Double vlMaoObra,
 
-        double v, @Size(max = 1000, message = "Diagnóstico deve ter no máximo 1000 caracteres")
+        @Size(max = 1000, message = "Diagnóstico deve ter no máximo 1000 caracteres")
         String diagnostico,
 
         @NotNull(message = "Itens são obrigatórios")

@@ -1,10 +1,9 @@
 package com.oficinamecanica.OficinaMecanica.dto;
 
 import com.oficinamecanica.OficinaMecanica.enums.Status;
-
 import java.time.LocalDate;
 
-record AgendamentoResponseDTO(
+public record AgendamentoResponseDTO(
         Integer cdAgendamento,
         Integer cdCliente,
         String nomeCliente,
@@ -19,5 +18,5 @@ record AgendamentoResponseDTO(
         LocalDate dataAgendamento,
         Status status,
         String observacoes,
-        Integer cdOrdemServico // Null se ainda não gerou OS
+        Integer cdOrdemServico
 ) {}
