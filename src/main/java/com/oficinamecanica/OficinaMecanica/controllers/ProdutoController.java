@@ -32,7 +32,7 @@ public class ProdutoController {
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Buscar produto por ID")
-    public ResponseEntity<ProdutoeDTO> buscarPorId(@PathVariable Integer id) {
+    public ResponseEntity<ProdutoDTO> buscarPorId(@PathVariable Integer id) {
         ProdutoDTO response = produtoService.buscarPorId(id);
         return ResponseEntity.ok(response);
     }
@@ -57,7 +57,7 @@ public class ProdutoController {
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Atualizar produto")
     public ResponseEntity<ProdutoDTO> atualizar(@PathVariable Integer id,
-                                                        @Valid @RequestBody ProdutoDTO dto) {
+                                                @Valid @RequestBody ProdutoDTO dto) {
         ProdutoDTO response = produtoService.atualizar(id, dto);
         return ResponseEntity.ok(response);
     }

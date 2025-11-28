@@ -7,6 +7,8 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 public record ProdutoDTO(
+        Integer cdProduto, // ✅ ADICIONADO - para retorno
+
         @NotBlank(message = "Nome do produto é obrigatório")
         @Size(max = 150, message = "Nome deve ter no máximo 150 caracteres")
         String nmProduto,
@@ -31,7 +33,9 @@ public record ProdutoDTO(
 
         @NotNull(message = "Quantidade mínima é obrigatória")
         @PositiveOrZero(message = "Quantidade mínima deve ser zero ou positiva")
-        Integer qtdMinimo
+        Integer qtdMinimo,
+
+        Boolean ativo // ✅ ADICIONADO - para retorno
 ) {
     public ProdutoDTO {
         if (vlVenda != null && vlCusto != null && vlVenda <= vlCusto) {

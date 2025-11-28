@@ -5,6 +5,8 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 
 public record VeiculoDTO(
+        Integer cdVeiculo, // ✅ ADICIONADO
+
         @NotNull(message = "Cliente é obrigatório")
         Integer cdCliente,
 

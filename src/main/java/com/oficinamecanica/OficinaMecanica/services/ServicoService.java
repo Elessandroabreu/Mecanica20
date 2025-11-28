@@ -64,6 +64,7 @@ public class ServicoService {
         servicoRepository.save(servico);
     }
 
+    // ✅ CONVERTER ENTIDADE → DTO
     private ServicoDTO converterParaDTO(Servico servico) {
         return new ServicoDTO(
                 servico.getCdServico(),

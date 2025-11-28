@@ -3,7 +3,7 @@ package com.oficinamecanica.OficinaMecanica.models;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.oficinamecanica.OficinaMecanica.enums.Status;
 import com.oficinamecanica.OficinaMecanica.enums.TipoOrdemOrcamento;
-import com.oficinamecanica.OficinaMecanica.enums.TipoServico;
+
 import jakarta.persistence.*;
 import lombok.*;
 import java.time.LocalDateTime;

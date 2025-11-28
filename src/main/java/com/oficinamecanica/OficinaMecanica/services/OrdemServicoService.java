@@ -3,7 +3,7 @@ package com.oficinamecanica.OficinaMecanica.services;
 import com.oficinamecanica.OficinaMecanica.dto.OrdemServicoDTO;
 import com.oficinamecanica.OficinaMecanica.enums.FormaPagamento;
 import com.oficinamecanica.OficinaMecanica.enums.Status;
-import com.oficinamecanica.OficinaMecanica.enums.TipoServico;
+import com.oficinamecanica.OficinaMecanica.enums.TipoOrdemOrcamento;
 import com.oficinamecanica.OficinaMecanica.models.*;
 import com.oficinamecanica.OficinaMecanica.repositories.*;
 import lombok.RequiredArgsConstructor;
@@ -17,15 +17,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
-/**
- * Serviço para gerenciar Ordens de Serviço e Orçamentos
- *
- * FLUXO SIMPLIFICADO:
- * 1. ORÇAMENTO: Criado → Aprovado → Vira ORDEM DE SERVIÇO
- * 2. ORDEM DE SERVIÇO: Aguardando → Em Andamento → Concluída (gera faturamento)
- * 3. AGENDAMENTO: Criado automaticamente quando OS tem data
- * 4. SINCRONIZAÇÃO: Mudanças no Agendamento refletem na OS e vice-versa
- */
 @Slf4j
 @Service
 @RequiredArgsConstructor
@@ -45,8 +36,8 @@ public class OrdemServicoService {
     // 1️⃣ CRIAR ORÇAMENTO OU ORDEM DE SERVIÇO
     // ========================================
     @Transactional
-    public OrdemServicoResponseDTO criar(OrdemServicoDTO dto) {
-        log.info("🆕 Criando {} para cliente: {}", dto.tipoServico(), dto.cdCliente());
+    public OrdemServicoDTO criar(OrdemServicoDTO dto) {
+        log.info("🆕 Criando {} para cliente: {}", dto.tipoOrdemOrcamento(), dto.cdCliente());
 
         // Validar entidades
         Cliente cliente = buscarClienteAtivo(dto.cdCliente());
@@ -54,7 +45,7 @@ public class OrdemServicoService {
         Usuario mecanico = buscarMecanicoAtivo(dto.cdMecanico());
 
         // 🔹 SE FOR ORDEM DE SERVIÇO COM DATA → Validar disponibilidade do mecânico
-        if (dto.tipoServico() == TipoServico.ORDEM_DE_SERVICO && dto.dataAgendamento() != null) {
+        if (dto.tipoServico() == TipoOrdemOrcamento.ORDEM_DE_SERVICO && dto.dataAgendamento() != null) {
             validarDisponibilidadeMecanico(dto.cdMecanico(), dto.dataAgendamento());
         }
 
@@ -63,8 +54,8 @@ public class OrdemServicoService {
                 .cliente(cliente)
                 .veiculo(veiculo)
                 .mecanico(mecanico)
-                .tipoServico(dto.tipoServico())
-                .statusOrdemServico(Status.AGUARDANDO)
+                .tipoOrdemOrcamento(dto.tipoServico())
+                .status(statuss.AGUARDANDO)
                 .dataAbertura(LocalDateTime.now())
                 .vlPecas(0.0)
                 .vlMaoObra(dto.vlMaoObra() != null ? dto.vlMaoObra() : 0.0)

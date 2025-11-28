@@ -17,15 +17,14 @@ public class ProdutoService {
     private final ProdutoRepository produtoRepository;
 
     @Transactional
-    public ProdutoResponseDTO criar(ProdutoDTO dto) {
+    public ProdutoDTO criar(ProdutoDTO dto) {
         Produto produto = Produto.builder()
                 .nmProduto(dto.nmProduto())
                 .dsProduto(dto.dsProduto())
                 .categoria(dto.categoria())
-                .vlCusto(dto.vlCusto())
-                .vlVenda(dto.vlVenda())
+                .vlProduto(dto.vlVenda()) // ✅ CORRIGIDO: Produto só tem vlProduto
                 .qtdEstoque(dto.qtdEstoque())
-                .qtdMinimo(dto.qtdMinimo())
+                .qtdMinimoEstoque(dto.qtdMinimo()) // ✅ CORRIGIDO: nome do campo no model
                 .ativo(true)
                 .build();
 
@@ -34,45 +33,37 @@ public class ProdutoService {
     }
 
     @Transactional(readOnly = true)
-    public ProdutoResponseDTO buscarPorId(Integer id) {
+    public ProdutoDTO buscarPorId(Integer id) {
         Produto produto = produtoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
         return converterParaDTO(produto);
     }
 
     @Transactional(readOnly = true)
-    public List<ProdutoResponseDTO> listarAtivos() {
+    public List<ProdutoDTO> listarAtivos() {
         return produtoRepository.findByAtivoTrue().stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<ProdutoResponseDTO> listarComEstoqueBaixo() {
+    public List<ProdutoDTO> listarComEstoqueBaixo() {
         return produtoRepository.findProdutosComEstoqueBaixo().stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }
 
-    @Transactional(readOnly = true)
-    public List<ProdutoResponseDTO> listarDisponiveis() {
-        return produtoRepository.findProdutosDisponiveis().stream()
-                .map(this::converterParaDTO)
-                .collect(Collectors.toList());
-    }
-
     @Transactional
-    public ProdutoResponseDTO atualizar(Integer id, ProdutoDTO dto) {
+    public ProdutoDTO atualizar(Integer id, ProdutoDTO dto) {
         Produto produto = produtoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
 
         produto.setNmProduto(dto.nmProduto());
         produto.setDsProduto(dto.dsProduto());
         produto.setCategoria(dto.categoria());
-        produto.setVlCusto(dto.vlCusto());
-        produto.setVlVenda(dto.vlVenda());
+        produto.setVlProduto(dto.vlVenda()); // ✅ CORRIGIDO
         produto.setQtdEstoque(dto.qtdEstoque());
-        produto.setQtdMinimo(dto.qtdMinimo());
+        produto.setQtdMinimoEstoque(dto.qtdMinimo()); // ✅ CORRIGIDO
 
         Produto atualizado = produtoRepository.save(produto);
         return converterParaDTO(atualizado);
@@ -82,45 +73,22 @@ public class ProdutoService {
     public void deletar(Integer id) {
         Produto produto = produtoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
-
         produto.setAtivo(false);
         produtoRepository.save(produto);
     }
 
-    @Transactional
-    public void darBaixaEstoque(Integer cdProduto, Integer quantidade) {
-        Produto produto = produtoRepository.findById(cdProduto)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
-
-        if (produto.getQtdEstoque() < quantidade) {
-            throw new RuntimeException("Estoque insuficiente");
-        }
-
-        produto.setQtdEstoque(produto.getQtdEstoque() - quantidade);
-        produtoRepository.save(produto);
-    }
-
-    @Transactional
-    public void adicionarEstoque(Integer cdProduto, Integer quantidade) {
-        Produto produto = produtoRepository.findById(cdProduto)
-                .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
-
-        produto.setQtdEstoque(produto.getQtdEstoque() + quantidade);
-        produtoRepository.save(produto);
-    }
-
-    private ProdutoResponseDTO converterParaDTO(Produto produto) {
-        return new ProdutoResponseDTO(
+    // ✅ CONVERTER ENTIDADE → DTO
+    private ProdutoDTO converterParaDTO(Produto produto) {
+        return new ProdutoDTO(
                 produto.getCdProduto(),
                 produto.getNmProduto(),
                 produto.getDsProduto(),
                 produto.getCategoria(),
-                produto.getVlCusto(),
-                produto.getVlVenda(),
+                produto.getVlProduto(), // custo = venda (seu model só tem vlProduto)
+                produto.getVlProduto(), // venda
                 produto.getQtdEstoque(),
-                produto.getQtdMinimo(),
+                produto.getQtdMinimoEstoque(),
                 produto.getAtivo()
-
         );
     }
 }

@@ -22,13 +22,13 @@ public class Cliente {
     private String nmCliente;
 
     @Column(name = "CPF", nullable = false, length = 14, unique = true)
-    private String nuCPF;
+    private String CPF;
 
     @Column(name = "TELEFONE", nullable = false,length = 20)
-    private String nuTelefone;
+    private String Telefone;
 
-    @Column(name = "DSENDERECO", length = 255)
-    private String dsEndereco;
+    @Column(name = "ENDERECO", length = 255)
+    private String Endereco;
 
     @Column(name = "EMAIL", length = 150)
     private String email;
