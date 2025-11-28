@@ -14,7 +14,7 @@ public interface ProdutoRepository extends JpaRepository<Produto, Integer> {
     List<Produto> findByAtivoTrue();
 
     // Buscar produtos com estoque baixo (menor que mínimo)
-    @Query("SELECT p FROM Produto p WHERE p.qtdEstoque < p.qtdMinimo AND p.ativo = true")
+    @Query("SELECT p FROM Produto p WHERE p.qtdEstoque < p.qtdMinimoEstoque AND p.ativo = true")
     List<Produto> findProdutosComEstoqueBaixo();
 
     // Buscar produtos disponíveis (com estoque e ativos)
