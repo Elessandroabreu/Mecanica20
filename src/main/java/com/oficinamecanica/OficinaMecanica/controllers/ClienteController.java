@@ -1,53 +1,64 @@
-package com.oficinamecanica.OficinaMecanica.models;
+package com.oficinamecanica.OficinaMecanica.controllers;
 
-import com.fasterxml.jackson.annotation.JsonIgnore;
-import jakarta.persistence.*;
-import lombok.*;
+import com.oficinamecanica.OficinaMecanica.dto.ClienteDTO;
+import com.oficinamecanica.OficinaMecanica.services.ClienteService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
+import lombok.RequiredArgsConstructor;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.web.bind.annotation.*;
+
 import java.util.List;
 
-@Entity
-@Table(name = "CLIENTE")
-@Data
-@NoArgsConstructor
-@AllArgsConstructor
-@Builder
-public class ClienteModel {
+@RestController
+@RequestMapping("/api/clientes")
+@RequiredArgsConstructor
+@Tag(name = "Clientes", description = "Endpoints para gerenciamento de clientes")
+public class ClienteController {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "CDCLIENTE")
-    private Integer cdCliente;
+    private final ClienteService clienteService;
 
-    @Column(name = "NMCLIENTE", nullable = false, length = 120)
-    private String nmCliente;
+    @PostMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @Operation(summary = "Cadastrar novo cliente")
+    public ResponseEntity<ClienteDTO> criar(@Valid @RequestBody ClienteDTO dto) {
+        ClienteDTO response = clienteService.criar(dto);
+        return ResponseEntity.status(HttpStatus.CREATED).body(response);
+    }
 
-    // ✅ CORRIGIDO: Nome da variável agora bate com o DTO
-    @Column(name = "CPF", nullable = false, length = 14, unique = true)
-    private String nuCPF;
+    @GetMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @Operation(summary = "Buscar cliente por ID")
+    public ResponseEntity<ClienteDTO> buscarPorId(@PathVariable Integer id) {
+        ClienteDTO response = clienteService.buscarPorId(id);
+        return ResponseEntity.ok(response);
+    }
 
-    // ✅ CORRIGIDO: Nome da variável agora bate com o DTO
-    @Column(name = "TELEFONE", nullable = false, length = 20)
-    private String nuTelefone;
+    @GetMapping
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @Operation(summary = "Listar clientes ativos")
+    public ResponseEntity<List<ClienteDTO>> listarAtivos() {
+        List<ClienteDTO> response = clienteService.listarAtivos();
+        return ResponseEntity.ok(response);
+    }
 
-    // ✅ CORRIGIDO: Nome da variável agora bate com o DTO
-    @Column(name = "ENDERECO", length = 255)
-    private String dsEndereco;
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @Operation(summary = "Atualizar cliente")
+    public ResponseEntity<ClienteDTO> atualizar(@PathVariable Integer id,
+                                                @Valid @RequestBody ClienteDTO dto) {
+        ClienteDTO response = clienteService.atualizar(id, dto);
+        return ResponseEntity.ok(response);
+    }
 
-    @Column(name = "EMAIL", length = 150)
-    private String email;
-
-    @Column(name = "ATIVO", nullable = false)
-    private Boolean ativo = true;
-
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Veiculo> veiculos;
-
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<OrdemServico> ordensServico;
-
-    @OneToMany(mappedBy = "cliente", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
-    @JsonIgnore
-    private List<Venda> vendas;
+    @DeleteMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @Operation(summary = "Deletar cliente (soft delete)")
+    public ResponseEntity<Void> deletar(@PathVariable Integer id) {
+        clienteService.deletar(id);
+        return ResponseEntity.noContent().build();
+    }
 }
