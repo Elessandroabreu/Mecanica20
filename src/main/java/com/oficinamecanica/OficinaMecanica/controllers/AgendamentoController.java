@@ -1,6 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.controllers;
 
 import com.oficinamecanica.OficinaMecanica.dto.AgendamentoDTO;
+import com.oficinamecanica.OficinaMecanica.enums.Status;
 import com.oficinamecanica.OficinaMecanica.services.AgendamentoService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -25,16 +26,16 @@ public class AgendamentoController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Criar novo agendamento")
-    public ResponseEntity<AgendamentoResponseDTO> criar(@Valid @RequestBody AgendamentoDTO dto) {
-        AgendamentoResponseDTO response = agendamentoService.criar(dto);
+    public ResponseEntity<AgendamentoDTO> criar(@Valid @RequestBody AgendamentoDTO dto) {
+        AgendamentoDTO response = agendamentoService.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Buscar agendamento por ID")
-    public ResponseEntity<AgendamentoResponseDTO> buscarPorId(@PathVariable Integer id) {
-        AgendamentoResponseDTO response = agendamentoService.buscarPorId(id);
+    public ResponseEntity<AgendamentoDTO> buscarPorId(@PathVariable Integer id) {
+        AgendamentoDTO response = agendamentoService.buscarPorId(id);
         return ResponseEntity.ok(response);
     }
 
@@ -43,33 +44,33 @@ public class AgendamentoController {
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Listar todos os agendamentos",
             description = "Retorna todos os agendamentos, incluindo os criados automaticamente pelas OS")
-    public ResponseEntity<List<AgendamentoResponseDTO>> listarTodos() {
-        List<AgendamentoResponseDTO> response = agendamentoService.listarTodos();
+    public ResponseEntity<List<AgendamentoDTO>> listarTodos() {
+        List<AgendamentoDTO> response = agendamentoService.listarTodos();
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/mecanico/{cdMecanico}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Listar agendamentos de um mecânico")
-    public ResponseEntity<List<AgendamentoResponseDTO>> listarPorMecanico(@PathVariable Integer cdMecanico) {
-        List<AgendamentoResponseDTO> response = agendamentoService.listarPorMecanico(cdMecanico);
+    public ResponseEntity<List<AgendamentoDTO>> listarPorMecanico(@PathVariable Integer cdMecanico) {
+        List<AgendamentoDTO> response = agendamentoService.listarPorMecanico(cdMecanico);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/futuros")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Listar agendamentos futuros")
-    public ResponseEntity<List<AgendamentoResponseDTO>> listarFuturos() {
-        List<AgendamentoResponseDTO> response = agendamentoService.listarAgendamentosFuturos();
+    public ResponseEntity<List<AgendamentoDTO>> listarFuturos() {
+        List<AgendamentoDTO> response = agendamentoService.listarAgendamentosFuturos();
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Atualizar agendamento")
-    public ResponseEntity<AgendamentoResponseDTO> atualizar(@PathVariable Integer id,
+    public ResponseEntity<AgendamentoDTO> atualizar(@PathVariable Integer id,
                                                             @Valid @RequestBody AgendamentoDTO dto) {
-        AgendamentoResponseDTO response = agendamentoService.atualizar(id, dto);
+        AgendamentoDTO response = agendamentoService.atualizar(id, dto);
         return ResponseEntity.ok(response);
     }
 
@@ -78,14 +79,14 @@ public class AgendamentoController {
     @PreAuthorize("hasAnyRole('ADMIN', 'MECANICO')")
     @Operation(summary = "Atualizar status do agendamento (sincroniza com OS)",
             description = "Quando mecânico muda status, a Ordem de Serviço vinculada também é atualizada")
-    public ResponseEntity<AgendamentoResponseDTO> atualizarStatus(
+    public ResponseEntity<AgendamentoDTO> atualizarStatus(
             @PathVariable Integer id,
             @RequestBody Map<String, String> body) {
 
         String statusStr = body.get("status");
-        StatusAgendamento novoStatus = StatusAgendamento.valueOf(statusStr);
+        Status novoStatus = Status.valueOf(statusStr);
 
-        AgendamentoResponseDTO response = agendamentoService.atualizarStatus(id, novoStatus);
+        AgendamentoDTO response = agendamentoService.atualizarStatus(id, novoStatus);
         return ResponseEntity.ok(response);
     }
 

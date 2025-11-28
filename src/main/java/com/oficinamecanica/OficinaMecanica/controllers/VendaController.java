@@ -27,50 +27,50 @@ public class VendaController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Realizar nova venda no balcão")
-    public ResponseEntity<VendaResponseDTO> criar(@Valid @RequestBody VendaDTO dto) {
-        VendaResponseDTO response = vendaService.criar(dto);
+    public ResponseEntity<VendaDTO> criar(@Valid @RequestBody VendaDTO dto) {
+        VendaDTO response = vendaService.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Buscar venda por ID")
-    public ResponseEntity<VendaResponseDTO> buscarPorId(@PathVariable Integer id) {
-        VendaResponseDTO response = vendaService.buscarPorId(id);
+    public ResponseEntity<VendaDTO> buscarPorId(@PathVariable Integer id) {
+        VendaDTO response = vendaService.buscarPorId(id);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Listar todas as vendas")
-    public ResponseEntity<List<VendaResponseDTO>> listarTodas() {
-        List<VendaResponseDTO> response = vendaService.listarTodas();
+    public ResponseEntity<List<VendaDTO>> listarTodas() {
+        List<VendaDTO> response = vendaService.listarTodas();
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/cliente/{cdCliente}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Listar vendas de um cliente")
-    public ResponseEntity<List<VendaResponseDTO>> listarPorCliente(@PathVariable Integer cdCliente) {
-        List<VendaResponseDTO> response = vendaService.listarPorCliente(cdCliente);
+    public ResponseEntity<List<VendaDTO>> listarPorCliente(@PathVariable Integer cdCliente) {
+        List<VendaDTO> response = vendaService.listarPorCliente(cdCliente);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/atendente/{cdAtendente}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Listar vendas de um atendente")
-    public ResponseEntity<List<VendaResponseDTO>> listarPorAtendente(@PathVariable Integer cdAtendente) {
-        List<VendaResponseDTO> response = vendaService.listarPorAtendente(cdAtendente);
+    public ResponseEntity<List<VendaDTO>> listarPorAtendente(@PathVariable Integer cdAtendente) {
+        List<VendaDTO> response = vendaService.listarPorAtendente(cdAtendente);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/periodo")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Listar vendas por período")
-    public ResponseEntity<List<VendaResponseDTO>> listarPorPeriodo(
+    public ResponseEntity<List<VendaDTO>> listarPorPeriodo(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataInicio,
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME) LocalDateTime dataFim) {
-        List<VendaResponseDTO> response = vendaService.listarPorPeriodo(dataInicio, dataFim);
+        List<VendaDTO> response = vendaService.listarPorPeriodo(dataInicio, dataFim);
         return ResponseEntity.ok(response);
     }
 

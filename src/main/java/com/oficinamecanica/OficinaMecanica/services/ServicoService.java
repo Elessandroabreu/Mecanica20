@@ -17,7 +17,7 @@ public class ServicoService {
     private final ServicoRepository servicoRepository;
 
     @Transactional
-    public ServicoResponseDTO criar(ServicoDTO dto) {
+    public ServicoDTO criar(ServicoDTO dto) {
         Servico servico = Servico.builder()
                 .nmServico(dto.nmServico())
                 .dsServico(dto.dsServico())
@@ -30,21 +30,21 @@ public class ServicoService {
     }
 
     @Transactional(readOnly = true)
-    public ServicoResponseDTO buscarPorId(Integer id) {
+    public ServicoDTO buscarPorId(Integer id) {
         Servico servico = servicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
         return converterParaDTO(servico);
     }
 
     @Transactional(readOnly = true)
-    public List<ServicoResponseDTO> listarAtivos() {
+    public List<ServicoDTO> listarAtivos() {
         return servicoRepository.findByAtivoTrue().stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public ServicoResponseDTO atualizar(Integer id, ServicoDTO dto) {
+    public ServicoDTO atualizar(Integer id, ServicoDTO dto) {
         Servico servico = servicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
 
@@ -64,8 +64,8 @@ public class ServicoService {
         servicoRepository.save(servico);
     }
 
-    private ServicoResponseDTO converterParaDTO(Servico servico) {
-        return new ServicoResponseDTO(
+    private ServicoDTO converterParaDTO(Servico servico) {
+        return new ServicoDTO(
                 servico.getCdServico(),
                 servico.getNmServico(),
                 servico.getDsServico(),

@@ -1,5 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.repositories;
 
+import com.oficinamecanica.OficinaMecanica.enums.Status;
 import com.oficinamecanica.OficinaMecanica.models.Agendamento;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
@@ -12,7 +13,7 @@ import java.util.List;
 @Repository
 public interface AgendamentoRepository extends JpaRepository<Agendamento, Integer> {
 
-    List<Agendamento> findByStatus(StatusAgendamento status);
+    List<Agendamento> findByStatus(Status status);
 
     List<Agendamento> findByMecanico_CdUsuario(Integer cdMecanico);
 
@@ -28,7 +29,7 @@ public interface AgendamentoRepository extends JpaRepository<Agendamento, Intege
     List<Agendamento> findByMecanico_CdUsuarioAndDataAgendamentoAndStatusNot(
             @Param("cdMecanico") Integer cdMecanico,
             @Param("dataAgendamento") LocalDate dataAgendamento,
-            @Param("status") StatusAgendamento status
+            @Param("status") Status status
     );
 
     // ✅ NOVO: Buscar agendamentos vinculados a uma Ordem de Serviço

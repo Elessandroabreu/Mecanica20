@@ -24,41 +24,41 @@ public class ProdutoController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Cadastrar novo produto")
-    public ResponseEntity<ProdutoResponseDTO> criar(@Valid @RequestBody ProdutoDTO dto) {
-        ProdutoResponseDTO response = produtoService.criar(dto);
+    public ResponseEntity<ProdutoDTO> criar(@Valid @RequestBody ProdutoDTO dto) {
+        ProdutoDTO response = produtoService.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Buscar produto por ID")
-    public ResponseEntity<ProdutoResponseDTO> buscarPorId(@PathVariable Integer id) {
-        ProdutoResponseDTO response = produtoService.buscarPorId(id);
+    public ResponseEntity<ProdutoeDTO> buscarPorId(@PathVariable Integer id) {
+        ProdutoDTO response = produtoService.buscarPorId(id);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Listar produtos ativos")
-    public ResponseEntity<List<ProdutoResponseDTO>> listarAtivos() {
-        List<ProdutoResponseDTO> response = produtoService.listarAtivos();
+    public ResponseEntity<List<ProdutoDTO>> listarAtivos() {
+        List<ProdutoDTO> response = produtoService.listarAtivos();
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/estoque-baixo")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Listar produtos com estoque baixo")
-    public ResponseEntity<List<ProdutoResponseDTO>> listarEstoqueBaixo() {
-        List<ProdutoResponseDTO> response = produtoService.listarComEstoqueBaixo();
+    public ResponseEntity<List<ProdutoDTO>> listarEstoqueBaixo() {
+        List<ProdutoDTO> response = produtoService.listarComEstoqueBaixo();
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Atualizar produto")
-    public ResponseEntity<ProdutoResponseDTO> atualizar(@PathVariable Integer id,
+    public ResponseEntity<ProdutoDTO> atualizar(@PathVariable Integer id,
                                                         @Valid @RequestBody ProdutoDTO dto) {
-        ProdutoResponseDTO response = produtoService.atualizar(id, dto);
+        ProdutoDTO response = produtoService.atualizar(id, dto);
         return ResponseEntity.ok(response);
     }
 

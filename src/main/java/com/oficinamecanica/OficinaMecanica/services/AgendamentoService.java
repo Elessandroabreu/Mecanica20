@@ -45,7 +45,7 @@ public class AgendamentoService {
     // 1️⃣ CRIAR AGENDAMENTO
     // ========================================
     @Transactional
-    public AgendamentoResponseDTO criar(AgendamentoDTO dto) {
+    public AgendamentoDTO criar(AgendamentoDTO dto) {
         log.info("📅 Criando agendamento para cliente: {}", dto.cdCliente());
 
         Cliente cliente = buscarClienteAtivo(dto.cdCliente());
@@ -60,7 +60,7 @@ public class AgendamentoService {
                 .veiculo(veiculo)
                 .mecanico(mecanico)
                 .observacoes(dto.observacoes())
-                .status(dto.status() != null ? dto.status() : StatusAgendamento.AGENDADO)
+                .status(dto.status() != null ? dto.status() : Status.AGENDADO)
                 .dataAgendamento(dto.dataAgendamento())
                 .build();
 
@@ -74,13 +74,13 @@ public class AgendamentoService {
     // 2️⃣ ATUALIZAR STATUS DO AGENDAMENTO
     // ========================================
     @Transactional
-    public AgendamentoResponseDTO atualizarStatus(Integer id, StatusAgendamento novoStatus) {
+    public AgendamentoDTO atualizarStatus(Integer id, Status novoStatus) {
         log.info("🔄 Atualizando status do agendamento {} para: {}", id, novoStatus);
 
         Agendamento agendamento = agendamentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
 
-        StatusAgendamento statusAntigo = agendamento.getStatus();
+        Status statusAntigo = agendamento.getStatus();
         agendamento.setStatus(novoStatus);
 
         Agendamento atualizado = agendamentoRepository.save(agendamento);
@@ -107,17 +107,17 @@ public class AgendamentoService {
      * - CANCELADO → CANCELADA
      */
     @Transactional
-    private void sincronizarComOrdemServico(Agendamento agendamento, StatusAgendamento novoStatus) {
+    protected void sincronizarComOrdemServico(Agendamento agendamento, Status novoStatus) {
         if (agendamento.getOrdemServico() == null) {
             log.info("ℹ️ Agendamento não possui OS vinculada");
             return;
         }
 
         OrdemServico os = agendamento.getOrdemServico();
-        Status novoStatusOS = mapearStatusAgendamentoParaOS(novoStatus);
+        Status novoStatusOS = mapearStatusParaOS(novoStatus);
 
-        if (novoStatusOS != null && os.getStatusOrdemServico() != novoStatusOS) {
-            os.setStatusOrdemServico(novoStatusOS);
+        if (novoStatusOS != null && os.getStatus() != novoStatusOS) {
+            os.setStatus(novoStatusOS);
             ordemServicoRepository.save(os);
 
             log.info("🔗 Ordem de Serviço {} sincronizada: {}",
@@ -128,12 +128,12 @@ public class AgendamentoService {
     /**
      * Mapeia status do Agendamento para status da Ordem de Serviço
      */
-    private Status mapearStatusAgendamentoParaOS(StatusAgendamento statusAgendamento) {
-        return switch (statusAgendamento) {
-            case AGENDADO -> Status.AGUARDANDO;
+    private Status mapearStatusParaOS(Status status) {
+        return switch (status) {
+            case AGENDADO -> Status.AGENDADO;
             case EM_ANDAMENTO -> Status.EM_ANDAMENTO;
-            case CONCLUIDO -> Status.CONCLUIDA;
-            case CANCELADO -> Status.CANCELADA;
+            case CONCLUIDO -> Status.CONCLUIDO;
+            case CANCELADO -> Status.CANCELADO;
         };
     }
 
@@ -142,7 +142,7 @@ public class AgendamentoService {
     // ========================================
 
     @Transactional(readOnly = true)
-    public AgendamentoResponseDTO buscarPorId(Integer id) {
+    public AgendamentoDTO buscarPorId(Integer id) {
         Agendamento agendamento = agendamentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
         return converterParaDTO(agendamento);
@@ -150,7 +150,7 @@ public class AgendamentoService {
 
     // ✅ NOVO: Listar TODOS os agendamentos (incluindo os criados automaticamente)
     @Transactional(readOnly = true)
-    public List<AgendamentoResponseDTO> listarTodos() {
+    public List<AgendamentoDTO> listarTodos() {
         log.info("📋 Listando todos os agendamentos");
         List<Agendamento> agendamentos = agendamentoRepository.findAll();
         log.info("✅ Total de agendamentos encontrados: {}", agendamentos.size());
@@ -162,27 +162,26 @@ public class AgendamentoService {
     }
 
     @Transactional(readOnly = true)
-    public List<AgendamentoResponseDTO> listarPorMecanico(Integer cdMecanico) {
+    public List<AgendamentoDTO> listarPorMecanico(Integer cdMecanico) {
         return agendamentoRepository.findByMecanico_CdUsuario(cdMecanico).stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<AgendamentoResponseDTO> listarAgendamentosFuturos() {
+    public List<AgendamentoDTO> listarAgendamentosFuturos() {
         return agendamentoRepository.findAgendamentosFuturos(LocalDate.now()).stream()
                 .map(this::converterParaDTO)
                 .collect(Collectors.toList());
     }
 
     @Transactional
-    public AgendamentoResponseDTO atualizar(Integer id, AgendamentoDTO dto) {
+    public AgendamentoDTO atualizar(Integer id, AgendamentoDTO dto) {
         Agendamento agendamento = agendamentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
 
         agendamento.setObservacoes(dto.observacoes());
 
-        // Se mudar status, usa o método específico para sincronizar
         if (dto.status() != null && dto.status() != agendamento.getStatus()) {
             return atualizarStatus(id, dto.status());
         }
@@ -195,19 +194,16 @@ public class AgendamentoService {
 
     @Transactional
     public void cancelar(Integer id) {
-        atualizarStatus(id, StatusAgendamento.CANCELADO);
+        atualizarStatus(id, Status.CANCELADO);
     }
 
-    // ========================================
-    // 🔧 MÉTODOS AUXILIARES
-    // ========================================
 
     private void validarDisponibilidadeMecanico(Integer cdMecanico, LocalDate dataAgendamento) {
         List<Agendamento> agendamentos = agendamentoRepository
                 .findByMecanico_CdUsuarioAndDataAgendamentoAndStatusNot(
                         cdMecanico,
                         dataAgendamento,
-                        StatusAgendamento.CANCELADO
+                        Status.CANCELADO
                 );
 
         if (!agendamentos.isEmpty()) {
@@ -256,8 +252,8 @@ public class AgendamentoService {
         return mecanico;
     }
 
-    private AgendamentoResponseDTO converterParaDTO(Agendamento agendamento) {
-        return new AgendamentoResponseDTO(
+    private AgendamentoDTO converterParaDTO(Agendamento agendamento) {
+        return new AgendamentoDTO(
                 agendamento.getCdAgendamento(),
                 agendamento.getCliente().getCdCliente(),
                 agendamento.getCliente().getNmCliente(),

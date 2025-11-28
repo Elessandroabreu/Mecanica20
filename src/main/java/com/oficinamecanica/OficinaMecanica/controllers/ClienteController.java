@@ -25,33 +25,33 @@ public class ClienteController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Cadastrar novo cliente")
-    public ResponseEntity<ClienteResponseDTO> criar(@Valid @RequestBody ClienteDTO dto) {
-        ClienteResponseDTO response = clienteService.criar(dto);
+    public ResponseEntity<ClienteDTO> criar(@Valid @RequestBody ClienteDTO dto) {
+        ClienteDTO  = clienteService.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Buscar cliente por ID")
-    public ResponseEntity<ClienteResponseDTO> buscarPorId(@PathVariable Integer id) {
-        ClienteResponseDTO response = clienteService.buscarPorId(id);
+    public ResponseEntity<ClienteDTO> buscarPorId(@PathVariable Integer id) {
+        ClienteDTO response = clienteService.buscarPorId(id);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Listar clientes ativos")
-    public ResponseEntity<List<ClienteResponseDTO>> listarAtivos() {
-        List<ClienteResponseDTO> response = clienteService.listarAtivos();
+    public ResponseEntity<List<ClienteDTO>> listarAtivos() {
+        List<ClienteDTO> response = clienteService.listarAtivos();
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Atualizar cliente")
-    public ResponseEntity<ClienteResponseDTO> atualizar(@PathVariable Integer id,
+    public ResponseEntity<ClienteDTO> atualizar(@PathVariable Integer id,
                                                         @Valid @RequestBody ClienteDTO dto) {
-        ClienteResponseDTO response = clienteService.atualizar(id, dto);
+        ClienteDTO response = clienteService.atualizar(id, dto);
         return ResponseEntity.ok(response);
     }
 
