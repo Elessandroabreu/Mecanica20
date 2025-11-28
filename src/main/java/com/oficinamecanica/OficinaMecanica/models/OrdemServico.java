@@ -77,6 +77,9 @@ public class OrdemServico {
     @Builder.Default
     private List<ItemOrdemServico> itens = new ArrayList<>();
 
+    @Column(name = "DATAABERTURA", nullable = false)
+    private LocalDateTime dataAbertura;
+
     @PrePersist
     protected void onCreate() {
         this.dataAbertura = LocalDateTime.now();
