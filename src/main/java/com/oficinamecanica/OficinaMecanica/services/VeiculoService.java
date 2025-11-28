@@ -1,7 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
 import com.oficinamecanica.OficinaMecanica.dto.VeiculoDTO;
-import com.oficinamecanica.OficinaMecanica.models.Cliente;
+import com.oficinamecanica.OficinaMecanica.models.ClienteModel;
 import com.oficinamecanica.OficinaMecanica.models.Veiculo;
 import com.oficinamecanica.OficinaMecanica.repositories.ClienteRepository;
 import com.oficinamecanica.OficinaMecanica.repositories.VeiculoRepository;
@@ -48,7 +48,7 @@ public class VeiculoService {
     @Transactional
     public VeiculoResponseDTO criar(VeiculoDTO dto) {
         // Valida se cliente existe
-        Cliente cliente = clienteRepository.findById(dto.cdCliente())
+        ClienteModel clienteModel = clienteRepository.findById(dto.cdCliente())
                 .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
 
         // Valida se placa já existe
@@ -57,7 +57,7 @@ public class VeiculoService {
         }
 
         Veiculo veiculo = new Veiculo();
-        veiculo.setCliente(cliente);
+        veiculo.setClienteModel(clienteModel);
         veiculo.setPlaca(dto.placa().toUpperCase());
         veiculo.setModelo(dto.modelo());
         veiculo.setMarca(dto.marca());
@@ -75,7 +75,7 @@ public class VeiculoService {
                 .orElseThrow(() -> new EntityNotFoundException("Veículo não encontrado"));
 
         // Valida se cliente existe
-        Cliente cliente = clienteRepository.findById(dto.cdCliente())
+        ClienteModel clienteModel = clienteRepository.findById(dto.cdCliente())
                 .orElseThrow(() -> new EntityNotFoundException("Cliente não encontrado"));
 
         // Valida se placa já existe (exceto para o próprio veículo)
@@ -84,7 +84,7 @@ public class VeiculoService {
             throw new IllegalArgumentException("Placa já cadastrada");
         }
 
-        veiculo.setCliente(cliente);
+        veiculo.setClienteModel(clienteModel);
         veiculo.setPlaca(dto.placa().toUpperCase());
         veiculo.setModelo(dto.modelo());
         veiculo.setMarca(dto.marca());

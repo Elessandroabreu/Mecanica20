@@ -25,7 +25,7 @@ public class OrdemServico {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CDCLIENTE", nullable = false)
-    private Cliente cliente;
+    private ClienteModel clienteModel;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CDVEICULO", nullable = false)
@@ -70,7 +70,7 @@ public class OrdemServico {
 
     @OneToOne(mappedBy = "ordemServico", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
-    private Agendamento agendamento;
+    private AgendamentoModel agendamentoModel;
 
     @OneToMany(mappedBy = "ordemServico", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore

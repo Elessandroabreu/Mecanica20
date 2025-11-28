@@ -40,7 +40,7 @@ public class OrdemServicoService {
         log.info("🆕 Criando {} para cliente: {}", dto.tipoOrdemOrcamento(), dto.cdCliente());
 
         // Validar entidades
-        Cliente cliente = buscarClienteAtivo(dto.cdCliente());
+        ClienteModel clienteModel = buscarClienteAtivo(dto.cdCliente());
         Veiculo veiculo = buscarVeiculo(dto.cdVeiculo());
         Usuario mecanico = buscarMecanicoAtivo(dto.cdMecanico());
 
@@ -51,7 +51,7 @@ public class OrdemServicoService {
 
         // Criar Ordem de Serviço
         OrdemServico ordem = OrdemServico.builder()
-                .cliente(cliente)
+                .clienteModel(clienteModel)
                 .veiculo(veiculo)
                 .mecanico(mecanico)
                 .tipoOrdemOrcamento(dto.tipoServico())
@@ -336,8 +336,8 @@ public class OrdemServicoService {
      */
     @Transactional
     private void criarAgendamentoAutomatico(OrdemServico ordem, LocalDate dataAgendamento) {
-        Agendamento agendamento = Agendamento.builder()
-                .cliente(ordem.getCliente())
+        AgendamentoModel agendamentoModel = AgendamentoModel.builder()
+                .clienteModel(ordem.getClienteModel())
                 .veiculo(ordem.getVeiculo())
                 .mecanico(ordem.getMecanico())
                 .dataAgendamento(dataAgendamento)
@@ -346,7 +346,7 @@ public class OrdemServicoService {
                 .ordemServico(ordem)
                 .build();
 
-        agendamentoRepository.save(agendamento);
+        agendamentoRepository.save(agendamentoModel);
         log.info("📅 Agendamento criado automaticamente para OS {} no dia {}",
                 ordem.getCdOrdemServico(), dataAgendamento);
     }
@@ -357,13 +357,13 @@ public class OrdemServicoService {
     @Transactional
     private void atualizarAgendamento(OrdemServico ordem, StatusAgendamento novoStatus) {
         // Buscar agendamento vinculado à OS
-        List<Agendamento> agendamentos = agendamentoRepository
+        List<AgendamentoModel> agendamentoModels = agendamentoRepository
                 .findByOrdemServico_CdOrdemServico(ordem.getCdOrdemServico());
 
-        if (!agendamentos.isEmpty()) {
-            Agendamento agendamento = agendamentos.get(0);
-            agendamento.setStatus(novoStatus);
-            agendamentoRepository.save(agendamento);
+        if (!agendamentoModels.isEmpty()) {
+            AgendamentoModel agendamentoModel = agendamentoModels.get(0);
+            agendamentoModel.setStatus(novoStatus);
+            agendamentoRepository.save(agendamentoModel);
             log.info("📅 Agendamento atualizado para: {}", novoStatus);
         }
     }
@@ -393,14 +393,14 @@ public class OrdemServicoService {
      * Valida se mecânico está disponível na data
      */
     private void validarDisponibilidadeMecanico(Integer cdMecanico, LocalDate dataAgendamento) {
-        List<Agendamento> agendamentos = agendamentoRepository
+        List<AgendamentoModel> agendamentoModels = agendamentoRepository
                 .findByMecanico_CdUsuarioAndDataAgendamentoAndStatusNot(
                         cdMecanico,
                         dataAgendamento,
                         StatusAgendamento.CANCELADO
                 );
 
-        if (!agendamentos.isEmpty()) {
+        if (!agendamentoModels.isEmpty()) {
             throw new RuntimeException(
                     "❌ Mecânico já possui agendamento para o dia " + dataAgendamento +
                             ". Escolha outro dia ou outro mecânico."
@@ -408,15 +408,15 @@ public class OrdemServicoService {
         }
     }
 
-    private Cliente buscarClienteAtivo(Integer id) {
-        Cliente cliente = clienteRepository.findById(id)
+    private ClienteModel buscarClienteAtivo(Integer id) {
+        ClienteModel clienteModel = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado: " + id));
 
-        if (!cliente.getAtivo()) {
+        if (!clienteModel.getAtivo()) {
             throw new RuntimeException("❌ Cliente inativo não pode criar ordens de serviço");
         }
 
-        return cliente;
+        return clienteModel;
     }
 
     private Veiculo buscarVeiculo(Integer id) {
@@ -517,8 +517,8 @@ public class OrdemServicoService {
 
         return new OrdemServicoResponseDTO(
                 ordem.getCdOrdemServico(),
-                ordem.getCliente() != null ? ordem.getCliente().getCdCliente() : null,
-                ordem.getCliente() != null ? ordem.getCliente().getNmCliente() : null,
+                ordem.getClienteModel() != null ? ordem.getClienteModel().getCdCliente() : null,
+                ordem.getClienteModel() != null ? ordem.getClienteModel().getNmCliente() : null,
                 ordem.getVeiculo() != null ? ordem.getVeiculo().getCdVeiculo() : null,
                 ordem.getVeiculo() != null ? ordem.getVeiculo().getPlaca() : null,
                 ordem.getVeiculo() != null ? ordem.getVeiculo().getModelo() : null,

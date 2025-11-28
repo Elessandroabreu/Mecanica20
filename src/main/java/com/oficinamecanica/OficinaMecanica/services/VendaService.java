@@ -25,11 +25,11 @@ public class VendaService {
 
     @Transactional
     public VendaResponseDTO criar(VendaDTO dto) {
-        Cliente cliente = clienteRepository.findById(dto.cdCliente())
+        ClienteModel clienteModel = clienteRepository.findById(dto.cdCliente())
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
         // ✅ VALIDAR SE CLIENTE ESTÁ ATIVO
-        if (!cliente.getAtivo()) {
+        if (!clienteModel.getAtivo()) {
             throw new RuntimeException("Cliente inativo não pode realizar compras");
         }
 
@@ -47,7 +47,7 @@ public class VendaService {
         }
 
         Venda venda = Venda.builder()
-                .cliente(cliente)
+                .clienteModel(clienteModel)
                 .atendente(atendente)
                 .dataVenda(LocalDateTime.now())
                 .vlTotal(0.0)
@@ -160,8 +160,8 @@ public class VendaService {
     private VendaResponseDTO converterParaDTO(Venda venda) {
         return new VendaResponseDTO(
                 venda.getCdVenda(),
-                venda.getCliente().getCdCliente(),
-                venda.getCliente().getNmCliente(),
+                venda.getClienteModel().getCdCliente(),
+                venda.getClienteModel().getNmCliente(),
                 venda.getAtendente().getCdUsuario(),
                 venda.getAtendente().getNmUsuario(),
                 venda.getDataVenda(),

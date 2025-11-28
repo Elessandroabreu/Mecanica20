@@ -54,10 +54,10 @@ public class FaturamentoService {
         String tipoTransacao = null;
 
         if (faturamento.getVenda() != null) {
-            nomeCliente = faturamento.getVenda().getCliente().getNmCliente();
+            nomeCliente = faturamento.getVenda().getClienteModel().getNmCliente();
             tipoTransacao = "VENDA";
         } else if (faturamento.getOrdemServico() != null) {
-            nomeCliente = faturamento.getOrdemServico().getCliente().getNmCliente();
+            nomeCliente = faturamento.getOrdemServico().getClienteModel().getNmCliente();
             tipoTransacao = "SERVICO";
         }
 

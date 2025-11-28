@@ -3,8 +3,8 @@ package com.oficinamecanica.OficinaMecanica.services;
 import com.oficinamecanica.OficinaMecanica.dto.AgendamentoDTO;
 import com.oficinamecanica.OficinaMecanica.enums.Status;
 import com.oficinamecanica.OficinaMecanica.enums.UserRole;
-import com.oficinamecanica.OficinaMecanica.models.Agendamento;
-import com.oficinamecanica.OficinaMecanica.models.Cliente;
+import com.oficinamecanica.OficinaMecanica.models.AgendamentoModel;
+import com.oficinamecanica.OficinaMecanica.models.ClienteModel;
 import com.oficinamecanica.OficinaMecanica.models.OrdemServico;
 import com.oficinamecanica.OficinaMecanica.models.Usuario;
 import com.oficinamecanica.OficinaMecanica.models.Veiculo;
@@ -48,15 +48,15 @@ public class AgendamentoService {
     public AgendamentoDTO criar(AgendamentoDTO dto) {
         log.info("📅 Criando agendamento para cliente: {}", dto.cdCliente());
 
-        Cliente cliente = buscarClienteAtivo(dto.cdCliente());
+        ClienteModel clienteModel = buscarClienteAtivo(dto.cdCliente());
         Veiculo veiculo = buscarVeiculo(dto.cdVeiculo());
         Usuario mecanico = buscarMecanicoAtivo(dto.cdMecanico());
 
         // Validar disponibilidade do mecânico
         validarDisponibilidadeMecanico(dto.cdMecanico(), dto.dataAgendamento());
 
-        Agendamento agendamento = Agendamento.builder()
-                .cliente(cliente)
+        AgendamentoModel agendamentoModel = AgendamentoModel.builder()
+                .clienteModel(clienteModel)
                 .veiculo(veiculo)
                 .mecanico(mecanico)
                 .observacoes(dto.observacoes())
@@ -64,7 +64,7 @@ public class AgendamentoService {
                 .dataAgendamento(dto.dataAgendamento())
                 .build();
 
-        Agendamento salvo = agendamentoRepository.save(agendamento);
+        AgendamentoModel salvo = agendamentoRepository.save(agendamentoModel);
         log.info("✅ Agendamento criado com ID: {}", salvo.getCdAgendamento());
 
         return converterParaDTO(salvo);
@@ -77,16 +77,16 @@ public class AgendamentoService {
     public AgendamentoDTO atualizarStatus(Integer id, Status novoStatus) {
         log.info("🔄 Atualizando status do agendamento {} para: {}", id, novoStatus);
 
-        Agendamento agendamento = agendamentoRepository.findById(id)
+        AgendamentoModel agendamentoModel = agendamentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
 
-        Status statusAntigo = agendamento.getStatus();
-        agendamento.setStatus(novoStatus);
+        Status statusAntigo = agendamentoModel.getStatus();
+        agendamentoModel.setStatus(novoStatus);
 
-        Agendamento atualizado = agendamentoRepository.save(agendamento);
+        AgendamentoModel atualizado = agendamentoRepository.save(agendamentoModel);
 
         // 🔹 SINCRONIZAR COM ORDEM DE SERVIÇO (se existir)
-        sincronizarComOrdemServico(agendamento, novoStatus);
+        sincronizarComOrdemServico(agendamentoModel, novoStatus);
 
         log.info("✅ Status do agendamento alterado: {} → {}", statusAntigo, novoStatus);
 
@@ -107,13 +107,13 @@ public class AgendamentoService {
      * - CANCELADO → CANCELADA
      */
     @Transactional
-    protected void sincronizarComOrdemServico(Agendamento agendamento, Status novoStatus) {
-        if (agendamento.getOrdemServico() == null) {
+    protected void sincronizarComOrdemServico(AgendamentoModel agendamentoModel, Status novoStatus) {
+        if (agendamentoModel.getOrdemServico() == null) {
             log.info("ℹ️ Agendamento não possui OS vinculada");
             return;
         }
 
-        OrdemServico os = agendamento.getOrdemServico();
+        OrdemServico os = agendamentoModel.getOrdemServico();
         Status novoStatusOS = mapearStatusParaOS(novoStatus);
 
         if (novoStatusOS != null && os.getStatus() != novoStatusOS) {
@@ -143,19 +143,19 @@ public class AgendamentoService {
 
     @Transactional(readOnly = true)
     public AgendamentoDTO buscarPorId(Integer id) {
-        Agendamento agendamento = agendamentoRepository.findById(id)
+        AgendamentoModel agendamentoModel = agendamentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
-        return converterParaDTO(agendamento);
+        return converterParaDTO(agendamentoModel);
     }
 
     // ✅ NOVO: Listar TODOS os agendamentos (incluindo os criados automaticamente)
     @Transactional(readOnly = true)
     public List<AgendamentoDTO> listarTodos() {
         log.info("📋 Listando todos os agendamentos");
-        List<Agendamento> agendamentos = agendamentoRepository.findAll();
-        log.info("✅ Total de agendamentos encontrados: {}", agendamentos.size());
+        List<AgendamentoModel> agendamentoModels = agendamentoRepository.findAll();
+        log.info("✅ Total de agendamentos encontrados: {}", agendamentoModels.size());
 
-        return agendamentos.stream()
+        return agendamentoModels.stream()
                 .map(this::converterParaDTO)
                 .sorted((a, b) -> b.dataAgendamento().compareTo(a.dataAgendamento())) // Mais recentes primeiro
                 .collect(Collectors.toList());
@@ -177,18 +177,18 @@ public class AgendamentoService {
 
     @Transactional
     public AgendamentoDTO atualizar(Integer id, AgendamentoDTO dto) {
-        Agendamento agendamento = agendamentoRepository.findById(id)
+        AgendamentoModel agendamentoModel = agendamentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
 
-        agendamento.setObservacoes(dto.observacoes());
+        agendamentoModel.setObservacoes(dto.observacoes());
 
-        if (dto.status() != null && dto.status() != agendamento.getStatus()) {
+        if (dto.status() != null && dto.status() != agendamentoModel.getStatus()) {
             return atualizarStatus(id, dto.status());
         }
 
-        agendamento.setDataAgendamento(dto.dataAgendamento());
+        agendamentoModel.setDataAgendamento(dto.dataAgendamento());
 
-        Agendamento atualizado = agendamentoRepository.save(agendamento);
+        AgendamentoModel atualizado = agendamentoRepository.save(agendamentoModel);
         return converterParaDTO(atualizado);
     }
 
@@ -199,14 +199,14 @@ public class AgendamentoService {
 
 
     private void validarDisponibilidadeMecanico(Integer cdMecanico, LocalDate dataAgendamento) {
-        List<Agendamento> agendamentos = agendamentoRepository
+        List<AgendamentoModel> agendamentoModels = agendamentoRepository
                 .findByMecanico_CdUsuarioAndDataAgendamentoAndStatusNot(
                         cdMecanico,
                         dataAgendamento,
                         Status.CANCELADO
                 );
 
-        if (!agendamentos.isEmpty()) {
+        if (!agendamentoModels.isEmpty()) {
             throw new RuntimeException(
                     "❌ Mecânico já possui agendamento para o dia " + dataAgendamento +
                             ". Escolha outro dia ou outro mecânico."
@@ -214,15 +214,15 @@ public class AgendamentoService {
         }
     }
 
-    private Cliente buscarClienteAtivo(Integer id) {
-        Cliente cliente = clienteRepository.findById(id)
+    private ClienteModel buscarClienteAtivo(Integer id) {
+        ClienteModel clienteModel = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        if (!cliente.getAtivo()) {
+        if (!clienteModel.getAtivo()) {
             throw new RuntimeException("❌ Cliente inativo não pode criar agendamentos");
         }
 
-        return cliente;
+        return clienteModel;
     }
 
     private Veiculo buscarVeiculo(Integer id) {
@@ -230,7 +230,7 @@ public class AgendamentoService {
                 .orElseThrow(() -> new RuntimeException("Veículo não encontrado"));
 
         // Validar se veículo pertence ao cliente
-        if (veiculo.getCliente() == null) {
+        if (veiculo.getClienteModel() == null) {
             throw new RuntimeException("❌ Veículo sem cliente associado");
         }
 
@@ -252,18 +252,18 @@ public class AgendamentoService {
         return mecanico;
     }
 
-    private AgendamentoDTO converterParaDTO(Agendamento agendamento) {
+    private AgendamentoDTO converterParaDTO(AgendamentoModel agendamentoModel) {
         return new AgendamentoDTO(
-                agendamento.getCdAgendamento(),
-                agendamento.getCliente().getCdCliente(),
-                agendamento.getCliente().getNmCliente(),
-                agendamento.getVeiculo().getCdVeiculo(),
-                agendamento.getVeiculo().getPlaca(),
-                agendamento.getMecanico().getCdUsuario(),
-                agendamento.getMecanico().getNmUsuario(),
-                agendamento.getStatus(),
-                agendamento.getObservacoes(),
-                agendamento.getDataAgendamento()
+                agendamentoModel.getCdAgendamento(),
+                agendamentoModel.getClienteModel().getCdCliente(),
+                agendamentoModel.getClienteModel().getNmCliente(),
+                agendamentoModel.getVeiculo().getCdVeiculo(),
+                agendamentoModel.getVeiculo().getPlaca(),
+                agendamentoModel.getMecanico().getCdUsuario(),
+                agendamentoModel.getMecanico().getNmUsuario(),
+                agendamentoModel.getStatus(),
+                agendamentoModel.getObservacoes(),
+                agendamentoModel.getDataAgendamento()
         );
     }
 }

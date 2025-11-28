@@ -22,7 +22,7 @@ public class Venda {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CDCLIENTE", nullable = false)
-    private Cliente cliente;
+    private ClienteModel clienteModel;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CDATENDENTE", nullable = false)

@@ -1,7 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
 import com.oficinamecanica.OficinaMecanica.dto.ClienteDTO;
-import com.oficinamecanica.OficinaMecanica.models.Cliente;
+import com.oficinamecanica.OficinaMecanica.models.ClienteModel;
 import com.oficinamecanica.OficinaMecanica.repositories.ClienteRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class ClienteService {
         }
 
         // ✅ CRIAR ENTIDADE com nomes corretos dos campos
-        Cliente cliente = Cliente.builder()
+        ClienteModel clienteModel = ClienteModel.builder()
                 .nmCliente(dto.nmCliente())
                 .CPF(dto.nuCPF())           // ✅ CORRIGIDO
                 .Telefone(dto.nuTelefone()) // ✅ CORRIGIDO
@@ -33,15 +33,15 @@ public class ClienteService {
                 .ativo(true)
                 .build();
 
-        Cliente salvo = clienteRepository.save(cliente);
+        ClienteModel salvo = clienteRepository.save(clienteModel);
         return converterParaDTO(salvo);
     }
 
     @Transactional(readOnly = true)
     public ClienteDTO buscarPorId(Integer id) {
-        Cliente cliente = clienteRepository.findById(id)
+        ClienteModel clienteModel = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
-        return converterParaDTO(cliente);
+        return converterParaDTO(clienteModel);
     }
 
     @Transactional(readOnly = true)
@@ -53,38 +53,38 @@ public class ClienteService {
 
     @Transactional
     public ClienteDTO atualizar(Integer id, ClienteDTO dto) {
-        Cliente cliente = clienteRepository.findById(id)
+        ClienteModel clienteModel = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
         // ✅ ATUALIZAR com nomes corretos
-        cliente.setNmCliente(dto.nmCliente());
-        cliente.setCPF(dto.nuCPF());           // ✅ CORRIGIDO
-        cliente.setTelefone(dto.nuTelefone()); // ✅ CORRIGIDO
-        cliente.setEndereco(dto.dsEndereco()); // ✅ CORRIGIDO
-        cliente.setEmail(dto.email());
+        clienteModel.setNmCliente(dto.nmCliente());
+        clienteModel.setCPF(dto.nuCPF());           // ✅ CORRIGIDO
+        clienteModel.setTelefone(dto.nuTelefone()); // ✅ CORRIGIDO
+        clienteModel.setEndereco(dto.dsEndereco()); // ✅ CORRIGIDO
+        clienteModel.setEmail(dto.email());
 
-        Cliente atualizado = clienteRepository.save(cliente);
+        ClienteModel atualizado = clienteRepository.save(clienteModel);
         return converterParaDTO(atualizado);
     }
 
     @Transactional
     public void deletar(Integer id) {
-        Cliente cliente = clienteRepository.findById(id)
+        ClienteModel clienteModel = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
-        cliente.setAtivo(false);
-        clienteRepository.save(cliente);
+        clienteModel.setAtivo(false);
+        clienteRepository.save(clienteModel);
     }
 
     // ✅ CONVERTER ENTIDADE → DTO
-    private ClienteDTO converterParaDTO(Cliente cliente) {
+    private ClienteDTO converterParaDTO(ClienteModel clienteModel) {
         return new ClienteDTO(
-                cliente.getCdCliente(),
-                cliente.getNmCliente(),
-                cliente.getCPF(),
-                cliente.getTelefone(),
-                cliente.getEndereco(),
-                cliente.getEmail(),
-                cliente.getAtivo()
+                clienteModel.getCdCliente(),
+                clienteModel.getNmCliente(),
+                clienteModel.getCPF(),
+                clienteModel.getTelefone(),
+                clienteModel.getEndereco(),
+                clienteModel.getEmail(),
+                clienteModel.getAtivo()
         );
     }
 }

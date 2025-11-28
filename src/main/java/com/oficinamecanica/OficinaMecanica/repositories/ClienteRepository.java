@@ -1,6 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.repositories;
 
-import com.oficinamecanica.OficinaMecanica.models.Cliente;
+import com.oficinamecanica.OficinaMecanica.models.ClienteModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
@@ -8,13 +8,13 @@ import java.util.List;
 import java.util.Optional;
 
 @Repository
-public interface ClienteRepository extends JpaRepository<Cliente, Integer> {
+public interface ClienteRepository extends JpaRepository<ClienteModel, Integer> {
 
     // Listar apenas clientes ativos
-    List<Cliente> findByAtivoTrue();
+    List<ClienteModel> findByAtivoTrue();
 
     // Buscar por CPF
-    Optional<Cliente> findByNuCPF(String nuCPF);
+    Optional<ClienteModel> findByNuCPF(String nuCPF);
 
     // Verificar se CPF já existe
     boolean existsByNuCPF(String nuCPF);

@@ -27,50 +27,50 @@ public class OrdemServicoController {
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Criar nova ordem de serviço ou orçamento")
-    public ResponseEntity<OrdemServicoResponseDTO> criar(@Valid @RequestBody OrdemServicoDTO dto) {
-        OrdemServicoResponseDTO response = ordemServicoService.criar(dto);
+    public ResponseEntity<OrdemServicoDTO> criar(@Valid @RequestBody OrdemServicoDTO dto) {
+        OrdemServicoDTO response = ordemServicoService.criar(dto);
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
     @PatchMapping("/{id}/iniciar")
     @PreAuthorize("hasAnyRole('ADMIN', 'MECANICO')")
     @Operation(summary = "Iniciar ordem de serviço")
-    public ResponseEntity<OrdemServicoResponseDTO> iniciar(@PathVariable Integer id) {
-        OrdemServicoResponseDTO response = ordemServicoService.iniciar(id);
+    public ResponseEntity<OrdemServicoDTO> iniciar(@PathVariable Integer id) {
+        OrdemServicoDTO response = ordemServicoService.iniciar(id);
         return ResponseEntity.ok(response);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Atualizar ordem de serviço")
-    public ResponseEntity<OrdemServicoResponseDTO> atualizar(
+    public ResponseEntity<OrdemServicoDTO> atualizar(
             @PathVariable Integer id,
             @Valid @RequestBody OrdemServicoDTO dto) {
-        OrdemServicoResponseDTO response = ordemServicoService.atualizar(id, dto);
+        OrdemServicoDTO response = ordemServicoService.atualizar(id, dto);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Buscar ordem de serviço por ID")
-    public ResponseEntity<OrdemServicoResponseDTO> buscarPorId(@PathVariable Integer id) {
-        OrdemServicoResponseDTO response = ordemServicoService.buscarPorId(id);
+    public ResponseEntity<OrdemServicoDTO> buscarPorId(@PathVariable Integer id) {
+        OrdemServicoDTO response = ordemServicoService.buscarPorId(id);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/status/{status}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Listar ordens por status")
-    public ResponseEntity<List<OrdemServicoResponseDTO>> listarPorStatus(@PathVariable Status status) {
-        List<OrdemServicoResponseDTO> response = ordemServicoService.listarPorStatus(status);
+    public ResponseEntity<List<OrdemServicoDTO>> listarPorStatus(@PathVariable Status status) {
+        List<OrdemServicoDTO> response = ordemServicoService.listarPorStatus(status);
         return ResponseEntity.ok(response);
     }
 
     @GetMapping("/orcamentos/pendentes")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Listar orçamentos pendentes de aprovação")
-    public ResponseEntity<List<OrdemServicoResponseDTO>> listarOrcamentosPendentes() {
-        List<OrdemServicoResponseDTO> response = ordemServicoService.listarOrcamentosPendentes();
+    public ResponseEntity<List<OrdemServicoDTO>> listarOrcamentosPendentes() {
+        List<OrdemServicoDTO> response = ordemServicoService.listarOrcamentosPendentes();
         return ResponseEntity.ok(response);
     }
 

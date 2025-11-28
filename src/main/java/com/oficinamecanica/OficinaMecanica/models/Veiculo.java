@@ -20,7 +20,7 @@ public class Veiculo {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CDCLIENTE", nullable = false)
-    private Cliente cliente;
+    private ClienteModel clienteModel;
 
     @Column(name = "PLACA", nullable = false, length = 10, unique = true)
     private String placa;

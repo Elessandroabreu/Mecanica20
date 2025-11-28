@@ -11,7 +11,7 @@ import java.time.LocalDate; // ✅ MUDOU: Era LocalDateTime
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Agendamento {
+public class AgendamentoModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,7 +20,7 @@ public class Agendamento {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CDCLIENTE", nullable = false)
-    private Cliente cliente;
+    private ClienteModel cdCliente;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CDVEICULO", nullable = false)
