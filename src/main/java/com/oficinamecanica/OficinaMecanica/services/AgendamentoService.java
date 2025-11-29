@@ -1,6 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
-import com.oficinamecanica.OficinaMecanica.dto.AgendamentoDTO;
+import com.oficinamecanica.OficinaMecanica.dto.AgendamentoRequestDTO;
+import com.oficinamecanica.OficinaMecanica.dto.AgendamentoResponseDTO;
 import com.oficinamecanica.OficinaMecanica.enums.Status;
 import com.oficinamecanica.OficinaMecanica.enums.UserRole;
 import com.oficinamecanica.OficinaMecanica.models.*;
@@ -25,9 +26,9 @@ public class AgendamentoService {
     private final UsuarioRepository usuarioRepository;
     private final OrdemServicoRepository ordemServicoRepository;
 
-    // CRIAR NOVO AGENDAMENTO
+    // ✅ CRIAR NOVO AGENDAMENTO - USA RequestDTO e RETORNA ResponseDTO
     @Transactional
-    public AgendamentoDTO criar(AgendamentoDTO dto) {
+    public AgendamentoResponseDTO criar(AgendamentoRequestDTO dto) {
         log.info("📅 Criando agendamento para cliente: {}", dto.cdCliente());
 
         // Buscar cliente
@@ -62,21 +63,21 @@ public class AgendamentoService {
                 .cdCliente(cliente)
                 .veiculo(veiculo)
                 .mecanico(mecanico)
-                .observacoes(dto.observacoes())
-                .status(dto.status() != null ? dto.status() : Status.AGENDADO)
                 .dataAgendamento(dto.dataAgendamento())
+                .observacoes(dto.observacoes())
+                .status(Status.AGENDADO) // ✅ Status inicial sempre AGENDADO
                 .build();
 
         AgendamentoModel salvo = agendamentoRepository.save(agendamento);
 
         log.info("✅ Agendamento criado com ID: {}", salvo.getCdAgendamento());
 
-        return converterParaDTO(salvo);
+        return converterParaResponseDTO(salvo);
     }
 
-    // ATUALIZAR STATUS
+    // ✅ ATUALIZAR STATUS
     @Transactional
-    public AgendamentoDTO atualizarStatus(Integer id, Status novoStatus) {
+    public AgendamentoResponseDTO atualizarStatus(Integer id, Status novoStatus) {
         log.info("🔄 Atualizando status do agendamento {} para: {}", id, novoStatus);
 
         AgendamentoModel agendamento = agendamentoRepository.findById(id)
@@ -92,10 +93,10 @@ public class AgendamentoService {
 
         log.info("✅ Status alterado: {} → {}", statusAntigo, novoStatus);
 
-        return converterParaDTO(atualizado);
+        return converterParaResponseDTO(atualizado);
     }
 
-    // SINCRONIZAR COM ORDEM DE SERVIÇO
+    // ✅ SINCRONIZAR COM ORDEM DE SERVIÇO
     @Transactional
     protected void sincronizarComOrdemServico(AgendamentoModel agendamento, Status novoStatus) {
         if (agendamento.getOrdemServico() == null) {
@@ -111,68 +112,78 @@ public class AgendamentoService {
         }
     }
 
-    // BUSCAR POR ID
+    // ✅ BUSCAR POR ID
     @Transactional(readOnly = true)
-    public AgendamentoDTO buscarPorId(Integer id) {
+    public AgendamentoResponseDTO buscarPorId(Integer id) {
         AgendamentoModel agendamento = agendamentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
-        return converterParaDTO(agendamento);
+        return converterParaResponseDTO(agendamento);
     }
 
-    // LISTAR TODOS
+    // ✅ LISTAR TODOS
     @Transactional(readOnly = true)
-    public List<AgendamentoDTO> listarTodos() {
+    public List<AgendamentoResponseDTO> listarTodos() {
         log.info("📋 Listando todos os agendamentos");
 
         List<AgendamentoModel> agendamentos = agendamentoRepository.findAll();
 
         return agendamentos.stream()
-                .map(this::converterParaDTO)
+                .map(this::converterParaResponseDTO)
                 .sorted((a, b) -> b.dataAgendamento().compareTo(a.dataAgendamento()))
                 .collect(Collectors.toList());
     }
 
-    // LISTAR POR MECÂNICO
+    // ✅ LISTAR POR MECÂNICO
     @Transactional(readOnly = true)
-    public List<AgendamentoDTO> listarPorMecanico(Integer cdMecanico) {
+    public List<AgendamentoResponseDTO> listarPorMecanico(Integer cdMecanico) {
         return agendamentoRepository.findByMecanico_CdUsuario(cdMecanico).stream()
-                .map(this::converterParaDTO)
+                .map(this::converterParaResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    // LISTAR FUTUROS
+    // ✅ LISTAR FUTUROS
     @Transactional(readOnly = true)
-    public List<AgendamentoDTO> listarAgendamentosFuturos() {
+    public List<AgendamentoResponseDTO> listarAgendamentosFuturos() {
         return agendamentoRepository.findAgendamentosFuturos(LocalDate.now()).stream()
-                .map(this::converterParaDTO)
+                .map(this::converterParaResponseDTO)
                 .collect(Collectors.toList());
     }
 
-    // ATUALIZAR
+    // ✅ ATUALIZAR - USA RequestDTO e RETORNA ResponseDTO
     @Transactional
-    public AgendamentoDTO atualizar(Integer id, AgendamentoDTO dto) {
+    public AgendamentoResponseDTO atualizar(Integer id, AgendamentoRequestDTO dto) {
+        log.info("🔄 Atualizando agendamento ID: {}", id);
+
         AgendamentoModel agendamento = agendamentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Agendamento não encontrado"));
 
+        // Atualizar campos
+        agendamento.setDataAgendamento(dto.dataAgendamento());
         agendamento.setObservacoes(dto.observacoes());
 
-        if (dto.status() != null && dto.status() != agendamento.getStatus()) {
-            return atualizarStatus(id, dto.status());
+        // Validar disponibilidade se mudou a data
+        if (!agendamento.getDataAgendamento().equals(dto.dataAgendamento())) {
+            validarDisponibilidadeMecanico(
+                    agendamento.getMecanico().getCdUsuario(),
+                    dto.dataAgendamento()
+            );
         }
 
-        agendamento.setDataAgendamento(dto.dataAgendamento());
-
         AgendamentoModel atualizado = agendamentoRepository.save(agendamento);
-        return converterParaDTO(atualizado);
+
+        log.info("✅ Agendamento atualizado: ID {}", id);
+
+        return converterParaResponseDTO(atualizado);
     }
 
-    // CANCELAR
+    // ✅ CANCELAR
     @Transactional
     public void cancelar(Integer id) {
+        log.info("🚫 Cancelando agendamento ID: {}", id);
         atualizarStatus(id, Status.CANCELADO);
     }
 
-    // VALIDAR DISPONIBILIDADE
+    // ✅ VALIDAR DISPONIBILIDADE DO MECÂNICO
     private void validarDisponibilidadeMecanico(Integer cdMecanico, LocalDate dataAgendamento) {
         List<AgendamentoModel> agendamentos = agendamentoRepository
                 .findByMecanico_CdUsuarioAndDataAgendamentoAndStatusNot(
@@ -188,15 +199,36 @@ public class AgendamentoService {
         }
     }
 
-    // CONVERTER PARA DTO
-    private AgendamentoDTO converterParaDTO(AgendamentoModel agendamento) {
-        return new AgendamentoDTO(
+    // ✅ CONVERTER PARA ResponseDTO - VERSÃO COMPLETA CORRIGIDA
+    private AgendamentoResponseDTO converterParaResponseDTO(AgendamentoModel agendamento) {
+        return new AgendamentoResponseDTO(
+                // ID do agendamento
+                agendamento.getCdAgendamento(),
+
+                // Dados do Cliente
                 agendamento.getCdCliente().getCdCliente(),
+                agendamento.getCdCliente().getNmCliente(),
+                agendamento.getCdCliente().getCpf(),
+                agendamento.getCdCliente().getTelefone(),
+
+                // Dados do Veículo
                 agendamento.getVeiculo().getCdVeiculo(),
+                agendamento.getVeiculo().getPlaca(),
+                agendamento.getVeiculo().getModelo(),
+                agendamento.getVeiculo().getMarca(),
+
+                // Dados do Mecânico
                 agendamento.getMecanico().getCdUsuario(),
+                agendamento.getMecanico().getNmUsuario(),
+
+                // Dados do Agendamento
                 agendamento.getDataAgendamento(),
+                agendamento.getStatus(),
                 agendamento.getObservacoes(),
-                agendamento.getStatus()
+
+                // Ordem de Serviço vinculada (pode ser null)
+                agendamento.getOrdemServico() != null ?
+                        agendamento.getOrdemServico().getCdOrdemServico() : null
         );
     }
 }
