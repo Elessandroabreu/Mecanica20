@@ -393,35 +393,55 @@ public class OrdemServicoService {
             String diagnostico,
             Double vlMaoObraExtra
     ) {
-        // Buscar a ordem
+        log.info("🔄 Atualizando diagnóstico e mão de obra da ordem #{}", cdOrdemServico);
+
+        // 1. Buscar a ordem
         OrdemServicoModel ordem = ordemServicoRepository.findById(cdOrdemServico)
                 .orElseThrow(() -> new RuntimeException("Ordem não encontrada"));
 
-        // Atualizar
+        // 2. Atualizar diagnóstico e mão de obra
         ordem.setDiagnostico(diagnostico);
-        ordem.setVlMaoObraExtra(vlMaoObraExtra);
+        ordem.setVlMaoObraExtra(vlMaoObraExtra != null ? vlMaoObraExtra : 0.0);
 
-        // Recalcular total
+        // 3. ✅ BUSCAR OS ITENS DO BANCO (isso é o que faltava!)
+        List<ItemOrdemServicoModel> itens = itemOrdemServicoRepository
+                .findByOrdemServico_CdOrdemServico(cdOrdemServico);
+
+        // 4. Calcular total de peças
         Double totalPecas = 0.0;
-        Double totalServicos = 0.0;
-
-        for (ItemOrdemServicoModel item : ordem.getItens()) {
+        for (ItemOrdemServicoModel item : itens) {
             if (item.getProduto() != null) {
                 totalPecas = totalPecas + item.getVlTotal();
             }
+        }
+
+        // 5. Calcular total de serviços
+        Double totalServicos = 0.0;
+        for (ItemOrdemServicoModel item : itens) {
             if (item.getServico() != null) {
                 totalServicos = totalServicos + item.getVlTotal();
             }
         }
 
-        Double novoTotal = totalPecas + totalServicos + vlMaoObraExtra;
+        // 6. Calcular o novo total
+        Double novoTotal = totalPecas + totalServicos + ordem.getVlMaoObraExtra();
 
+        // 7. Mostrar no console o que foi calculado (ajuda a debugar!)
+        log.info("💰 Recálculo:");
+        log.info("  - Peças: R$ {}", totalPecas);
+        log.info("  - Serviços: R$ {}", totalServicos);
+        log.info("  - Mão de Obra Extra: R$ {}", ordem.getVlMaoObraExtra());
+        log.info("  - TOTAL: R$ {}", novoTotal);
+
+        // 8. Atualizar os valores na ordem
         ordem.setVlPecas(totalPecas);
         ordem.setVlServicos(totalServicos);
         ordem.setVlTotal(novoTotal);
 
-        // Salvar
+        // 9. Salvar no banco
         OrdemServicoModel salva = ordemServicoRepository.save(ordem);
+
+        log.info("✅ Ordem atualizada com sucesso");
 
         return converterParaResponseDTO(salva);
     }
