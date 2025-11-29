@@ -29,7 +29,7 @@ public record ProdutoDTO(
 
         @NotNull(message = "Quantidade mínima é obrigatória")
         @PositiveOrZero(message = "Quantidade mínima deve ser zero ou positiva")
-        Integer qtdMinimo,
+        Integer qtdMinimoEstoque,
 
         Boolean ativo
 ) {}

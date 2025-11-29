@@ -24,7 +24,7 @@ public class ProdutoService {
                 .categoria(dto.categoria())
                 .vlProduto(dto.vlProduto()) // ✅ CORRIGIDO: Produto só tem vlProduto
                 .qtdEstoque(dto.qtdEstoque())
-                .qtdMinimoEstoque(dto.qtdMinimo()) // ✅ CORRIGIDO: nome do campo no model
+                .qtdMinimoEstoque(dto.qtdMinimoEstoque()) // ✅ CORRIGIDO: nome do campo no model
                 .ativo(true)
                 .build();
 
@@ -63,7 +63,7 @@ public class ProdutoService {
         produto.setCategoria(dto.categoria());
         produto.setVlProduto(dto.vlProduto());
         produto.setQtdEstoque(dto.qtdEstoque());
-        produto.setQtdMinimoEstoque(dto.qtdMinimo());
+        produto.setQtdMinimoEstoque(dto.qtdMinimoEstoque());
 
 
         ProdutoModel atualizado = produtoRepository.save(produto);
