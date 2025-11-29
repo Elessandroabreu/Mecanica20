@@ -51,8 +51,12 @@ public class SecurityConfig {
                                 "/v3/api-docs.yaml"
                         ).permitAll()
 
-                        // ✅ AUTENTICAÇÃO
-                        .requestMatchers("/api/auth/**").permitAll()
+                        // ✅ AUTENTICAÇÃO - Permite GET e POST em /api/auth/login
+                        .requestMatchers(HttpMethod.GET, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
+                        .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
+                        .requestMatchers("/api/auth/oauth2/**").permitAll()
 
                         // ✅ OAUTH2 - Apenas rotas específicas do OAuth2
                         .requestMatchers(
@@ -114,6 +118,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
+        configuration.setMaxAge(3600L); // ✅ Cache de preflight por 1 hora
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

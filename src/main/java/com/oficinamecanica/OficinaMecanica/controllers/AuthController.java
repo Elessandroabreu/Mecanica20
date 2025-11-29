@@ -20,6 +20,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
+import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -32,6 +33,9 @@ public class AuthController {
     private final JwtTokenProvider tokenProvider;
     private final UsuarioService usuarioService;
 
+    /**
+     * ✅ ENDPOINT POST - Login com email e senha
+     */
     @PostMapping("/login")
     @Operation(summary = "Login com email e senha", description = "Retorna token JWT para autenticação")
     public ResponseEntity<AuthResponseDTO> login(@Valid @RequestBody LoginRequestDTO loginRequest) {
@@ -56,6 +60,24 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    /**
+     * ✅ NOVO: ENDPOINT GET - Informações sobre endpoints de autenticação
+     * (Evita o erro 405 Method Not Allowed quando o Angular tenta GET)
+     */
+    @GetMapping("/login")
+    @Operation(summary = "Informações de login", description = "Retorna informações sobre como fazer login")
+    public ResponseEntity<Map<String, String>> getLoginInfo() {
+        return ResponseEntity.ok(Map.of(
+                "message", "Use POST /api/auth/login para fazer login",
+                "endpoint", "POST /api/auth/login",
+                "body", "{\"email\": \"seu@email.com\", \"senha\": \"sua_senha\"}",
+                "currentUser", "GET /api/auth/me (requer autenticação)"
+        ));
+    }
+
+    /**
+     * ✅ ENDPOINT POST - Registrar novo usuário
+     */
     @PostMapping("/register")
     @Operation(summary = "Registrar novo usuário", description = "Cadastra um novo usuário LOCAL (com senha)")
     public ResponseEntity<UsuarioResponseDTO> register(@Valid @RequestBody UsuarioDTO dto) {
@@ -63,17 +85,9 @@ public class AuthController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    @GetMapping("/oauth2/callback")
-    public void oauth2Callback(HttpServletResponse response, Authentication authentication) throws IOException {
-        String email = authentication.getName();
-
-        String token = tokenProvider.generateToken(authentication);
-
-        String redirectUrl = "http://localhost:4200/auth/callback?token=" + token + "&email=" + email;
-
-        response.sendRedirect(redirectUrl);
-    }
-
+    /**
+     * ✅ ENDPOINT GET - Obter usuário autenticado
+     */
     @GetMapping("/me")
     @Operation(summary = "Obter usuário autenticado", description = "Retorna dados do usuário logado")
     public ResponseEntity<UsuarioResponseDTO> getCurrentUser(Authentication authentication) {
@@ -82,12 +96,30 @@ public class AuthController {
         return ResponseEntity.ok(usuario);
     }
 
+    /**
+     * ✅ ENDPOINT GET - Callback OAuth2
+     */
+    @GetMapping("/oauth2/callback")
+    public void oauth2Callback(HttpServletResponse response, Authentication authentication) throws IOException {
+        String email = authentication.getName();
+        String token = tokenProvider.generateToken(authentication);
+
+        String redirectUrl = "http://localhost:4200/auth/callback?token=" + token + "&email=" + email;
+        response.sendRedirect(redirectUrl);
+    }
+
+    /**
+     * ✅ ENDPOINT GET - Sucesso OAuth2
+     */
     @GetMapping("/oauth2/success")
     @Operation(summary = "Callback de sucesso OAuth2")
     public ResponseEntity<String> oauth2Success() {
         return ResponseEntity.ok("Autenticação OAuth2 realizada com sucesso! Você pode fechar esta janela.");
     }
 
+    /**
+     * ✅ ENDPOINT GET - Falha OAuth2
+     */
     @GetMapping("/oauth2/failure")
     @Operation(summary = "Callback de falha OAuth2")
     public ResponseEntity<String> oauth2Failure() {
