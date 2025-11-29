@@ -90,6 +90,8 @@ public class OrdemServicoController {
         return ResponseEntity.ok(ordemServicoService.listarPorStatus(status));
     }
 
+
+
     // =====================================================================================
     // LISTAR ORÇAMENTOS PENDENTES
     // =====================================================================================
@@ -114,6 +116,25 @@ public class OrdemServicoController {
         LocalDate dataAgendamento = (dataStr != null ? LocalDate.parse(dataStr) : null);
 
         return ResponseEntity.ok(ordemServicoService.aprovarOrcamento(id, dataAgendamento));
+    }
+
+    @PatchMapping("/{cdOrdemServico}/diagnostico-e-mao-obra")
+    public ResponseEntity<OrdemServicoResponseDTO> atualizarDiagnosticoEMaoObra(
+            @PathVariable Integer cdOrdemServico,
+            @RequestBody Map<String, Object> dados
+    ) {
+        String diagnostico = dados.get("diagnostico") != null
+                ? dados.get("diagnostico").toString()
+                : "";
+
+        Double vlMaoObraExtra = dados.get("vlMaoObraExtra") != null
+                ? Double.parseDouble(dados.get("vlMaoObraExtra").toString())
+                : 0.0;
+
+        OrdemServicoResponseDTO resultado = ordemServicoService
+                .atualizarDiagnosticoEMaoObra(cdOrdemServico, diagnostico, vlMaoObraExtra);
+
+        return ResponseEntity.ok(resultado);
     }
 
     // =====================================================================================

@@ -10,7 +10,7 @@ public record OrdemServicoResponseDTO(
         Integer cdOrdemServico,
 
         Integer cdCliente,
-        String nomeCliente,
+        String  nmCliente,
 
         Integer cdVeiculo,
         String placaVeiculo,

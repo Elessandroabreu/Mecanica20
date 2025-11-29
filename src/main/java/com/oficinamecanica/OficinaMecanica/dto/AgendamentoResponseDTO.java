@@ -6,7 +6,7 @@ import java.time.LocalDate;
 public record AgendamentoResponseDTO(
         Integer cdAgendamento,
         Integer cdCliente,
-        String nomeCliente,
+        String nmCliente,
         String cpfCliente,
         String telefoneCliente,
         Integer cdVeiculo,
@@ -14,7 +14,7 @@ public record AgendamentoResponseDTO(
         String modeloVeiculo,
         String marcaVeiculo,
         Integer cdMecanico,
-        String nomeMecanico,
+        String nmMecanico,
         LocalDate dataAgendamento,
         Status status,
         String observacoes,

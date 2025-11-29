@@ -12,30 +12,32 @@ import java.util.List;
 @Repository
 public interface OrdemServicoRepository extends JpaRepository<OrdemServicoModel, Integer> {
 
-    // Listar por status
     List<OrdemServicoModel> findByStatus(Status status);
 
-    // Listar ordens de um mecânico
     List<OrdemServicoModel> findByMecanico_CdUsuario(Integer cdMecanico);
 
-    // ✅ CORRIGIDO: Model usa clienteModel
     List<OrdemServicoModel> findByClienteModel_CdCliente(Integer cdCliente);
 
-    // Listar orçamentos pendentes (aguardando aprovação)
     @Query("SELECT o FROM OrdemServicoModel o WHERE o.tipoOrdemOrcamento = 'ORCAMENTO' AND o.aprovado = false")
     List<OrdemServicoModel> findOrcamentosPendentes();
 
-//    // Listar ordens com itens (fetch join) - IMPORTANTE para evitar N+1
-//    @Query("SELECT DISTINCT o FROM OrdemServicoModel o LEFT JOIN FETCH o.itens WHERE o.cdOrdemServico = :cdOrdemServico")
-//    OrdemServicoModel findByIdWithItens(@Param("cdOrdemServico") Integer cdOrdemServico);
-//}
+    // FETCH COMPLETO para buscar por ID (já está certo)
+    @Query("SELECT DISTINCT o FROM OrdemServicoModel o " +
+            "LEFT JOIN FETCH o.clienteModel " +
+            "LEFT JOIN FETCH o.veiculo " +
+            "LEFT JOIN FETCH o.mecanico " +
+            "LEFT JOIN FETCH o.itens i " +
+            "LEFT JOIN FETCH i.produto " +
+            "LEFT JOIN FETCH i.servico " +
+            "WHERE o.cdOrdemServico = :id")
+    OrdemServicoModel findByIdWithItens(@Param("id") Integer id);
 
-@Query("SELECT DISTINCT o FROM OrdemServicoModel o " +
-        "LEFT JOIN FETCH o.clienteModel " +
-        "LEFT JOIN FETCH o.veiculo " +
-        "LEFT JOIN FETCH o.mecanico " +
-        "LEFT JOIN FETCH o.itens i " +
-        "LEFT JOIN FETCH i.produto " +
-        "LEFT JOIN FETCH i.servico " +
-        "WHERE o.cdOrdemServico = :id")
-OrdemServicoModel findByIdWithItens(@Param("id") Integer id);}
+    // =============================
+    // 🚀 FETCH BÁSICO PARA LISTAGEM
+    // =============================
+    @Query("SELECT DISTINCT o FROM OrdemServicoModel o " +
+            "LEFT JOIN FETCH o.clienteModel " +
+            "LEFT JOIN FETCH o.veiculo " +
+            "LEFT JOIN FETCH o.mecanico")
+    List<OrdemServicoModel> findAllWithBasicRelations();
+}

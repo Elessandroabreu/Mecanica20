@@ -387,6 +387,46 @@ public class OrdemServicoService {
                 .toList();
     }
 
+    @Transactional
+    public OrdemServicoResponseDTO atualizarDiagnosticoEMaoObra(
+            Integer cdOrdemServico,
+            String diagnostico,
+            Double vlMaoObraExtra
+    ) {
+        // Buscar a ordem
+        OrdemServicoModel ordem = ordemServicoRepository.findById(cdOrdemServico)
+                .orElseThrow(() -> new RuntimeException("Ordem não encontrada"));
+
+        // Atualizar
+        ordem.setDiagnostico(diagnostico);
+        ordem.setVlMaoObraExtra(vlMaoObraExtra);
+
+        // Recalcular total
+        Double totalPecas = 0.0;
+        Double totalServicos = 0.0;
+
+        for (ItemOrdemServicoModel item : ordem.getItens()) {
+            if (item.getProduto() != null) {
+                totalPecas = totalPecas + item.getVlTotal();
+            }
+            if (item.getServico() != null) {
+                totalServicos = totalServicos + item.getVlTotal();
+            }
+        }
+
+        Double novoTotal = totalPecas + totalServicos + vlMaoObraExtra;
+
+        ordem.setVlPecas(totalPecas);
+        ordem.setVlServicos(totalServicos);
+        ordem.setVlTotal(novoTotal);
+
+        // Salvar
+        OrdemServicoModel salva = ordemServicoRepository.save(ordem);
+
+        return converterParaResponseDTO(salva);
+    }
+
+
     // ============================================================
     // ATUALIZAR OS
     // ============================================================
@@ -458,7 +498,7 @@ public class OrdemServicoService {
     // LISTAR TODAS
     // ============================================================
     public List<OrdemServicoResponseDTO> listarTodas() {
-        return ordemServicoRepository.findAll().stream()
+        return ordemServicoRepository.findAllWithBasicRelations().stream()
                 .map(ordem -> new OrdemServicoResponseDTO(
                         ordem.getCdOrdemServico(),
                         ordem.getClienteModel().getCdCliente(),
@@ -480,6 +520,7 @@ public class OrdemServicoService {
                         ordem.getDiagnostico(),
                         ordem.getAprovado(),
                         null
-                )).collect(Collectors.toList());
+                ))
+                .collect(Collectors.toList());
     }
 }
