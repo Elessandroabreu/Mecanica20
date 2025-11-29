@@ -1,6 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
 import com.oficinamecanica.OficinaMecanica.dto.VendaDTO;
+import com.oficinamecanica.OficinaMecanica.dto.VendaResponseDTO;
 import com.oficinamecanica.OficinaMecanica.enums.UserRole;
 import com.oficinamecanica.OficinaMecanica.models.*;
 import com.oficinamecanica.OficinaMecanica.repositories.*;
@@ -9,6 +10,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -22,9 +24,10 @@ public class VendaService {
     private final ProdutoRepository produtoRepository;
     private final ItemVendaRepository itemVendaRepository;
     private final FaturamentoRepository faturamentoRepository;
+    // ❌ NÃO PRECISA MAIS DO VendaMapper
 
     @Transactional
-    public VendaDTO criar(VendaDTO dto) {
+    public VendaResponseDTO criar(VendaDTO dto) {
         ClienteModel cliente = clienteRepository.findById(dto.cdCliente())
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
@@ -61,7 +64,11 @@ public class VendaService {
 
         gerarFaturamento(salva);
 
-        return converterParaDTO(salva);
+        // ✅ Recarrega a venda com relacionamentos
+        salva = vendaRepository.findById(salva.getCdVenda())
+                .orElseThrow(() -> new RuntimeException("Erro ao recarregar venda"));
+
+        return converterParaResponseDTO(salva);  // ✅ MÉTODO MANUAL
     }
 
     @Transactional
@@ -113,37 +120,41 @@ public class VendaService {
     }
 
     @Transactional(readOnly = true)
-    public VendaDTO buscarPorId(Integer id) {
+    public VendaResponseDTO buscarPorId(Integer id) {
         Venda venda = vendaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Venda não encontrada"));
-        return converterParaDTO(venda);
+        return converterParaResponseDTO(venda);  // ✅ MÉTODO MANUAL
     }
 
     @Transactional(readOnly = true)
-    public List<VendaDTO> listarTodas() {
-        return vendaRepository.findAll().stream()
-                .map(this::converterParaDTO)
+    public List<VendaResponseDTO> listarTodas() {
+        List<Venda> vendas = vendaRepository.findAllWithDetails();
+        return vendas.stream()
+                .map(this::converterParaResponseDTO)  // ✅ MÉTODO MANUAL
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<VendaDTO> listarPorCliente(Integer cdCliente) {
-        return vendaRepository.findByClienteModel_CdCliente(cdCliente).stream()
-                .map(this::converterParaDTO)
+    public List<VendaResponseDTO> listarPorCliente(Integer cdCliente) {
+        List<Venda> vendas = vendaRepository.findByClienteModel_CdCliente(cdCliente);
+        return vendas.stream()
+                .map(this::converterParaResponseDTO)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<VendaDTO> listarPorAtendente(Integer cdAtendente) {
-        return vendaRepository.findByAtendente_CdUsuario(cdAtendente).stream()
-                .map(this::converterParaDTO)
+    public List<VendaResponseDTO> listarPorAtendente(Integer cdAtendente) {
+        List<Venda> vendas = vendaRepository.findByAtendente_CdUsuario(cdAtendente);
+        return vendas.stream()
+                .map(this::converterParaResponseDTO)
                 .collect(Collectors.toList());
     }
 
     @Transactional(readOnly = true)
-    public List<VendaDTO> listarPorPeriodo(LocalDateTime dataInicio, LocalDateTime dataFim) {
-        return vendaRepository.findVendasNoPeriodo(dataInicio, dataFim).stream()
-                .map(this::converterParaDTO)
+    public List<VendaResponseDTO> listarPorPeriodo(LocalDateTime dataInicio, LocalDateTime dataFim) {
+        List<Venda> vendas = vendaRepository.findVendasNoPeriodo(dataInicio, dataFim);
+        return vendas.stream()
+                .map(this::converterParaResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -153,21 +164,59 @@ public class VendaService {
         return total != null ? total : 0.0;
     }
 
-    private VendaDTO converterParaDTO(Venda venda) {
-        List<VendaDTO.ItemVendaDTO> itensDTO = venda.getItens() != null
-                ? venda.getItens().stream()
-                .map(item -> new VendaDTO.ItemVendaDTO(
-                        item.getProduto().getCdProduto(),
-                        item.getQuantidade()
-                ))
-                .collect(Collectors.toList())
-                : List.of();
+    // ✅ MÉTODO PRIVADO DE CONVERSÃO (substitui o VendaMapper)
+    private VendaResponseDTO converterParaResponseDTO(Venda venda) {
+        if (venda == null) {
+            return null;
+        }
 
-        return new VendaDTO(
-                venda.getClienteModel().getCdCliente(),
-                venda.getAtendente().getCdUsuario(),
+        // Mapeia cliente
+        VendaResponseDTO.ClienteBasicDTO clienteDTO = null;
+        if (venda.getClienteModel() != null) {
+            var c = venda.getClienteModel();
+            clienteDTO = new VendaResponseDTO.ClienteBasicDTO(
+                    c.getCdCliente(),
+                    c.getNmCliente(),
+                    c.getCpf(),
+                    c.getTelefone(),
+                    c.getEmail()
+            );
+        }
+
+        // Mapeia atendente
+        VendaResponseDTO.AtendenteBasicDTO atendenteDTO = null;
+        if (venda.getAtendente() != null) {
+            var a = venda.getAtendente();
+            atendenteDTO = new VendaResponseDTO.AtendenteBasicDTO(
+                    a.getCdUsuario(),
+                    a.getNmUsuario(),
+                    a.getEmail()
+            );
+        }
+
+        // Mapeia itens
+        List<VendaResponseDTO.ItemVendaResponseDTO> itensDTO = Collections.emptyList();
+        if (venda.getItens() != null && !venda.getItens().isEmpty()) {
+            itensDTO = venda.getItens().stream()
+                    .map(item -> new VendaResponseDTO.ItemVendaResponseDTO(
+                            item.getCdItemVenda(),
+                            item.getProduto().getCdProduto(),
+                            item.getProduto().getNmProduto(),
+                            item.getQuantidade(),
+                            item.getVlUnitario(),
+                            item.getVlTotal()
+                    ))
+                    .collect(Collectors.toList());
+        }
+
+        return new VendaResponseDTO(
+                venda.getCdVenda(),
+                venda.getDataVenda(),
+                venda.getVlTotal(),
                 venda.getDesconto(),
                 venda.getFormaPagamento(),
+                clienteDTO,
+                atendenteDTO,
                 itensDTO
         );
     }
