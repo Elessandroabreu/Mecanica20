@@ -55,7 +55,7 @@ public class ServicoController {
     }
 
     @DeleteMapping("/{id}")
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Deletar serviço (soft delete)")
     public ResponseEntity<Void> deletar(@PathVariable Integer id) {
         servicoService.deletar(id);

@@ -23,14 +23,14 @@ public class FaturamentoController {
     private final FaturamentoService faturamentoService;
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @Operation(summary = "Buscar faturamento por ID")
     public ResponseEntity<FaturamentoDTO> buscarPorId(@PathVariable Integer id) {
         return ResponseEntity.ok(faturamentoService.buscarPorId(id));
     }
 
     @GetMapping("/periodo")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @Operation(summary = "Listar faturamento por período")
     public ResponseEntity<List<FaturamentoDTO>> listarPorPeriodo(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
@@ -42,7 +42,7 @@ public class FaturamentoController {
     }
 
     @GetMapping("/total-periodo")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @Operation(summary = "Calcular total faturado no período")
     public ResponseEntity<Map<String, Double>> calcularTotalPeriodo(
             @RequestParam @DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate dataInicio,
@@ -53,14 +53,14 @@ public class FaturamentoController {
     }
 
     @GetMapping("/dia")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @Operation(summary = "Listar faturamento do dia")
     public ResponseEntity<List<FaturamentoDTO>> listarDoDia() {
         return ResponseEntity.ok(faturamentoService.listarFaturamentoDoDia());
     }
 
     @GetMapping("/total-dia")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @PreAuthorize("hasAnyRole('ADMIN')")
     @Operation(summary = "Calcular total faturado no dia")
     public ResponseEntity<Map<String, Double>> calcularTotalDia() {
         Double total = faturamentoService.calcularTotalDoDia();

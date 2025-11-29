@@ -46,7 +46,7 @@ public class ProdutoController {
     }
 
     @GetMapping("/estoque-baixo")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Listar produtos com estoque baixo")
     public ResponseEntity<List<ProdutoDTO>> listarEstoqueBaixo() {
         List<ProdutoDTO> response = produtoService.listarComEstoqueBaixo();

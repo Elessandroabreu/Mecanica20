@@ -25,7 +25,7 @@ public class AgendamentoController {
     private final AgendamentoService agendamentoService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE' , 'MECANICO')")
     @Operation(summary = "Criar novo agendamento")
     public ResponseEntity<AgendamentoResponseDTO> criar(@Valid @RequestBody AgendamentoRequestDTO dto) {
         AgendamentoResponseDTO response = agendamentoService.criar(dto);
@@ -57,7 +57,7 @@ public class AgendamentoController {
     }
 
     @GetMapping("/futuros")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE','MECANICO')")
     @Operation(summary = "Listar agendamentos futuros")
     public ResponseEntity<List<AgendamentoResponseDTO>> listarFuturos() {
         List<AgendamentoResponseDTO> response = agendamentoService.listarAgendamentosFuturos();
@@ -65,7 +65,7 @@ public class AgendamentoController {
     }
 
      @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE','MECANICO')")
     @Operation(summary = "Atualizar agendamento")
     public ResponseEntity<AgendamentoResponseDTO> atualizar(
             @PathVariable Integer id,
@@ -75,7 +75,7 @@ public class AgendamentoController {
     }
 
      @PatchMapping("/{id}/status")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MECANICO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Atualizar status do agendamento")
     public ResponseEntity<AgendamentoResponseDTO> atualizarStatus(
             @PathVariable Integer id,

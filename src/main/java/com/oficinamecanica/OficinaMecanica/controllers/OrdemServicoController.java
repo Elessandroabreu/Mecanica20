@@ -41,14 +41,14 @@ public class OrdemServicoController {
     }
 
     @PatchMapping("/{id}/iniciar")
-    @PreAuthorize("hasAnyRole('ADMIN', 'MECANICO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Iniciar ordem de serviço")
     public ResponseEntity<OrdemServicoResponseDTO> iniciar(@PathVariable Integer id) {
         return ResponseEntity.ok(ordemServicoService.iniciar(id));
     }
 
     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Atualizar ordem de serviço")
     public ResponseEntity<OrdemServicoResponseDTO> atualizar(
             @PathVariable Integer id,

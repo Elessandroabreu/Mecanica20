@@ -68,6 +68,13 @@ public class SecurityConfig {
                         .hasAnyRole("ADMIN", "ATENDENTE")
 
 
+                        .requestMatchers("/api/agenda/**")
+                        .hasAnyRole("ADMIN", "ATENDENTE", "MECANICO")
+
+
+                        .requestMatchers("/api/pecas/**")
+                        .hasAnyRole("ADMIN", "ATENDENTE", "MECANICO")
+
                         .requestMatchers("/api/produtos/**")
                         .hasAnyRole("ADMIN", "ATENDENTE", "MECANICO")
 
