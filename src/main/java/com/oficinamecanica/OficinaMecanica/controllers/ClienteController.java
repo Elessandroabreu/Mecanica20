@@ -30,7 +30,7 @@ public class ClienteController {
     }
 
     @GetMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Buscar cliente por ID")
     public ResponseEntity<ClienteDTO> buscarPorId(@PathVariable Integer id) {
         ClienteDTO response = clienteService.buscarPorId(id);
@@ -38,7 +38,7 @@ public class ClienteController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Listar clientes ativos")
     public ResponseEntity<List<ClienteDTO>> listarAtivos() {
         List<ClienteDTO> response = clienteService.listarAtivos();

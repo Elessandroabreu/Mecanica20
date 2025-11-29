@@ -61,16 +61,32 @@ public class SecurityConfig {
                                 "/login/oauth2/**"
                         ).permitAll()
 
+                        // ✅ Controle fino por endpoint através do @PreAuthorize
+                        // POST e DELETE ficam apenas para ADMIN (definido no controller)
                         .requestMatchers(HttpMethod.POST, "/api/usuarios/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/usuarios/**").hasRole("ADMIN")
 
+                        // ✅ GET /api/usuarios/mecanicos pode ser acessado por todos os roles
+                        .requestMatchers(HttpMethod.GET, "/api/usuarios/mecanicos").hasAnyRole("ADMIN", "ATENDENTE", "MECANICO")
+
+                        // ✅ Outros GET são controlados pelo @PreAuthorize do controller
+                        .requestMatchers(HttpMethod.GET, "/api/usuarios/**").hasAnyRole("ADMIN", "ATENDENTE", "MECANICO")
+
+                        // ✅ CORRIGIDO: Mecânico pode CONSULTAR clientes (GET)
+                        // Endpoints específicos (POST, PUT, DELETE) são controlados pelo @PreAuthorize do controller
                         .requestMatchers("/api/clientes/**")
+                        .hasAnyRole("ADMIN", "ATENDENTE", "MECANICO")
+
+
+
+
+                        .requestMatchers("/api/ordens-servico/**")
                         .hasAnyRole("ADMIN", "ATENDENTE")
 
 
-                        .requestMatchers("/api/agenda/**")
+                        // ✅ CORRIGIDO: Caminho agora é PLURAL (/agendamentos)
+                        .requestMatchers("/api/agendamentos/**")
                         .hasAnyRole("ADMIN", "ATENDENTE", "MECANICO")
-
 
                         .requestMatchers("/api/pecas/**")
                         .hasAnyRole("ADMIN", "ATENDENTE", "MECANICO")

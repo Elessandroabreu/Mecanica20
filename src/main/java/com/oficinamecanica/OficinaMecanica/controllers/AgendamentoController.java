@@ -25,7 +25,7 @@ public class AgendamentoController {
     private final AgendamentoService agendamentoService;
 
     @PostMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE' , 'MECANICO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Criar novo agendamento")
     public ResponseEntity<AgendamentoResponseDTO> criar(@Valid @RequestBody AgendamentoRequestDTO dto) {
         AgendamentoResponseDTO response = agendamentoService.criar(dto);
@@ -41,7 +41,7 @@ public class AgendamentoController {
     }
 
     @GetMapping
-    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Listar todos os agendamentos")
     public ResponseEntity<List<AgendamentoResponseDTO>> listarTodos() {
         List<AgendamentoResponseDTO> response = agendamentoService.listarTodos();
@@ -57,15 +57,15 @@ public class AgendamentoController {
     }
 
     @GetMapping("/futuros")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE','MECANICO')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Listar agendamentos futuros")
     public ResponseEntity<List<AgendamentoResponseDTO>> listarFuturos() {
         List<AgendamentoResponseDTO> response = agendamentoService.listarAgendamentosFuturos();
         return ResponseEntity.ok(response);
     }
 
-     @PutMapping("/{id}")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE','MECANICO')")
+    @PutMapping("/{id}")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Atualizar agendamento")
     public ResponseEntity<AgendamentoResponseDTO> atualizar(
             @PathVariable Integer id,
@@ -74,7 +74,7 @@ public class AgendamentoController {
         return ResponseEntity.ok(response);
     }
 
-     @PatchMapping("/{id}/status")
+    @PatchMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Atualizar status do agendamento")
     public ResponseEntity<AgendamentoResponseDTO> atualizarStatus(

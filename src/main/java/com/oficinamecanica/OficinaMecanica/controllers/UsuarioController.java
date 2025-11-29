@@ -47,7 +47,7 @@ public class UsuarioController {
     }
 
     @GetMapping("/mecanicos")
-    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
+    @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Listar mecânicos ativos")
     public ResponseEntity<List<UsuarioResponseDTO>> listarMecanicos() {
         List<UsuarioResponseDTO> response = usuarioService.listarMecanicosAtivos();
