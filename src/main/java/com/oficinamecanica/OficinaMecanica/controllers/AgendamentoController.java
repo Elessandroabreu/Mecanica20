@@ -24,7 +24,6 @@ public class AgendamentoController {
 
     private final AgendamentoService agendamentoService;
 
-    // ✅ CRIAR - RECEBE RequestDTO, RETORNA ResponseDTO
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Criar novo agendamento")
@@ -33,7 +32,6 @@ public class AgendamentoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // ✅ BUSCAR POR ID - RETORNA ResponseDTO
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Buscar agendamento por ID")
@@ -42,7 +40,6 @@ public class AgendamentoController {
         return ResponseEntity.ok(response);
     }
 
-    // ✅ LISTAR TODOS - RETORNA LISTA DE ResponseDTO
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Listar todos os agendamentos")
@@ -51,7 +48,6 @@ public class AgendamentoController {
         return ResponseEntity.ok(response);
     }
 
-    // ✅ LISTAR POR MECÂNICO - RETORNA LISTA DE ResponseDTO
     @GetMapping("/mecanico/{cdMecanico}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Listar agendamentos de um mecânico")
@@ -60,7 +56,6 @@ public class AgendamentoController {
         return ResponseEntity.ok(response);
     }
 
-    // ✅ LISTAR FUTUROS - RETORNA LISTA DE ResponseDTO
     @GetMapping("/futuros")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Listar agendamentos futuros")
@@ -69,8 +64,7 @@ public class AgendamentoController {
         return ResponseEntity.ok(response);
     }
 
-    // ✅ ATUALIZAR - RECEBE RequestDTO, RETORNA ResponseDTO
-    @PutMapping("/{id}")
+     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Atualizar agendamento")
     public ResponseEntity<AgendamentoResponseDTO> atualizar(
@@ -80,8 +74,7 @@ public class AgendamentoController {
         return ResponseEntity.ok(response);
     }
 
-    // ✅ ATUALIZAR STATUS - RETORNA ResponseDTO
-    @PatchMapping("/{id}/status")
+     @PatchMapping("/{id}/status")
     @PreAuthorize("hasAnyRole('ADMIN', 'MECANICO')")
     @Operation(summary = "Atualizar status do agendamento")
     public ResponseEntity<AgendamentoResponseDTO> atualizarStatus(
@@ -95,7 +88,6 @@ public class AgendamentoController {
         return ResponseEntity.ok(response);
     }
 
-    // ✅ CANCELAR
     @PatchMapping("/{id}/cancelar")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Cancelar agendamento")

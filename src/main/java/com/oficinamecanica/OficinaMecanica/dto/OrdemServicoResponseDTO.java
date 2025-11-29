@@ -9,27 +9,23 @@ import java.util.List;
 public record OrdemServicoResponseDTO(
         Integer cdOrdemServico,
 
-        // Cliente
+
         Integer cdCliente,
         String nomeCliente,
-
-        // Veículo
         Integer cdVeiculo,
+
         String placaVeiculo,
         String modeloVeiculo,
         String marcaVeiculo,
 
-        // Mecânico
         Integer cdMecanico,
         String nomeMecanico,
 
-        // Dados da OS
         TipoOrdemOrcamento tipoServico,
         Status status,
         LocalDateTime dataAgendamento,
         LocalDateTime dataAbertura,
 
-        // Valores
         Double vlPecas,
         Double vlServicos,
         Double vlMaoObraExtra,

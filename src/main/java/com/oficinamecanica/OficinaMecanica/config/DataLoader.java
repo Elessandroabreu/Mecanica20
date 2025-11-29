@@ -41,11 +41,11 @@ public class DataLoader {
 
             System.out.println("🔨 Criando usuários padrão...\n");
 
-            // Senha padrão para todos
+
             String senhaTexto = "senha123";
             String senhaCriptografada = passwordEncoder.encode(senhaTexto);
 
-            // 1. ADMIN
+
             Usuario admin = Usuario.builder()
                     .nmUsuario("João Admin Silva")
                     .email("admin@oficina.com")
@@ -60,7 +60,7 @@ public class DataLoader {
             usuarioRepository.save(admin);
             System.out.println("✅ Admin criado: " + admin.getEmail());
 
-            // 2. ATENDENTE
+
             Usuario atendente = Usuario.builder()
                     .nmUsuario("Maria Atendente Santos")
                     .email("atendente@oficina.com")
@@ -75,7 +75,7 @@ public class DataLoader {
             usuarioRepository.save(atendente);
             System.out.println("✅ Atendente criado: " + atendente.getEmail());
 
-            // 3. MECÂNICO
+
             Usuario mecanico = Usuario.builder()
                     .nmUsuario("Carlos Mecânico Souza")
                     .email("mecanico@oficina.com")

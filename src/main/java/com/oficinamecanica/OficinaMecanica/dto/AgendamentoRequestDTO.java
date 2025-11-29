@@ -5,9 +5,6 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;
 
-/**
- * DTO de Request para criar/atualizar Agendamento
- */
 public record AgendamentoRequestDTO(
         @NotNull(message = "Cliente é obrigatório")
         Integer cdCliente,
