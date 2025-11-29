@@ -11,7 +11,6 @@ public record VendaResponseDTO(
         Double desconto,
         FormaPagamento formaPagamento,
 
-        // ✅ Objetos aninhados
         ClienteBasicDTO clienteModel,
         AtendenteBasicDTO atendente,
         List<ItemVendaResponseDTO> itens

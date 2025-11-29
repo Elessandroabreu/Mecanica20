@@ -43,7 +43,7 @@ public class SecurityConfig {
                 )
 
                 .authorizeHttpRequests(auth -> auth
-                        // ✅ SWAGGER
+
                         .requestMatchers(
                                 "/swagger-ui/**",
                                 "/swagger-ui.html",
@@ -51,44 +51,37 @@ public class SecurityConfig {
                                 "/v3/api-docs.yaml"
                         ).permitAll()
 
-                        // ✅ AUTENTICAÇÃO - Apenas POST em /login
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
                         .requestMatchers("/api/auth/oauth2/**").permitAll()
 
-                        // ✅ OAUTH2
                         .requestMatchers(
                                 "/oauth2/**",
                                 "/login/oauth2/**"
                         ).permitAll()
 
-                        // ✅ USUÁRIOS
                         .requestMatchers(HttpMethod.POST, "/api/usuarios/**").hasRole("ADMIN")
                         .requestMatchers(HttpMethod.DELETE, "/api/usuarios/**").hasRole("ADMIN")
 
-                        // ✅ CLIENTES
                         .requestMatchers("/api/clientes/**")
                         .hasAnyRole("ADMIN", "ATENDENTE")
 
-                        // ✅ PRODUTOS
+
                         .requestMatchers("/api/produtos/**")
                         .hasAnyRole("ADMIN", "ATENDENTE", "MECANICO")
 
-                        // ✅ TODAS AS OUTRAS ROTAS /api/** EXIGEM AUTENTICAÇÃO
                         .requestMatchers("/api/**").authenticated()
 
-                        // ✅ QUALQUER OUTRA ROTA
                         .anyRequest().permitAll()
                 )
-                // ✅ OAuth2 Login - DEPOIS das regras de autorização
+
                 .oauth2Login(oauth2 -> oauth2
-                        .loginPage("/api/auth/login") // Não redireciona automaticamente
+                        .loginPage("/api/auth/login")
                         .successHandler(oAuth2SuccessHandler)
                         .failureUrl("/api/auth/oauth2/failure")
                 )
 
-                // ✅ JWT Filter
                 .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
 
         return http.build();
@@ -116,7 +109,7 @@ public class SecurityConfig {
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "PATCH", "DELETE", "OPTIONS"));
         configuration.setAllowedHeaders(Arrays.asList("*"));
         configuration.setAllowCredentials(true);
-        configuration.setMaxAge(3600L); // ✅ Cache de preflight por 1 hora
+        configuration.setMaxAge(3600L);
 
         UrlBasedCorsConfigurationSource source = new UrlBasedCorsConfigurationSource();
         source.registerCorsConfiguration("/**", configuration);

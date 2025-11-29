@@ -6,7 +6,7 @@ import jakarta.validation.constraints.Size;
 import org.hibernate.validator.constraints.br.CPF;
 
 public record ClienteDTO(
-        Integer cdCliente, // ✅ ADICIONADO - para retorno
+        Integer cdCliente,
 
         @NotBlank(message = "Nome do cliente é obrigatório")
         @Size(max = 120, message = "Nome deve ter no máximo 120 caracteres")

@@ -23,6 +23,8 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class OrdemServicoService {
 
+
+
     private final OrdemServicoRepository ordemServicoRepository;
     private final ClienteRepository clienteRepository;
     private final VeiculoRepository veiculoRepository;
@@ -33,12 +35,9 @@ public class OrdemServicoService {
     private final FaturamentoRepository faturamentoRepository;
     private final AgendamentoRepository agendamentoRepository;
 
-    // ============================================================
-    // CRIAR ORDEM OU ORÇAMENTO
-    // ============================================================
     @Transactional
     public OrdemServicoResponseDTO criar(OrdemServicoRequestDTO dto) {
-        log.info("🆕 Criando {} para cliente: {}", dto.tipoOrdemOrcamento(), dto.cdCliente());
+        log.info("Criando {} para cliente: {}", dto.tipoOrdemOrcamento(), dto.cdCliente());
 
         ClienteModel cliente = clienteRepository.findById(dto.cdCliente())
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
@@ -55,13 +54,11 @@ public class OrdemServicoService {
         if (!mecanico.getAtivo())
             throw new RuntimeException("Mecânico inativo");
 
-        // Valida disponibilidade de horário (somente OS)
         if (dto.tipoOrdemOrcamento() == TipoOrdemOrcamento.ORDEM_DE_SERVICO &&
                 dto.dataAgendamento() != null) {
             validarDisponibilidadeMecanico(dto.cdMecanico(), dto.dataAgendamento());
         }
 
-        // 🔥 CORREÇÃO DO STATUS AQUI!
         Status statusInicial = (dto.tipoOrdemOrcamento() == TipoOrdemOrcamento.ORCAMENTO)
                 ? Status.ORCAMENTO
                 : Status.AGENDADO;
@@ -89,7 +86,6 @@ public class OrdemServicoService {
         if (dto.itens() != null && !dto.itens().isEmpty())
             adicionarItens(salva, dto.itens());
 
-        // Cria agendamento APENAS se for ordem
         if (dto.tipoOrdemOrcamento() == TipoOrdemOrcamento.ORDEM_DE_SERVICO &&
                 dto.dataAgendamento() != null) {
             criarAgendamentoAutomatico(salva, dto.dataAgendamento());
@@ -98,9 +94,6 @@ public class OrdemServicoService {
         return converterParaResponseDTO(ordemServicoRepository.findByIdWithItens(salva.getCdOrdemServico()));
     }
 
-    // ============================================================
-    // ADICIONAR ITENS
-    // ============================================================
     @Transactional
     protected void adicionarItens(OrdemServicoModel ordem, List<OrdemServicoRequestDTO.ItemDTO> itensDTO) {
         double totalPecas = 0.0;
@@ -113,7 +106,6 @@ public class OrdemServicoService {
             item.setOrdemServico(ordem);
             item.setQuantidade(itemDTO.quantidade());
 
-            // PRODUTO
             if (itemDTO.cdProduto() != null) {
                 ProdutoModel produto = produtoRepository.findById(itemDTO.cdProduto())
                         .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
@@ -135,7 +127,6 @@ public class OrdemServicoService {
                 }
             }
 
-            // SERVIÇO
             if (itemDTO.cdServico() != null) {
                 ServicoModel servico = servicoRepository.findById(itemDTO.cdServico())
                         .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
@@ -158,9 +149,6 @@ public class OrdemServicoService {
         ordemServicoRepository.save(ordem);
     }
 
-    // ============================================================
-    // APROVAR ORÇAMENTO
-    // ============================================================
     @Transactional
     public OrdemServicoResponseDTO aprovarOrcamento(Integer id, LocalDate dataAgendamento) {
         log.info("📋 Aprovando orçamento ID: {}", id);
@@ -174,11 +162,9 @@ public class OrdemServicoService {
         if (ordem.getAprovado())
             throw new RuntimeException("Orçamento já aprovado");
 
-        // valida disponibilidade
         if (dataAgendamento != null)
             validarDisponibilidadeMecanico(ordem.getMecanico().getCdUsuario(), dataAgendamento);
 
-        // baixa de estoque
         for (ItemOrdemServicoModel item : itemOrdemServicoRepository.findByOrdemServico_CdOrdemServico(id)) {
             if (item.getProduto() != null) {
                 ProdutoModel produto = item.getProduto();
@@ -208,9 +194,6 @@ public class OrdemServicoService {
         );
     }
 
-    // ============================================================
-    // INICIAR OS
-    // ============================================================
     @Transactional
     public OrdemServicoResponseDTO iniciar(Integer id) {
 
@@ -228,9 +211,6 @@ public class OrdemServicoService {
         return converterParaResponseDTO(ordemServicoRepository.findByIdWithItens(atualizada.getCdOrdemServico()));
     }
 
-    // ============================================================
-    // CONCLUIR OS
-    // ============================================================
     @Transactional
     public OrdemServicoResponseDTO concluir(Integer id, String formaPagamento) {
 
@@ -254,9 +234,6 @@ public class OrdemServicoService {
         );
     }
 
-    // ============================================================
-    // CANCELAR OS
-    // ============================================================
     @Transactional
     public void cancelar(Integer id) {
 
@@ -269,7 +246,6 @@ public class OrdemServicoService {
         if (ordem.getStatus() == Status.CANCELADO)
             throw new RuntimeException("Ordem já cancelada");
 
-        // devolução estoque
         if (ordem.getTipoOrdemOrcamento() == TipoOrdemOrcamento.ORDEM_DE_SERVICO) {
             for (ItemOrdemServicoModel item : itemOrdemServicoRepository
                     .findByOrdemServico_CdOrdemServico(id)) {
@@ -288,9 +264,6 @@ public class OrdemServicoService {
         atualizarAgendamento(ordem, Status.CANCELADO);
     }
 
-    // ============================================================
-    // AGENDAMENTO AUTOMATICO
-    // ============================================================
     @Transactional
     protected void criarAgendamentoAutomatico(OrdemServicoModel ordem, LocalDate dataAgendamento) {
 
@@ -307,9 +280,6 @@ public class OrdemServicoService {
         agendamentoRepository.save(agendamento);
     }
 
-    // ============================================================
-    // ATUALIZAR AGENDAMENTO
-    // ============================================================
     @Transactional
     protected void atualizarAgendamento(OrdemServicoModel ordem, Status novoStatus) {
         List<AgendamentoModel> agendamentos =
@@ -322,9 +292,6 @@ public class OrdemServicoService {
         }
     }
 
-    // ============================================================
-    // FATURAMENTO
-    // ============================================================
     @Transactional
     protected void gerarFaturamento(OrdemServicoModel ordem, String formaPagamento) {
 
@@ -338,9 +305,6 @@ public class OrdemServicoService {
         faturamentoRepository.save(faturamento);
     }
 
-    // ============================================================
-    // VALIDAR DISPONIBILIDADE
-    // ============================================================
     private void validarDisponibilidadeMecanico(Integer cdMecanico, LocalDate dataAgendamento) {
         if (!agendamentoRepository
                 .findByMecanico_CdUsuarioAndDataAgendamentoAndStatusNot(
@@ -351,9 +315,6 @@ public class OrdemServicoService {
         }
     }
 
-    // ============================================================
-    // BUSCAR POR ID
-    // ============================================================
     @Transactional(readOnly = true)
     public OrdemServicoResponseDTO buscarPorId(Integer id) {
         OrdemServicoModel ordem = ordemServicoRepository.findByIdWithItens(id);
@@ -363,9 +324,6 @@ public class OrdemServicoService {
         return converterParaResponseDTO(ordem);
     }
 
-    // ============================================================
-    // LISTAR POR STATUS
-    // ============================================================
     @Transactional(readOnly = true)
     public List<OrdemServicoResponseDTO> listarPorStatus(Status status) {
         return ordemServicoRepository.findByStatus(status).stream()
@@ -375,9 +333,6 @@ public class OrdemServicoService {
                 .toList();
     }
 
-    // ============================================================
-    // LISTAR ORÇAMENTOS PENDENTES
-    // ============================================================
     @Transactional(readOnly = true)
     public List<OrdemServicoResponseDTO> listarOrcamentosPendentes() {
         return ordemServicoRepository.findOrcamentosPendentes().stream()
@@ -393,63 +348,54 @@ public class OrdemServicoService {
             String diagnostico,
             Double vlMaoObraExtra
     ) {
-        log.info("🔄 Atualizando diagnóstico e mão de obra da ordem #{}", cdOrdemServico);
+        log.info("🔄 Atualizando dados da ordem #{}", cdOrdemServico);
 
-        // 1. Buscar a ordem
+
         OrdemServicoModel ordem = ordemServicoRepository.findById(cdOrdemServico)
                 .orElseThrow(() -> new RuntimeException("Ordem não encontrada"));
 
-        // 2. Atualizar diagnóstico e mão de obra
+
         ordem.setDiagnostico(diagnostico);
         ordem.setVlMaoObraExtra(vlMaoObraExtra != null ? vlMaoObraExtra : 0.0);
 
-        // 3. ✅ BUSCAR OS ITENS DO BANCO (isso é o que faltava!)
-        List<ItemOrdemServicoModel> itens = itemOrdemServicoRepository
-                .findByOrdemServico_CdOrdemServico(cdOrdemServico);
+        List<ItemOrdemServicoModel> itens =
+                itemOrdemServicoRepository.findByOrdemServico_CdOrdemServico(cdOrdemServico);
 
-        // 4. Calcular total de peças
-        Double totalPecas = 0.0;
-        for (ItemOrdemServicoModel item : itens) {
-            if (item.getProduto() != null) {
-                totalPecas = totalPecas + item.getVlTotal();
-            }
-        }
+        double totalPecas = itens.stream()
+                .filter(i -> i.getProduto() != null)
+                .mapToDouble(ItemOrdemServicoModel::getVlTotal)
+                .sum();
 
-        // 5. Calcular total de serviços
-        Double totalServicos = 0.0;
-        for (ItemOrdemServicoModel item : itens) {
-            if (item.getServico() != null) {
-                totalServicos = totalServicos + item.getVlTotal();
-            }
-        }
+        double totalServicos = itens.stream()
+                .filter(i -> i.getServico() != null)
+                .mapToDouble(ItemOrdemServicoModel::getVlTotal)
+                .sum();
 
-        // 6. Calcular o novo total
-        Double novoTotal = totalPecas + totalServicos + ordem.getVlMaoObraExtra();
+        double novoTotal = totalPecas + totalServicos + ordem.getVlMaoObraExtra();
 
-        // 7. Mostrar no console o que foi calculado (ajuda a debugar!)
-        log.info("💰 Recálculo:");
-        log.info("  - Peças: R$ {}", totalPecas);
-        log.info("  - Serviços: R$ {}", totalServicos);
-        log.info("  - Mão de Obra Extra: R$ {}", ordem.getVlMaoObraExtra());
-        log.info("  - TOTAL: R$ {}", novoTotal);
-
-        // 8. Atualizar os valores na ordem
         ordem.setVlPecas(totalPecas);
         ordem.setVlServicos(totalServicos);
         ordem.setVlTotal(novoTotal);
 
-        // 9. Salvar no banco
         OrdemServicoModel salva = ordemServicoRepository.save(ordem);
 
-        log.info("✅ Ordem atualizada com sucesso");
+        if (salva.getStatus() == Status.CONCLUIDO) {
+
+            FaturamentoModel faturamento =
+                    faturamentoRepository.findByOrdemServico_CdOrdemServico(cdOrdemServico);
+
+            if (faturamento != null) {
+                faturamento.setVlTotal(novoTotal);
+                faturamento.setDataVenda(LocalDateTime.now());
+                faturamentoRepository.save(faturamento);
+
+                log.info("💰 Faturamento atualizado automaticamente!");
+            }
+        }
 
         return converterParaResponseDTO(salva);
     }
 
-
-    // ============================================================
-    // ATUALIZAR OS
-    // ============================================================
     @Transactional
     public OrdemServicoResponseDTO atualizar(Integer id, OrdemServicoRequestDTO dto) {
 
@@ -473,9 +419,6 @@ public class OrdemServicoService {
                 ordemServicoRepository.findByIdWithItens(atualizada.getCdOrdemServico()));
     }
 
-    // ============================================================
-    // CONVERTER RESPONSE DTO
-    // ============================================================
     private OrdemServicoResponseDTO converterParaResponseDTO(OrdemServicoModel ordem) {
 
         List<OrdemServicoResponseDTO.ItemResponseDTO> itensDTO = ordem.getItens() != null
@@ -514,9 +457,6 @@ public class OrdemServicoService {
         );
     }
 
-    // ============================================================
-    // LISTAR TODAS
-    // ============================================================
     public List<OrdemServicoResponseDTO> listarTodas() {
         return ordemServicoRepository.findAllWithBasicRelations().stream()
                 .map(ordem -> new OrdemServicoResponseDTO(

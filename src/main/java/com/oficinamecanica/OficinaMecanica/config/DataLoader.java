@@ -12,14 +12,6 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 import java.util.Set;
 
-/**
- * DataLoader para criar usuários padrão na inicialização da aplicação
- *
- * Usuários criados:
- * - Admin: admin@oficina.com / senha123
- * - Atendente: atendente@oficina.com / senha123
- * - Mecânico: mecanico@oficina.com / senha123
- */
 @Configuration
 @RequiredArgsConstructor
 public class DataLoader {
@@ -33,18 +25,15 @@ public class DataLoader {
 
 
             if (usuarioRepository.count() > 0) {
-                System.out.println("✅ Usuários já existem no banco de dados.");
-                System.out.println("📊 Total de usuários: " + usuarioRepository.count());
+                System.out.println("Usuários já existem no banco de dados.");
+                System.out.println("Total de usuários: " + usuarioRepository.count());
                 System.out.println();
                 return;
             }
 
-            System.out.println("🔨 Criando usuários padrão...\n");
-
-
+            System.out.println("Criando usuários padrão\n");
             String senhaTexto = "senha123";
             String senhaCriptografada = passwordEncoder.encode(senhaTexto);
-
 
             UsuarioModel admin = UsuarioModel.builder()
                     .nmUsuario("João Admin Silva")
@@ -58,8 +47,7 @@ public class DataLoader {
                     .build();
 
             usuarioRepository.save(admin);
-            System.out.println("✅ Admin criado: " + admin.getEmail());
-
+            System.out.println("Admin criado: " + admin.getEmail());
 
             UsuarioModel atendente = UsuarioModel.builder()
                     .nmUsuario("Maria Atendente Santos")
@@ -73,8 +61,7 @@ public class DataLoader {
                     .build();
 
             usuarioRepository.save(atendente);
-            System.out.println("✅ Atendente criado: " + atendente.getEmail());
-
+            System.out.println("Atendente criado: " + atendente.getEmail());
 
             UsuarioModel mecanico = UsuarioModel.builder()
                     .nmUsuario("Carlos Mecânico Souza")
@@ -88,21 +75,19 @@ public class DataLoader {
                     .build();
 
             usuarioRepository.save(mecanico);
-            System.out.println("✅ Mecânico criado: " + mecanico.getEmail());
+            System.out.println("Mecânico criado: " + mecanico.getEmail());
 
-            System.out.println("👤 ADMIN");
+            System.out.println("ADMIN");
             System.out.println("   Email: admin@oficina.com");
             System.out.println("   Senha: senha123");
             System.out.println();
-            System.out.println("👤 ATENDENTE");
+            System.out.println("ATENDENTE");
             System.out.println("   Email: atendente@oficina.com");
             System.out.println("   Senha: senha123");
             System.out.println();
-            System.out.println("👤 MECÂNICO");
+            System.out.println("MECÂNICO");
             System.out.println("   Email: mecanico@oficina.com");
             System.out.println("   Senha: senha123");
-
-
 
             System.out.println("Verificando criação...");
             usuarioRepository.findAll().forEach(u -> {

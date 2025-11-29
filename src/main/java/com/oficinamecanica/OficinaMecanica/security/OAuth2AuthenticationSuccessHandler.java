@@ -36,29 +36,25 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String name = oAuth2User.getAttribute("name");
         String providerId = oAuth2User.getAttribute("sub");
 
-        // ✅ BUSCAR USUÁRIO - SE NÃO EXISTIR, BLOQUEAR
         UsuarioModel usuario = usuarioRepository.findByEmail(email)
                 .orElse(null);
 
-        // ❌ USUÁRIO NÃO CADASTRADO - REDIRECIONAR COM ERRO
         if (usuario == null) {
-            System.out.println("❌ Usuário não encontrado no banco: " + email); // ✅ ADICIONAR
+            System.out.println("Usuário não encontrado no banco: " + email);
             String errorUrl = "http://localhost:4200?error=usuario_nao_cadastrado&email=" + email;
             getRedirectStrategy().sendRedirect(request, response, errorUrl);
             return;
         }
 
-        System.out.println("✅ Usuário encontrado: " + usuario.getEmail()); // ✅ ADICIONAR
-        System.out.println("✅ Roles: " + usuario.getRoles()); // ✅ ADICIONAR
+        System.out.println("Usuário encontrado: " + usuario.getEmail());
+        System.out.println("Roles: " + usuario.getRoles());
 
-        // ✅ USUÁRIO EXISTE - ATUALIZAR PROVIDER SE NECESSÁRIO
         if (usuario.getProvider() != AuthProvider.GOOGLE) {
             usuario.setProvider(AuthProvider.GOOGLE);
             usuario.setProviderId(providerId);
             usuarioRepository.save(usuario);
         }
 
-        // ✅ CRIAR AUTHENTICATION COM AS ROLES DO BANCO
         Set<SimpleGrantedAuthority> authorities = usuario.getRoles().stream()
                 .map(role -> new SimpleGrantedAuthority(role.name()))
                 .collect(Collectors.toSet());
@@ -69,10 +65,8 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
                 authorities
         );
 
-        // Gerar token JWT
         String token = tokenProvider.generateToken(newAuth);
 
-        // Redirecionar para o front-end com o token
         String redirectUrl = String.format("http://localhost:4200/auth/callback?token=%s&email=%s",
                 token, email);
 

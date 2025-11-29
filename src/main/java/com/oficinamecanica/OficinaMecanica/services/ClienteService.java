@@ -26,17 +26,14 @@ public class ClienteService {
     public ClienteDTO criar(ClienteDTO dto) {
         log.info("👤 Criando cliente: {}", dto.nmCliente());
 
-        // 1. VALIDAR SE CPF JÁ EXISTE
         if (dto.cpf() != null && clienteRepository.existsByCpf(dto.cpf())) {
             throw new RuntimeException("CPF já cadastrado");
         }
 
-        // 2. VALIDAR SE EMAIL JÁ EXISTE
         if (dto.email() != null && clienteRepository.existsByEmail(dto.email())) {
             throw new RuntimeException("Email já cadastrado");
         }
 
-        // 3. CRIAR ENTIDADE CLIENTE
         ClienteModel cliente = ClienteModel.builder()
                 .nmCliente(dto.nmCliente())
                 .cpf(dto.cpf())
@@ -46,17 +43,13 @@ public class ClienteService {
                 .ativo(true)
                 .build();
 
-        // 4. SALVAR NO BANCO
         ClienteModel salvo = clienteRepository.save(cliente);
 
-        log.info("✅ Cliente criado: ID {} - {}", salvo.getCdCliente(), salvo.getNmCliente());
+        log.info("Cliente criado: ID {} - {}", salvo.getCdCliente(), salvo.getNmCliente());
 
         return converterParaDTO(salvo);
     }
 
-    /**
-     * BUSCAR CLIENTE POR ID
-     */
     @Transactional(readOnly = true)
     public ClienteDTO buscarPorId(Integer id) {
         ClienteModel cliente = clienteRepository.findById(id)
@@ -65,9 +58,6 @@ public class ClienteService {
         return converterParaDTO(cliente);
     }
 
-    /**
-     * LISTAR TODOS OS CLIENTES ATIVOS
-     */
     @Transactional(readOnly = true)
     public List<ClienteDTO> listarAtivos() {
         log.info("📋 Listando clientes ativos");
@@ -77,9 +67,6 @@ public class ClienteService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * LISTAR TODOS OS CLIENTES (ativos e inativos)
-     */
     @Transactional(readOnly = true)
     public List<ClienteDTO> listarTodos() {
         return clienteRepository.findAll().stream()
@@ -87,9 +74,6 @@ public class ClienteService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * BUSCAR CLIENTE POR CPF
-     */
     @Transactional(readOnly = true)
     public ClienteDTO buscarPorCpf(String cpf) {
         ClienteModel cliente = clienteRepository.findByCpf(cpf)
@@ -97,9 +81,6 @@ public class ClienteService {
         return converterParaDTO(cliente);
     }
 
-    /**
-     * BUSCAR CLIENTES POR NOME (busca parcial)
-     */
     @Transactional(readOnly = true)
     public List<ClienteDTO> buscarPorNome(String nome) {
         return clienteRepository.findByNmClienteContainingIgnoreCase(nome).stream()
@@ -107,48 +88,37 @@ public class ClienteService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * ATUALIZAR CLIENTE
-     */
     @Transactional
     public ClienteDTO atualizar(Integer id, ClienteDTO dto) {
         log.info("🔄 Atualizando cliente ID: {}", id);
 
-        // 1. BUSCAR CLIENTE EXISTENTE
         ClienteModel cliente = clienteRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        // 2. VALIDAR CPF ÚNICO (se mudou o CPF)
         if (!cliente.getCpf().equals(dto.cpf()) &&
                 clienteRepository.existsByCpf(dto.cpf())) {
             throw new RuntimeException("CPF já cadastrado");
         }
 
-        // 3. VALIDAR EMAIL ÚNICO (se mudou o email)
         if (dto.email() != null &&
                 !dto.email().equals(cliente.getEmail()) &&
                 clienteRepository.existsByEmail(dto.email())) {
             throw new RuntimeException("Email já cadastrado");
         }
 
-        // 4. ATUALIZAR CAMPOS
         cliente.setNmCliente(dto.nmCliente());
         cliente.setCpf(dto.cpf());
         cliente.setTelefone(dto.telefone());
         cliente.setEmail(dto.email());
         cliente.setEndereco(dto.endereco());
 
-        // 5. SALVAR E RETORNAR
         ClienteModel atualizado = clienteRepository.save(cliente);
 
-        log.info("✅ Cliente atualizado: {}", atualizado.getNmCliente());
+        log.info("Cliente atualizado: {}", atualizado.getNmCliente());
 
         return converterParaDTO(atualizado);
     }
 
-    /**
-     * DELETAR CLIENTE (SOFT DELETE)
-     */
     @Transactional
     public void deletar(Integer id) {
         log.info("🗑️ Deletando cliente ID: {}", id);
@@ -159,12 +129,9 @@ public class ClienteService {
         cliente.setAtivo(false);
         clienteRepository.save(cliente);
 
-        log.info("✅ Cliente marcado como inativo");
+        log.info("Cliente marcado como inativo");
     }
 
-    /**
-     * CONVERTER MODEL PARA DTO
-     */
     private ClienteDTO converterParaDTO(ClienteModel cliente) {
         return new ClienteDTO(
                 cliente.getCdCliente(),

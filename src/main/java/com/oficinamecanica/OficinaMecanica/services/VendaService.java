@@ -24,7 +24,6 @@ public class VendaService {
     private final ProdutoRepository produtoRepository;
     private final ItemVendaRepository itemVendaRepository;
     private final FaturamentoRepository faturamentoRepository;
-    // ❌ NÃO PRECISA MAIS DO VendaMapper
 
     @Transactional
     public VendaResponseDTO criar(VendaDTO dto) {
@@ -64,11 +63,10 @@ public class VendaService {
 
         gerarFaturamento(salva);
 
-        // ✅ Recarrega a venda com relacionamentos
         salva = vendaRepository.findById(salva.getCdVenda())
                 .orElseThrow(() -> new RuntimeException("Erro ao recarregar venda"));
 
-        return converterParaResponseDTO(salva);  // ✅ MÉTODO MANUAL
+        return converterParaResponseDTO(salva);
     }
 
     @Transactional
@@ -123,14 +121,14 @@ public class VendaService {
     public VendaResponseDTO buscarPorId(Integer id) {
         VendaModel venda = vendaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Venda não encontrada"));
-        return converterParaResponseDTO(venda);  // ✅ MÉTODO MANUAL
+        return converterParaResponseDTO(venda);
     }
 
     @Transactional(readOnly = true)
     public List<VendaResponseDTO> listarTodas() {
         List<VendaModel> vendas = vendaRepository.findAllWithDetails();
         return vendas.stream()
-                .map(this::converterParaResponseDTO)  // ✅ MÉTODO MANUAL
+                .map(this::converterParaResponseDTO)
                 .collect(Collectors.toList());
     }
 
@@ -164,13 +162,11 @@ public class VendaService {
         return total != null ? total : 0.0;
     }
 
-    // ✅ MÉTODO PRIVADO DE CONVERSÃO (substitui o VendaMapper)
     private VendaResponseDTO converterParaResponseDTO(VendaModel venda) {
         if (venda == null) {
             return null;
         }
 
-        // Mapeia cliente
         VendaResponseDTO.ClienteBasicDTO clienteDTO = null;
         if (venda.getClienteModel() != null) {
             var c = venda.getClienteModel();
@@ -183,7 +179,6 @@ public class VendaService {
             );
         }
 
-        // Mapeia atendente
         VendaResponseDTO.AtendenteBasicDTO atendenteDTO = null;
         if (venda.getAtendente() != null) {
             var a = venda.getAtendente();
@@ -194,7 +189,6 @@ public class VendaService {
             );
         }
 
-        // Mapeia itens
         List<VendaResponseDTO.ItemVendaResponseDTO> itensDTO = Collections.emptyList();
         if (venda.getItens() != null && !venda.getItens().isEmpty()) {
             itensDTO = venda.getItens().stream()

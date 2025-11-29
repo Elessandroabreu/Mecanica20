@@ -25,17 +25,14 @@ public class UsuarioService {
     public UsuarioResponseDTO criar(UsuarioDTO dto) {
         log.info("👤 Criando usuário: {}", dto.email());
 
-        // Validar email único
         if (usuarioRepository.existsByEmail(dto.email())) {
             throw new RuntimeException("Email já cadastrado");
         }
 
-        // Validar CPF único
         if (dto.cpf() != null && usuarioRepository.existsByCpf(dto.cpf())) {
             throw new RuntimeException("CPF já cadastrado");
         }
 
-        // Criar usuário
         UsuarioModel usuario = UsuarioModel.builder()
                 .nmUsuario(dto.nmUsuario())
                 .email(dto.email())
@@ -50,7 +47,7 @@ public class UsuarioService {
 
         UsuarioModel salvo = usuarioRepository.save(usuario);
 
-        log.info("✅ Usuário criado: ID {} - {}", salvo.getCdUsuario(), salvo.getEmail());
+        log.info("Usuário criado: ID {} - {}", salvo.getCdUsuario(), salvo.getEmail());
 
         return converterParaDTO(salvo);
     }
@@ -92,29 +89,25 @@ public class UsuarioService {
 
     @Transactional
     public UsuarioResponseDTO atualizar(Integer id, UsuarioDTO dto) {
-        log.info("🔄 Atualizando usuário ID: {}", id);
+        log.info("Atualizando usuário ID: {}", id);
 
         UsuarioModel usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
-        // Validar email único (se mudou)
         if (!usuario.getEmail().equals(dto.email()) &&
                 usuarioRepository.existsByEmail(dto.email())) {
             throw new RuntimeException("Email já cadastrado");
         }
 
-        // Validar CPF único (se mudou)
         if (dto.cpf() != null &&
                 !dto.cpf().equals(usuario.getCpf()) &&
                 usuarioRepository.existsByCpf(dto.cpf())) {
             throw new RuntimeException("CPF já cadastrado");
         }
 
-        // Atualizar campos
         usuario.setNmUsuario(dto.nmUsuario());
         usuario.setEmail(dto.email());
 
-        // Atualizar senha apenas se foi fornecida
         if (dto.senha() != null && !dto.senha().isEmpty()) {
             usuario.setSenha(passwordEncoder.encode(dto.senha()));
         }
@@ -126,14 +119,14 @@ public class UsuarioService {
 
         UsuarioModel atualizado = usuarioRepository.save(usuario);
 
-        log.info("✅ Usuário atualizado: {}", atualizado.getEmail());
+        log.info("Usuário atualizado: {}", atualizado.getEmail());
 
         return converterParaDTO(atualizado);
     }
 
     @Transactional
     public void deletar(Integer id) {
-        log.info("🗑️ Deletando usuário ID: {}", id);
+        log.info("Deletando usuário ID: {}", id);
 
         UsuarioModel usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
@@ -141,7 +134,7 @@ public class UsuarioService {
         usuario.setAtivo(false);
         usuarioRepository.save(usuario);
 
-        log.info("✅ Usuário marcado como inativo");
+        log.info("Usuário marcado como inativo");
     }
 
     private UsuarioResponseDTO converterParaDTO(UsuarioModel usuario) {

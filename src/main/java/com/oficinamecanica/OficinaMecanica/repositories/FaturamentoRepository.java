@@ -12,21 +12,23 @@ import java.util.List;
 @Repository
 public interface FaturamentoRepository extends JpaRepository<FaturamentoModel, Integer> {
 
-    // Listar faturamentos em um período
     @Query("SELECT f FROM FaturamentoModel f WHERE f.dataVenda BETWEEN :dataInicio AND :dataFim")
     List<FaturamentoModel> findFaturamentosNoPeriodo(@Param("dataInicio") LocalDateTime dataInicio,
                                                      @Param("dataFim") LocalDateTime dataFim);
 
-    // Calcular total faturado em um período
     @Query("SELECT SUM(f.vlTotal) FROM FaturamentoModel f WHERE f.dataVenda BETWEEN :dataInicio AND :dataFim")
     Double calcularTotalFaturadoNoPeriodo(@Param("dataInicio") LocalDateTime dataInicio,
                                           @Param("dataFim") LocalDateTime dataFim);
 
-    // Faturamento do dia (usando DATE para comparação correta)
     @Query("SELECT f FROM FaturamentoModel f WHERE CAST(f.dataVenda AS date) = CAST(:data AS date)")
     List<FaturamentoModel> findFaturamentosDoDia(@Param("data") LocalDateTime data);
 
-    // Total faturado do dia
     @Query("SELECT SUM(f.vlTotal) FROM FaturamentoModel f WHERE CAST(f.dataVenda AS date) = CAST(:data AS date)")
     Double calcularTotalFaturadoDoDia(@Param("data") LocalDateTime data);
+
+    FaturamentoModel findByOrdemServico_CdOrdemServico(Integer cdOrdemServico);
+
+    List<FaturamentoModel> findByDataVendaBetween(LocalDateTime inicio, LocalDateTime fim);
+
+
 }

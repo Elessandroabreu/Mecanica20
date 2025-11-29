@@ -25,9 +25,6 @@ public class OrdemServicoController {
 
     private final OrdemServicoService ordemServicoService;
 
-    // =====================================================================================
-    // LISTAR TODAS
-    // =====================================================================================
     @GetMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Listar todas as ordens de serviço")
@@ -35,9 +32,6 @@ public class OrdemServicoController {
         return ResponseEntity.ok(ordemServicoService.listarTodas());
     }
 
-    // =====================================================================================
-    // CRIAR OS OU ORÇAMENTO
-    // =====================================================================================
     @PostMapping
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Criar nova ordem de serviço ou orçamento")
@@ -46,9 +40,6 @@ public class OrdemServicoController {
         return ResponseEntity.status(HttpStatus.CREATED).body(response);
     }
 
-    // =====================================================================================
-    // INICIAR OS
-    // =====================================================================================
     @PatchMapping("/{id}/iniciar")
     @PreAuthorize("hasAnyRole('ADMIN', 'MECANICO')")
     @Operation(summary = "Iniciar ordem de serviço")
@@ -56,9 +47,6 @@ public class OrdemServicoController {
         return ResponseEntity.ok(ordemServicoService.iniciar(id));
     }
 
-    // =====================================================================================
-    // ATUALIZAR OS
-    // =====================================================================================
     @PutMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Atualizar ordem de serviço")
@@ -70,9 +58,6 @@ public class OrdemServicoController {
         return ResponseEntity.ok(response);
     }
 
-    // =====================================================================================
-    // BUSCAR POR ID
-    // =====================================================================================
     @GetMapping("/{id}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Buscar ordem de serviço por ID")
@@ -80,9 +65,6 @@ public class OrdemServicoController {
         return ResponseEntity.ok(ordemServicoService.buscarPorId(id));
     }
 
-    // =====================================================================================
-    // LISTAR POR STATUS (AGENDADO, EM_ANDAMENTO, CONCLUIDO, CANCELADO, ORCAMENTO)
-    // =====================================================================================
     @GetMapping("/status/{status}")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Listar ordens por status")
@@ -90,11 +72,6 @@ public class OrdemServicoController {
         return ResponseEntity.ok(ordemServicoService.listarPorStatus(status));
     }
 
-
-
-    // =====================================================================================
-    // LISTAR ORÇAMENTOS PENDENTES
-    // =====================================================================================
     @GetMapping("/orcamentos/pendentes")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Listar orçamentos pendentes de aprovação")
@@ -102,9 +79,6 @@ public class OrdemServicoController {
         return ResponseEntity.ok(ordemServicoService.listarOrcamentosPendentes());
     }
 
-    // =====================================================================================
-    // APROVAR ORÇAMENTO
-    // =====================================================================================
     @PatchMapping("/{id}/aprovar-orcamento")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Aprovar orçamento e converter em ordem de serviço")
@@ -137,9 +111,6 @@ public class OrdemServicoController {
         return ResponseEntity.ok(resultado);
     }
 
-    // =====================================================================================
-    // CONCLUIR OS
-    // =====================================================================================
     @PatchMapping("/{id}/concluir")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE', 'MECANICO')")
     @Operation(summary = "Concluir ordem de serviço e gerar faturamento")
@@ -151,9 +122,6 @@ public class OrdemServicoController {
         return ResponseEntity.ok(ordemServicoService.concluir(id, formaPagamento));
     }
 
-    // =====================================================================================
-    // CANCELAR OS
-    // =====================================================================================
     @PatchMapping("/{id}/cancelar")
     @PreAuthorize("hasAnyRole('ADMIN', 'ATENDENTE')")
     @Operation(summary = "Cancelar ordem de serviço e devolver produtos ao estoque")

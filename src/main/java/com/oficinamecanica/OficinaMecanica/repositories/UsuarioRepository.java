@@ -23,6 +23,5 @@ public interface UsuarioRepository extends JpaRepository<UsuarioModel, Integer> 
 
     boolean existsByEmail(String email);
 
-    // ✅ CORRIGIDO: cpf em camelCase
     boolean existsByCpf(String cpf);
 }

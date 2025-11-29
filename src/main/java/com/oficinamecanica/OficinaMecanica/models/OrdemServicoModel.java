@@ -36,17 +36,14 @@ public class OrdemServicoModel {
     @JoinColumn(name = "CDMECANICO", nullable = false)
     private UsuarioModel mecanico;
 
-    // ORDEM_SERVICO ou ORCAMENTO
     @Enumerated(EnumType.STRING)
     @Column(name = "TIPOORDEMORCAMENTO", nullable = false, length = 20)
     private TipoOrdemOrcamento tipoOrdemOrcamento;
 
-    // Status será definido automaticamente no @PrePersist
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS", nullable = false, length = 20)
     private Status status;
 
-    // Para orçamento não é obrigatório
     @Column(name = "DATAAGENDAMENTO")
     private LocalDateTime dataAgendamento;
 
@@ -80,9 +77,6 @@ public class OrdemServicoModel {
     @Column(name = "DATAABERTURA", nullable = false)
     private LocalDateTime dataAbertura;
 
-    // ================================
-    // DEFINIR STATUS AUTOMATICAMENTE
-    // ================================
     @PrePersist
     protected void onCreate() {
         this.dataAbertura = LocalDateTime.now();

@@ -40,12 +40,10 @@ public class ClienteModel {
     @JsonIgnore
     private List<VeiculoModel> veiculos;
 
-    // ✅ CORRIGIDO: "cliente" → "clienteModel"
     @OneToMany(mappedBy = "clienteModel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<OrdemServicoModel> ordensServico;
 
-    // ✅ CORRIGIDO: "cliente" → "clienteModel"
     @OneToMany(mappedBy = "clienteModel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     private List<VendaModel> vendas;

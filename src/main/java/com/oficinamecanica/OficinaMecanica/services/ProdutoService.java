@@ -22,9 +22,9 @@ public class ProdutoService {
                 .nmProduto(dto.nmProduto())
                 .dsProduto(dto.dsProduto())
                 .categoria(dto.categoria())
-                .vlProduto(dto.vlProduto()) // ✅ CORRIGIDO: Produto só tem vlProduto
+                .vlProduto(dto.vlProduto())
                 .qtdEstoque(dto.qtdEstoque())
-                .qtdMinimoEstoque(dto.qtdMinimoEstoque()) // ✅ CORRIGIDO: nome do campo no model
+                .qtdMinimoEstoque(dto.qtdMinimoEstoque())
                 .ativo(true)
                 .build();
 
@@ -78,7 +78,6 @@ public class ProdutoService {
         produtoRepository.save(produto);
     }
 
-    // ✅ CONVERTER ENTIDADE → DTO
     private ProdutoDTO converterParaDTO(ProdutoModel produto) {
         return new ProdutoDTO(
                 produto.getCdProduto(),

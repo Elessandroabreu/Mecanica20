@@ -7,7 +7,7 @@ import jakarta.validation.constraints.PositiveOrZero;
 import jakarta.validation.constraints.Size;
 
 public record ProdutoDTO(
-        Integer cdProduto, // ✅ ADICIONADO - para retorno
+        Integer cdProduto,
 
         @NotBlank(message = "Nome do produto é obrigatório")
         @Size(max = 150, message = "Nome deve ter no máximo 150 caracteres")

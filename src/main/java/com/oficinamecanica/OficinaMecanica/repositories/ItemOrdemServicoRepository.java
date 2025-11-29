@@ -9,6 +9,5 @@ import java.util.List;
 @Repository
 public interface ItemOrdemServicoRepository extends JpaRepository<ItemOrdemServicoModel, Integer> {
 
-    // Listar itens de uma ordem de serviço
     List<ItemOrdemServicoModel> findByOrdemServico_CdOrdemServico(Integer cdOrdemServico);
 }

@@ -21,12 +21,9 @@ public class ServicoService {
 
     private final ServicoRepository servicoRepository;
 
-    /**
-     * CRIAR NOVO TIPO DE SERVIÇO
-     */
     @Transactional
     public ServicoDTO criar(ServicoDTO dto) {
-        log.info("🔧 Criando serviço: {}", dto.nmServico());
+        log.info("Criando serviço: {}", dto.nmServico());
 
         ServicoModel servico = ServicoModel.builder()
                 .nmServico(dto.nmServico())
@@ -37,14 +34,11 @@ public class ServicoService {
 
         ServicoModel salvo = servicoRepository.save(servico);
 
-        log.info("✅ Serviço criado: ID {} - {}", salvo.getCdServico(), salvo.getNmServico());
+        log.info("Serviço criado: ID {} - {}", salvo.getCdServico(), salvo.getNmServico());
 
         return converterParaDTO(salvo);
     }
 
-    /**
-     * BUSCAR SERVIÇO POR ID
-     */
     @Transactional(readOnly = true)
     public ServicoDTO buscarPorId(Integer id) {
         ServicoModel servico = servicoRepository.findById(id)
@@ -53,9 +47,6 @@ public class ServicoService {
         return converterParaDTO(servico);
     }
 
-    /**
-     * LISTAR SERVIÇOS ATIVOS
-     */
     @Transactional(readOnly = true)
     public List<ServicoDTO> listarAtivos() {
         log.info("📋 Listando serviços ativos");
@@ -65,9 +56,6 @@ public class ServicoService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * LISTAR TODOS OS SERVIÇOS
-     */
     @Transactional(readOnly = true)
     public List<ServicoDTO> listarTodos() {
         return servicoRepository.findAll().stream()
@@ -75,9 +63,6 @@ public class ServicoService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * BUSCAR SERVIÇOS POR NOME
-     */
     @Transactional(readOnly = true)
     public List<ServicoDTO> buscarPorNome(String nome) {
         return servicoRepository.findByNmServicoContainingIgnoreCase(nome).stream()
@@ -85,12 +70,9 @@ public class ServicoService {
                 .collect(Collectors.toList());
     }
 
-    /**
-     * ATUALIZAR SERVIÇO
-     */
     @Transactional
     public ServicoDTO atualizar(Integer id, ServicoDTO dto) {
-        log.info("🔄 Atualizando serviço ID: {}", id);
+        log.info("Atualizando serviço ID: {}", id);
 
         ServicoModel servico = servicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
@@ -101,17 +83,14 @@ public class ServicoService {
 
         ServicoModel atualizado = servicoRepository.save(servico);
 
-        log.info("✅ Serviço atualizado: {}", atualizado.getNmServico());
+        log.info("Serviço atualizado: {}", atualizado.getNmServico());
 
         return converterParaDTO(atualizado);
     }
 
-    /**
-     * DELETAR SERVIÇO (SOFT DELETE)
-     */
     @Transactional
     public void deletar(Integer id) {
-        log.info("🗑️ Deletando serviço ID: {}", id);
+        log.info("Deletando serviço ID: {}", id);
 
         ServicoModel servico = servicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
@@ -119,12 +98,9 @@ public class ServicoService {
         servico.setAtivo(false);
         servicoRepository.save(servico);
 
-        log.info("✅ Serviço marcado como inativo");
+        log.info("Serviço marcado como inativo");
     }
 
-    /**
-     * CONVERTER MODEL PARA DTO
-     */
     private ServicoDTO converterParaDTO(ServicoModel servico) {
         return new ServicoDTO(
                 servico.getCdServico(),

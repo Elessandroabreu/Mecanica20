@@ -9,6 +9,5 @@ import java.util.List;
 @Repository
 public interface ItemVendaRepository extends JpaRepository<ItemVendaModel, Integer> {
 
-    // Listar itens de uma venda
     List<ItemVendaModel> findByVenda_CdVenda(Integer cdVenda);
 }

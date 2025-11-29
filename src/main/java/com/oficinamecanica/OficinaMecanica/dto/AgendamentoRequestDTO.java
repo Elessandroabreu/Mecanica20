@@ -1,6 +1,5 @@
 package com.oficinamecanica.OficinaMecanica.dto;
 
-import com.oficinamecanica.OficinaMecanica.enums.Status;
 import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Size;
 import java.time.LocalDate;

@@ -17,7 +17,6 @@ public interface AgendamentoRepository extends JpaRepository<AgendamentoModel, I
 
     List<AgendamentoModel> findByMecanico_CdUsuario(Integer cdMecanico);
 
-    // ✅ CORRIGIDO: Model usa cdCliente
     List<AgendamentoModel> findByCdCliente_CdCliente(Integer cdCliente);
 
     @Query("SELECT a FROM AgendamentoModel a WHERE a.dataAgendamento >= :dataAtual AND a.status = 'AGENDADO'")

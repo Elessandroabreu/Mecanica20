@@ -21,7 +21,6 @@ public interface OrdemServicoRepository extends JpaRepository<OrdemServicoModel,
     @Query("SELECT o FROM OrdemServicoModel o WHERE o.tipoOrdemOrcamento = 'ORCAMENTO' AND o.aprovado = false")
     List<OrdemServicoModel> findOrcamentosPendentes();
 
-    // FETCH COMPLETO para buscar por ID (já está certo)
     @Query("SELECT DISTINCT o FROM OrdemServicoModel o " +
             "LEFT JOIN FETCH o.clienteModel " +
             "LEFT JOIN FETCH o.veiculo " +

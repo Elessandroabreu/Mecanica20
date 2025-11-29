@@ -13,7 +13,7 @@ import java.util.Optional;
 @Repository
 public interface VendaRepository extends JpaRepository<VendaModel, Integer> {
 
-    // ✅ CRÍTICO: Busca todas as vendas com JOIN FETCH para evitar LazyInitializationException
+
     @Query("""
         SELECT DISTINCT v FROM VendaModel v
         LEFT JOIN FETCH v.clienteModel
@@ -24,7 +24,6 @@ public interface VendaRepository extends JpaRepository<VendaModel, Integer> {
     """)
     List<VendaModel> findAllWithDetails();
 
-    // ✅ ADICIONAL: Busca uma venda por ID com todos os relacionamentos
     @Query("""
         SELECT v FROM VendaModel v
         LEFT JOIN FETCH v.clienteModel
@@ -35,22 +34,17 @@ public interface VendaRepository extends JpaRepository<VendaModel, Integer> {
     """)
     Optional<VendaModel> findByIdWithDetails(@Param("cdVenda") Integer cdVenda);
 
-    // ✅ Listar vendas de um cliente
     List<VendaModel> findByClienteModel_CdCliente(Integer cdCliente);
 
-    // ✅ Listar vendas de um atendente
     List<VendaModel> findByAtendente_CdUsuario(Integer cdAtendente);
 
-    // ✅ Listar vendas em um período
     @Query("SELECT v FROM VendaModel v WHERE v.dataVenda BETWEEN :dataInicio AND :dataFim ORDER BY v.dataVenda DESC")
     List<VendaModel> findVendasNoPeriodo(@Param("dataInicio") LocalDateTime dataInicio,
                                          @Param("dataFim") LocalDateTime dataFim);
 
-    // ✅ Total de vendas do dia
     @Query("SELECT SUM(v.vlTotal) FROM VendaModel v WHERE CAST(v.dataVenda AS date) = CAST(:data AS date)")
     Double calcularTotalVendasDoDia(@Param("data") LocalDateTime data);
 
-    // ✅ OPCIONAL: Vendas por cliente com detalhes
     @Query("""
         SELECT DISTINCT v FROM VendaModel v
         LEFT JOIN FETCH v.clienteModel c
@@ -62,7 +56,6 @@ public interface VendaRepository extends JpaRepository<VendaModel, Integer> {
     """)
     List<VendaModel> findByClienteWithDetails(@Param("cdCliente") Integer cdCliente);
 
-    // ✅ OPCIONAL: Vendas por atendente com detalhes
     @Query("""
         SELECT DISTINCT v FROM VendaModel v
         LEFT JOIN FETCH v.clienteModel
@@ -74,7 +67,6 @@ public interface VendaRepository extends JpaRepository<VendaModel, Integer> {
     """)
     List<VendaModel> findByAtendenteWithDetails(@Param("cdAtendente") Integer cdAtendente);
 
-    // ✅ OPCIONAL: Vendas por período com detalhes
     @Query("""
         SELECT DISTINCT v FROM VendaModel v
         LEFT JOIN FETCH v.clienteModel
