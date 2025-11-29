@@ -2,7 +2,7 @@ package com.oficinamecanica.OficinaMecanica.services;
 
 import com.oficinamecanica.OficinaMecanica.dto.UsuarioDTO;
 import com.oficinamecanica.OficinaMecanica.dto.UsuarioResponseDTO;
-import com.oficinamecanica.OficinaMecanica.models.Usuario;
+import com.oficinamecanica.OficinaMecanica.models.UsuarioModel;
 import com.oficinamecanica.OficinaMecanica.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -36,7 +36,7 @@ public class UsuarioService {
         }
 
         // Criar usuário
-        Usuario usuario = Usuario.builder()
+        UsuarioModel usuario = UsuarioModel.builder()
                 .nmUsuario(dto.nmUsuario())
                 .email(dto.email())
                 .senha(dto.password() != null ? passwordEncoder.encode(dto.password()) : null)
@@ -48,7 +48,7 @@ public class UsuarioService {
                 .ativo(dto.ativo() != null ? dto.ativo() : true)
                 .build();
 
-        Usuario salvo = usuarioRepository.save(usuario);
+        UsuarioModel salvo = usuarioRepository.save(usuario);
 
         log.info("✅ Usuário criado: ID {} - {}", salvo.getCdUsuario(), salvo.getEmail());
 
@@ -57,14 +57,14 @@ public class UsuarioService {
 
     @Transactional(readOnly = true)
     public UsuarioResponseDTO buscarPorId(Integer id) {
-        Usuario usuario = usuarioRepository.findById(id)
+        UsuarioModel usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
         return converterParaDTO(usuario);
     }
 
     @Transactional(readOnly = true)
     public UsuarioResponseDTO buscarPorEmail(String email) {
-        Usuario usuario = usuarioRepository.findByEmail(email)
+        UsuarioModel usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
         return converterParaDTO(usuario);
     }
@@ -94,7 +94,7 @@ public class UsuarioService {
     public UsuarioResponseDTO atualizar(Integer id, UsuarioDTO dto) {
         log.info("🔄 Atualizando usuário ID: {}", id);
 
-        Usuario usuario = usuarioRepository.findById(id)
+        UsuarioModel usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         // Validar email único (se mudou)
@@ -124,7 +124,7 @@ public class UsuarioService {
         usuario.setRoles(dto.roles());
         usuario.setAtivo(dto.ativo() != null ? dto.ativo() : true);
 
-        Usuario atualizado = usuarioRepository.save(usuario);
+        UsuarioModel atualizado = usuarioRepository.save(usuario);
 
         log.info("✅ Usuário atualizado: {}", atualizado.getEmail());
 
@@ -135,7 +135,7 @@ public class UsuarioService {
     public void deletar(Integer id) {
         log.info("🗑️ Deletando usuário ID: {}", id);
 
-        Usuario usuario = usuarioRepository.findById(id)
+        UsuarioModel usuario = usuarioRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Usuário não encontrado"));
 
         usuario.setAtivo(false);
@@ -144,7 +144,7 @@ public class UsuarioService {
         log.info("✅ Usuário marcado como inativo");
     }
 
-    private UsuarioResponseDTO converterParaDTO(Usuario usuario) {
+    private UsuarioResponseDTO converterParaDTO(UsuarioModel usuario) {
         return new UsuarioResponseDTO(
                 usuario.getCdUsuario(),
                 usuario.getNmUsuario(),

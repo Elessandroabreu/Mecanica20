@@ -40,11 +40,11 @@ public class AgendamentoService {
         }
 
         // Buscar veículo
-        Veiculo veiculo = veiculoRepository.findById(dto.cdVeiculo())
+        VeiculoModel veiculo = veiculoRepository.findById(dto.cdVeiculo())
                 .orElseThrow(() -> new RuntimeException("Veículo não encontrado"));
 
         // Buscar mecânico
-        Usuario mecanico = usuarioRepository.findById(dto.cdMecanico())
+        UsuarioModel mecanico = usuarioRepository.findById(dto.cdMecanico())
                 .orElseThrow(() -> new RuntimeException("Mecânico não encontrado"));
 
         if (!mecanico.getAtivo()) {
@@ -103,7 +103,7 @@ public class AgendamentoService {
             return;
         }
 
-        OrdemServico os = agendamento.getOrdemServico();
+        OrdemServicoModel os = agendamento.getOrdemServico();
 
         if (os.getStatus() != novoStatus) {
             os.setStatus(novoStatus);

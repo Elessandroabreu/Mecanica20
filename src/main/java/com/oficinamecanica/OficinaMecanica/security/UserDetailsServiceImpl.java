@@ -1,6 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.security;
 
-import com.oficinamecanica.OficinaMecanica.models.Usuario;
+import com.oficinamecanica.OficinaMecanica.models.UsuarioModel;
 import com.oficinamecanica.OficinaMecanica.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.security.core.GrantedAuthority;
@@ -22,7 +22,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 
     @Override
     public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
-        Usuario usuario = usuarioRepository.findByEmail(email)
+        UsuarioModel usuario = usuarioRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuário não encontrado: " + email));
 
         if (!usuario.getAtivo()) {

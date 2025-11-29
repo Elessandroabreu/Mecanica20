@@ -1,7 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
 import com.oficinamecanica.OficinaMecanica.dto.ProdutoDTO;
-import com.oficinamecanica.OficinaMecanica.models.Produto;
+import com.oficinamecanica.OficinaMecanica.models.ProdutoModel;
 import com.oficinamecanica.OficinaMecanica.repositories.ProdutoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -18,7 +18,7 @@ public class ProdutoService {
 
     @Transactional
     public ProdutoDTO criar(ProdutoDTO dto) {
-        Produto produto = Produto.builder()
+        ProdutoModel produto = ProdutoModel.builder()
                 .nmProduto(dto.nmProduto())
                 .dsProduto(dto.dsProduto())
                 .categoria(dto.categoria())
@@ -28,13 +28,13 @@ public class ProdutoService {
                 .ativo(true)
                 .build();
 
-        Produto salvo = produtoRepository.save(produto);
+        ProdutoModel salvo = produtoRepository.save(produto);
         return converterParaDTO(salvo);
     }
 
     @Transactional(readOnly = true)
     public ProdutoDTO buscarPorId(Integer id) {
-        Produto produto = produtoRepository.findById(id)
+        ProdutoModel produto = produtoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
         return converterParaDTO(produto);
     }
@@ -55,7 +55,7 @@ public class ProdutoService {
 
     @Transactional
     public ProdutoDTO atualizar(Integer id, ProdutoDTO dto) {
-        Produto produto = produtoRepository.findById(id)
+        ProdutoModel produto = produtoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
 
         produto.setNmProduto(dto.nmProduto());
@@ -66,20 +66,20 @@ public class ProdutoService {
         produto.setQtdMinimoEstoque(dto.qtdMinimo());
 
 
-        Produto atualizado = produtoRepository.save(produto);
+        ProdutoModel atualizado = produtoRepository.save(produto);
         return converterParaDTO(atualizado);
     }
 
     @Transactional
     public void deletar(Integer id) {
-        Produto produto = produtoRepository.findById(id)
+        ProdutoModel produto = produtoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
         produto.setAtivo(false);
         produtoRepository.save(produto);
     }
 
     // ✅ CONVERTER ENTIDADE → DTO
-    private ProdutoDTO converterParaDTO(Produto produto) {
+    private ProdutoDTO converterParaDTO(ProdutoModel produto) {
         return new ProdutoDTO(
                 produto.getCdProduto(),
                 produto.getNmProduto(),

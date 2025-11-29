@@ -4,32 +4,28 @@ import jakarta.persistence.*;
 import lombok.*;
 
 @Entity
-@Table(name = "ITEMORDEMSERVICO")
+@Table(name = "ITEMVENDA")
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class ItemOrdemServico {
+public class ItemVendaModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "CDITEMORDEMSERVICO")
-    private Integer cdItemOrdemServico;
+    @Column(name = "CDITEMVENDA")
+    private Integer cdItemVenda;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CDORDEMSERVICO", nullable = false)
-    private OrdemServico ordemServico;
+    @JoinColumn(name = "CDVENDA", nullable = false)
+    private VendaModel venda;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CDPRODUTO")
-    private Produto produto;
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "CDSERVICO")
-    private Servico servico;
+    @JoinColumn(name = "CDPRODUTO", nullable = false)
+    private ProdutoModel produto;
 
     @Column(name = "QUANTIDADE", nullable = false)
-    private Integer quantidade = 1;
+    private Integer quantidade;
 
     @Column(name = "VLUNITARIO", nullable = false)
     private Double vlUnitario;

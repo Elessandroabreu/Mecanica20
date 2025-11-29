@@ -1,7 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
 import com.oficinamecanica.OficinaMecanica.dto.ServicoDTO;
-import com.oficinamecanica.OficinaMecanica.models.Servico;
+import com.oficinamecanica.OficinaMecanica.models.ServicoModel;
 import com.oficinamecanica.OficinaMecanica.repositories.ServicoRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,14 +28,14 @@ public class ServicoService {
     public ServicoDTO criar(ServicoDTO dto) {
         log.info("🔧 Criando serviço: {}", dto.nmServico());
 
-        Servico servico = Servico.builder()
+        ServicoModel servico = ServicoModel.builder()
                 .nmServico(dto.nmServico())
                 .dsServico(dto.dsServico())
                 .vlServico(dto.vlServico())
                 .ativo(true)
                 .build();
 
-        Servico salvo = servicoRepository.save(servico);
+        ServicoModel salvo = servicoRepository.save(servico);
 
         log.info("✅ Serviço criado: ID {} - {}", salvo.getCdServico(), salvo.getNmServico());
 
@@ -47,7 +47,7 @@ public class ServicoService {
      */
     @Transactional(readOnly = true)
     public ServicoDTO buscarPorId(Integer id) {
-        Servico servico = servicoRepository.findById(id)
+        ServicoModel servico = servicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
 
         return converterParaDTO(servico);
@@ -92,14 +92,14 @@ public class ServicoService {
     public ServicoDTO atualizar(Integer id, ServicoDTO dto) {
         log.info("🔄 Atualizando serviço ID: {}", id);
 
-        Servico servico = servicoRepository.findById(id)
+        ServicoModel servico = servicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
 
         servico.setNmServico(dto.nmServico());
         servico.setDsServico(dto.dsServico());
         servico.setVlServico(dto.vlServico());
 
-        Servico atualizado = servicoRepository.save(servico);
+        ServicoModel atualizado = servicoRepository.save(servico);
 
         log.info("✅ Serviço atualizado: {}", atualizado.getNmServico());
 
@@ -113,7 +113,7 @@ public class ServicoService {
     public void deletar(Integer id) {
         log.info("🗑️ Deletando serviço ID: {}", id);
 
-        Servico servico = servicoRepository.findById(id)
+        ServicoModel servico = servicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
 
         servico.setAtivo(false);
@@ -125,7 +125,7 @@ public class ServicoService {
     /**
      * CONVERTER MODEL PARA DTO
      */
-    private ServicoDTO converterParaDTO(Servico servico) {
+    private ServicoDTO converterParaDTO(ServicoModel servico) {
         return new ServicoDTO(
                 servico.getCdServico(),
                 servico.getNmServico(),

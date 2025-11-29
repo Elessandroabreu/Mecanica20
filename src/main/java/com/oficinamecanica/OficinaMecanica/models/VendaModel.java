@@ -13,7 +13,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Venda {
+public class VendaModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -26,7 +26,7 @@ public class Venda {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CDATENDENTE", nullable = false)
-    private Usuario atendente;
+    private UsuarioModel atendente;
 
     @Column(name = "DATAVENDA", nullable = false)
     private LocalDateTime dataVenda;
@@ -43,7 +43,7 @@ public class Venda {
 
     @OneToMany(mappedBy = "venda", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<ItemVenda> itens;
+    private List<ItemVendaModel> itens;
 
     @PrePersist
     protected void onCreate() {

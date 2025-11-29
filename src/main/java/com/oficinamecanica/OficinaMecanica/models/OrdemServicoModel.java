@@ -16,7 +16,7 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class OrdemServico {
+public class OrdemServicoModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -29,11 +29,11 @@ public class OrdemServico {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CDVEICULO", nullable = false)
-    private Veiculo veiculo;
+    private VeiculoModel veiculo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CDMECANICO", nullable = false)
-    private Usuario mecanico;
+    private UsuarioModel mecanico;
 
     @Enumerated(EnumType.STRING)
     @Column(name = "TIPOORDEMORCAMENTO", nullable = false, length = 20)
@@ -75,7 +75,7 @@ public class OrdemServico {
     @OneToMany(mappedBy = "ordemServico", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
     @Builder.Default
-    private List<ItemOrdemServico> itens = new ArrayList<>();
+    private List<ItemOrdemServicoModel> itens = new ArrayList<>();
 
     @Column(name = "DATAABERTURA", nullable = false)
     private LocalDateTime dataAbertura;

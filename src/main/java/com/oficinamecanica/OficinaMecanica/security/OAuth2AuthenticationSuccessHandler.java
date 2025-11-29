@@ -2,7 +2,7 @@ package com.oficinamecanica.OficinaMecanica.security;
 
 import com.oficinamecanica.OficinaMecanica.enums.AuthProvider;
 import com.oficinamecanica.OficinaMecanica.enums.UserRole;
-import com.oficinamecanica.OficinaMecanica.models.Usuario;
+import com.oficinamecanica.OficinaMecanica.models.UsuarioModel;
 import com.oficinamecanica.OficinaMecanica.repositories.UsuarioRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
@@ -37,7 +37,7 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         String providerId = oAuth2User.getAttribute("sub");
 
         // ✅ BUSCAR USUÁRIO - SE NÃO EXISTIR, BLOQUEAR
-        Usuario usuario = usuarioRepository.findByEmail(email)
+        UsuarioModel usuario = usuarioRepository.findByEmail(email)
                 .orElse(null);
 
         // ❌ USUÁRIO NÃO CADASTRADO - REDIRECIONAR COM ERRO
@@ -79,11 +79,11 @@ public class OAuth2AuthenticationSuccessHandler extends SimpleUrlAuthenticationS
         getRedirectStrategy().sendRedirect(request, response, redirectUrl);
     }
 
-    private Usuario criarNovoUsuarioOAuth(String email, String name, String providerId) {
+    private UsuarioModel criarNovoUsuarioOAuth(String email, String name, String providerId) {
         Set<UserRole> roles = new HashSet<>();
         roles.add(UserRole.ROLE_ATENDENTE);
 
-        Usuario novoUsuario = Usuario.builder()
+        UsuarioModel novoUsuario = UsuarioModel.builder()
                 .email(email)
                 .nmUsuario(name)
                 .provider(AuthProvider.GOOGLE)

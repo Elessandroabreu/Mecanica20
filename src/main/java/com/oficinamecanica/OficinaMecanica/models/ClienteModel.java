@@ -38,15 +38,15 @@ public class ClienteModel {
 
     @OneToMany(mappedBy = "clienteModel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<Veiculo> veiculos;
+    private List<VeiculoModel> veiculos;
 
     // ✅ CORRIGIDO: "cliente" → "clienteModel"
     @OneToMany(mappedBy = "clienteModel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<OrdemServico> ordensServico;
+    private List<OrdemServicoModel> ordensServico;
 
     // ✅ CORRIGIDO: "cliente" → "clienteModel"
     @OneToMany(mappedBy = "clienteModel", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
     @JsonIgnore
-    private List<Venda> vendas;
+    private List<VendaModel> vendas;
 }

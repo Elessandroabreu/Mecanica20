@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Faturamento {
+public class FaturamentoModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,11 +20,11 @@ public class Faturamento {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CDVENDA")
-    private Venda venda;
+    private VendaModel venda;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CDORDEMSERVICO")
-    private OrdemServico ordemServico;
+    private OrdemServicoModel ordemServico;
 
     @Column(name = "DATAVENDA", nullable = false)
     private LocalDateTime dataVenda;

@@ -1,18 +1,18 @@
 package com.oficinamecanica.OficinaMecanica.repositories;
 
-import com.oficinamecanica.OficinaMecanica.models.Servico;
+import com.oficinamecanica.OficinaMecanica.models.ServicoModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.List;
 
 @Repository
-public interface ServicoRepository extends JpaRepository<Servico, Integer> {
+public interface ServicoRepository extends JpaRepository<ServicoModel, Integer> {
 
     // Listar apenas serviços ativos
-    List<Servico> findByAtivoTrue();
+    List<ServicoModel> findByAtivoTrue();
 
         // Buscar por nome
-    List<Servico> findByNmServicoContainingIgnoreCase(String nmServico);
+    List<ServicoModel> findByNmServicoContainingIgnoreCase(String nmServico);
 
 }

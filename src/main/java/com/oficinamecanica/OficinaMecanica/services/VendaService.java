@@ -35,7 +35,7 @@ public class VendaService {
             throw new RuntimeException("Cliente inativo não pode realizar compras");
         }
 
-        Usuario atendente = usuarioRepository.findById(dto.cdAtendente())
+        UsuarioModel atendente = usuarioRepository.findById(dto.cdAtendente())
                 .orElseThrow(() -> new RuntimeException("Atendente não encontrado"));
 
         if (!atendente.getAtivo()) {
@@ -47,7 +47,7 @@ public class VendaService {
             throw new RuntimeException("Usuário não possui perfil de atendente");
         }
 
-        Venda venda = Venda.builder()
+        VendaModel venda = VendaModel.builder()
                 .clienteModel(cliente)
                 .atendente(atendente)
                 .dataVenda(LocalDateTime.now())
@@ -56,7 +56,7 @@ public class VendaService {
                 .formaPagamento(dto.formaPagamento())
                 .build();
 
-        Venda salva = vendaRepository.save(venda);
+        VendaModel salva = vendaRepository.save(venda);
 
         if (dto.itens() != null && !dto.itens().isEmpty()) {
             adicionarItens(salva, dto.itens());
@@ -72,11 +72,11 @@ public class VendaService {
     }
 
     @Transactional
-    public void adicionarItens(Venda venda, List<VendaDTO.ItemVendaDTO> itensDTO) {
+    public void adicionarItens(VendaModel venda, List<VendaDTO.ItemVendaDTO> itensDTO) {
         double total = 0.0;
 
         for (VendaDTO.ItemVendaDTO itemDTO : itensDTO) {
-            Produto produto = produtoRepository.findById(itemDTO.cdProduto())
+            ProdutoModel produto = produtoRepository.findById(itemDTO.cdProduto())
                     .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
 
             if (!produto.getAtivo()) {
@@ -87,7 +87,7 @@ public class VendaService {
                 throw new RuntimeException("Estoque insuficiente para: " + produto.getNmProduto());
             }
 
-            ItemVenda item = ItemVenda.builder()
+            ItemVendaModel item = ItemVendaModel.builder()
                     .venda(venda)
                     .produto(produto)
                     .quantidade(itemDTO.quantidade())
@@ -108,8 +108,8 @@ public class VendaService {
     }
 
     @Transactional
-    public void gerarFaturamento(Venda venda) {
-        Faturamento faturamento = Faturamento.builder()
+    public void gerarFaturamento(VendaModel venda) {
+        FaturamentoModel faturamento = FaturamentoModel.builder()
                 .venda(venda)
                 .dataVenda(venda.getDataVenda())
                 .vlTotal(venda.getVlTotal())
@@ -121,14 +121,14 @@ public class VendaService {
 
     @Transactional(readOnly = true)
     public VendaResponseDTO buscarPorId(Integer id) {
-        Venda venda = vendaRepository.findById(id)
+        VendaModel venda = vendaRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Venda não encontrada"));
         return converterParaResponseDTO(venda);  // ✅ MÉTODO MANUAL
     }
 
     @Transactional(readOnly = true)
     public List<VendaResponseDTO> listarTodas() {
-        List<Venda> vendas = vendaRepository.findAllWithDetails();
+        List<VendaModel> vendas = vendaRepository.findAllWithDetails();
         return vendas.stream()
                 .map(this::converterParaResponseDTO)  // ✅ MÉTODO MANUAL
                 .collect(Collectors.toList());
@@ -136,7 +136,7 @@ public class VendaService {
 
     @Transactional(readOnly = true)
     public List<VendaResponseDTO> listarPorCliente(Integer cdCliente) {
-        List<Venda> vendas = vendaRepository.findByClienteModel_CdCliente(cdCliente);
+        List<VendaModel> vendas = vendaRepository.findByClienteModel_CdCliente(cdCliente);
         return vendas.stream()
                 .map(this::converterParaResponseDTO)
                 .collect(Collectors.toList());
@@ -144,7 +144,7 @@ public class VendaService {
 
     @Transactional(readOnly = true)
     public List<VendaResponseDTO> listarPorAtendente(Integer cdAtendente) {
-        List<Venda> vendas = vendaRepository.findByAtendente_CdUsuario(cdAtendente);
+        List<VendaModel> vendas = vendaRepository.findByAtendente_CdUsuario(cdAtendente);
         return vendas.stream()
                 .map(this::converterParaResponseDTO)
                 .collect(Collectors.toList());
@@ -152,7 +152,7 @@ public class VendaService {
 
     @Transactional(readOnly = true)
     public List<VendaResponseDTO> listarPorPeriodo(LocalDateTime dataInicio, LocalDateTime dataFim) {
-        List<Venda> vendas = vendaRepository.findVendasNoPeriodo(dataInicio, dataFim);
+        List<VendaModel> vendas = vendaRepository.findVendasNoPeriodo(dataInicio, dataFim);
         return vendas.stream()
                 .map(this::converterParaResponseDTO)
                 .collect(Collectors.toList());
@@ -165,7 +165,7 @@ public class VendaService {
     }
 
     // ✅ MÉTODO PRIVADO DE CONVERSÃO (substitui o VendaMapper)
-    private VendaResponseDTO converterParaResponseDTO(Venda venda) {
+    private VendaResponseDTO converterParaResponseDTO(VendaModel venda) {
         if (venda == null) {
             return null;
         }

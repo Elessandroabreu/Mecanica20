@@ -9,7 +9,7 @@ import lombok.*;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Servico {
+public class ServicoModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)

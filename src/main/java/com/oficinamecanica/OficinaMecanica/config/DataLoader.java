@@ -2,7 +2,7 @@ package com.oficinamecanica.OficinaMecanica.config;
 
 import com.oficinamecanica.OficinaMecanica.enums.AuthProvider;
 import com.oficinamecanica.OficinaMecanica.enums.UserRole;
-import com.oficinamecanica.OficinaMecanica.models.Usuario;
+import com.oficinamecanica.OficinaMecanica.models.UsuarioModel;
 import com.oficinamecanica.OficinaMecanica.repositories.UsuarioRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.boot.CommandLineRunner;
@@ -46,7 +46,7 @@ public class DataLoader {
             String senhaCriptografada = passwordEncoder.encode(senhaTexto);
 
 
-            Usuario admin = Usuario.builder()
+            UsuarioModel admin = UsuarioModel.builder()
                     .nmUsuario("João Admin Silva")
                     .email("admin@oficina.com")
                     .senha(senhaCriptografada)
@@ -61,7 +61,7 @@ public class DataLoader {
             System.out.println("✅ Admin criado: " + admin.getEmail());
 
 
-            Usuario atendente = Usuario.builder()
+            UsuarioModel atendente = UsuarioModel.builder()
                     .nmUsuario("Maria Atendente Santos")
                     .email("atendente@oficina.com")
                     .senha(senhaCriptografada)
@@ -76,7 +76,7 @@ public class DataLoader {
             System.out.println("✅ Atendente criado: " + atendente.getEmail());
 
 
-            Usuario mecanico = Usuario.builder()
+            UsuarioModel mecanico = UsuarioModel.builder()
                     .nmUsuario("Carlos Mecânico Souza")
                     .email("mecanico@oficina.com")
                     .senha(senhaCriptografada)

@@ -21,7 +21,7 @@ public record OrdemServicoResponseDTO(
         Integer cdMecanico,
         String nomeMecanico,
 
-        TipoOrdemOrcamento tipoServico,
+        TipoOrdemOrcamento TipoOrdemOrcamento,
         Status status,
         LocalDateTime dataAgendamento,
         LocalDateTime dataAbertura,

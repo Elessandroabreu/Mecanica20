@@ -1,6 +1,6 @@
 package com.oficinamecanica.OficinaMecanica.repositories;
 
-import com.oficinamecanica.OficinaMecanica.models.Faturamento;
+import com.oficinamecanica.OficinaMecanica.models.FaturamentoModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -10,23 +10,23 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Repository
-public interface FaturamentoRepository extends JpaRepository<Faturamento, Integer> {
+public interface FaturamentoRepository extends JpaRepository<FaturamentoModel, Integer> {
 
     // Listar faturamentos em um período
-    @Query("SELECT f FROM Faturamento f WHERE f.dataVenda BETWEEN :dataInicio AND :dataFim")
-    List<Faturamento> findFaturamentosNoPeriodo(@Param("dataInicio") LocalDateTime dataInicio,
-                                                @Param("dataFim") LocalDateTime dataFim);
+    @Query("SELECT f FROM FaturamentoModel f WHERE f.dataVenda BETWEEN :dataInicio AND :dataFim")
+    List<FaturamentoModel> findFaturamentosNoPeriodo(@Param("dataInicio") LocalDateTime dataInicio,
+                                                     @Param("dataFim") LocalDateTime dataFim);
 
     // Calcular total faturado em um período
-    @Query("SELECT SUM(f.vlTotal) FROM Faturamento f WHERE f.dataVenda BETWEEN :dataInicio AND :dataFim")
+    @Query("SELECT SUM(f.vlTotal) FROM FaturamentoModel f WHERE f.dataVenda BETWEEN :dataInicio AND :dataFim")
     Double calcularTotalFaturadoNoPeriodo(@Param("dataInicio") LocalDateTime dataInicio,
                                           @Param("dataFim") LocalDateTime dataFim);
 
     // Faturamento do dia (usando DATE para comparação correta)
-    @Query("SELECT f FROM Faturamento f WHERE CAST(f.dataVenda AS date) = CAST(:data AS date)")
-    List<Faturamento> findFaturamentosDoDia(@Param("data") LocalDateTime data);
+    @Query("SELECT f FROM FaturamentoModel f WHERE CAST(f.dataVenda AS date) = CAST(:data AS date)")
+    List<FaturamentoModel> findFaturamentosDoDia(@Param("data") LocalDateTime data);
 
     // Total faturado do dia
-    @Query("SELECT SUM(f.vlTotal) FROM Faturamento f WHERE CAST(f.dataVenda AS date) = CAST(:data AS date)")
+    @Query("SELECT SUM(f.vlTotal) FROM FaturamentoModel f WHERE CAST(f.dataVenda AS date) = CAST(:data AS date)")
     Double calcularTotalFaturadoDoDia(@Param("data") LocalDateTime data);
 }

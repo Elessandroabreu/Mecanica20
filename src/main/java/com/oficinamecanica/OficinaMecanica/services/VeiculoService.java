@@ -2,7 +2,7 @@ package com.oficinamecanica.OficinaMecanica.services;
 
 import com.oficinamecanica.OficinaMecanica.dto.VeiculoDTO;
 import com.oficinamecanica.OficinaMecanica.models.ClienteModel;
-import com.oficinamecanica.OficinaMecanica.models.Veiculo;
+import com.oficinamecanica.OficinaMecanica.models.VeiculoModel;
 import com.oficinamecanica.OficinaMecanica.repositories.ClienteRepository;
 import com.oficinamecanica.OficinaMecanica.repositories.VeiculoRepository;
 import lombok.RequiredArgsConstructor;
@@ -46,7 +46,7 @@ public class VeiculoService {
         }
 
         // 3. CRIAR VEÍCULO
-        Veiculo veiculo = Veiculo.builder()
+        VeiculoModel veiculo = VeiculoModel.builder()
                 .clienteModel(cliente)
                 .placa(dto.placa().toUpperCase()) // ⚠️ Placa sempre MAIÚSCULA
                 .modelo(dto.modelo())
@@ -56,7 +56,7 @@ public class VeiculoService {
                 .build();
 
         // 4. SALVAR
-        Veiculo salvo = veiculoRepository.save(veiculo);
+        VeiculoModel salvo = veiculoRepository.save(veiculo);
 
         log.info("✅ Veículo criado: ID {} - Placa {}",
                 salvo.getCdVeiculo(), salvo.getPlaca());
@@ -69,7 +69,7 @@ public class VeiculoService {
      */
     @Transactional(readOnly = true)
     public VeiculoDTO buscarPorId(Integer id) {
-        Veiculo veiculo = veiculoRepository.findById(id)
+        VeiculoModel veiculo = veiculoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Veículo não encontrado"));
 
         return converterParaDTO(veiculo);
@@ -108,7 +108,7 @@ public class VeiculoService {
         log.info("🔄 Atualizando veículo ID: {}", id);
 
         // 1. BUSCAR VEÍCULO EXISTENTE
-        Veiculo veiculo = veiculoRepository.findById(id)
+        VeiculoModel veiculo = veiculoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Veículo não encontrado"));
 
         // 2. VALIDAR SE CLIENTE EXISTE
@@ -130,7 +130,7 @@ public class VeiculoService {
         veiculo.setCor(dto.cor());
 
         // 5. SALVAR E RETORNAR
-        Veiculo atualizado = veiculoRepository.save(veiculo);
+        VeiculoModel atualizado = veiculoRepository.save(veiculo);
 
         log.info("✅ Veículo atualizado: Placa {}", atualizado.getPlaca());
 
@@ -151,7 +151,7 @@ public class VeiculoService {
     public void deletar(Integer id) {
         log.info("🗑️ Deletando veículo ID: {}", id);
 
-        Veiculo veiculo = veiculoRepository.findById(id)
+        VeiculoModel veiculo = veiculoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Veículo não encontrado"));
 
         // ⚠️ REMOVE DO BANCO (hard delete)
@@ -165,7 +165,7 @@ public class VeiculoService {
     /**
      * CONVERTER MODEL PARA DTO
      */
-    private VeiculoDTO converterParaDTO(Veiculo veiculo) {
+    private VeiculoDTO converterParaDTO(VeiculoModel veiculo) {
         return new VeiculoDTO(
                 veiculo.getCdVeiculo(),
                 veiculo.getClienteModel().getCdCliente(),

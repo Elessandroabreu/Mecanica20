@@ -24,11 +24,11 @@ public class AgendamentoModel {
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CDVEICULO", nullable = false)
-    private Veiculo veiculo;
+    private VeiculoModel veiculo;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CDMECANICO", nullable = false)
-    private Usuario mecanico;
+    private UsuarioModel mecanico;
 
     @Column(name = "DATAAGENDAMENTO", nullable = false)
     private LocalDate dataAgendamento;
@@ -42,5 +42,5 @@ public class AgendamentoModel {
 
     @OneToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "CDORDEMSERVICO")
-    private OrdemServico ordemServico;
+    private OrdemServicoModel ordemServico;
 }

@@ -1,7 +1,7 @@
 package com.oficinamecanica.OficinaMecanica.services;
 
 import com.oficinamecanica.OficinaMecanica.dto.FaturamentoDTO;
-import com.oficinamecanica.OficinaMecanica.models.Faturamento;
+import com.oficinamecanica.OficinaMecanica.models.FaturamentoModel;
 import com.oficinamecanica.OficinaMecanica.repositories.FaturamentoRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -30,7 +30,7 @@ public class FaturamentoService {
      */
     @Transactional(readOnly = true)
     public FaturamentoDTO buscarPorId(Integer id) {
-        Faturamento faturamento = faturamentoRepository.findById(id)
+        FaturamentoModel faturamento = faturamentoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Faturamento não encontrado"));
         return converterParaDTO(faturamento);
     }
@@ -83,7 +83,7 @@ public class FaturamentoService {
     /**
      * CONVERTER MODEL PARA DTO
      */
-    private FaturamentoDTO converterParaDTO(Faturamento faturamento) {
+    private FaturamentoDTO converterParaDTO(FaturamentoModel faturamento) {
         return new FaturamentoDTO(
                 faturamento.getCdFaturamento(),
                 // Se foi venda, pega o ID da venda

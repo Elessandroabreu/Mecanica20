@@ -18,7 +18,7 @@ public record OrdemServicoRequestDTO(
         Integer cdMecanico,
 
         @NotNull(message = "Tipo de serviço é obrigatório")
-        TipoOrdemOrcamento tipoServico,
+        TipoOrdemOrcamento tipoOrdemOrcamento,
 
         LocalDate dataAgendamento,
 
