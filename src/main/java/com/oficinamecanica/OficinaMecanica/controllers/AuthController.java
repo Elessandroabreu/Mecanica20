@@ -20,7 +20,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.web.bind.annotation.*;
 
 import java.io.IOException;
-import java.util.Map;
 
 @CrossOrigin(origins = "http://localhost:4200")
 @RestController
@@ -60,20 +59,7 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
-    /**
-     * ✅ NOVO: ENDPOINT GET - Informações sobre endpoints de autenticação
-     * (Evita o erro 405 Method Not Allowed quando o Angular tenta GET)
-     */
-    @GetMapping("/login")
-    @Operation(summary = "Informações de login", description = "Retorna informações sobre como fazer login")
-    public ResponseEntity<Map<String, String>> getLoginInfo() {
-        return ResponseEntity.ok(Map.of(
-                "message", "Use POST /api/auth/login para fazer login",
-                "endpoint", "POST /api/auth/login",
-                "body", "{\"email\": \"seu@email.com\", \"senha\": \"sua_senha\"}",
-                "currentUser", "GET /api/auth/me (requer autenticação)"
-        ));
-    }
+    // ❌ REMOVIDO: GET /api/auth/login (estava causando confusão)
 
     /**
      * ✅ ENDPOINT POST - Registrar novo usuário

@@ -27,11 +27,11 @@ public class ClienteModel {
     @Column(name = "TELEFONE", nullable = false,length = 20)
     private String telefone;
 
-    @Column(name = "ENDERECO", length = 255)
-    private String endereco;
-
     @Column(name = "EMAIL", length = 150)
     private String email;
+
+    @Column(name = "ENDERECO", length = 255)
+    private String endereco;
 
     @Column(name = "ATIVO", nullable = false)
     private Boolean ativo = true;

@@ -22,10 +22,6 @@ public class ClienteService {
 
     private final ClienteRepository clienteRepository;
 
-    /**
-     * CRIAR NOVO CLIENTE
-     * Valida CPF e email únicos antes de salvar
-     */
     @Transactional
     public ClienteDTO criar(ClienteDTO dto) {
         log.info("👤 Criando cliente: {}", dto.nmCliente());
@@ -45,8 +41,8 @@ public class ClienteService {
                 .nmCliente(dto.nmCliente())
                 .cpf(dto.cpf())
                 .telefone(dto.telefone())
-                .endereco(dto.endereco())
                 .email(dto.email())
+                .endereco(dto.endereco())
                 .ativo(true)
                 .build();
 
@@ -138,8 +134,8 @@ public class ClienteService {
         // 4. ATUALIZAR CAMPOS
         cliente.setNmCliente(dto.nmCliente());
         cliente.setCpf(dto.cpf());
-        cliente.setEmail(dto.email());
         cliente.setTelefone(dto.telefone());
+        cliente.setEmail(dto.email());
         cliente.setEndereco(dto.endereco());
 
         // 5. SALVAR E RETORNAR
@@ -175,8 +171,8 @@ public class ClienteService {
                 cliente.getNmCliente(),
                 cliente.getCpf(),
                 cliente.getTelefone(),
-                cliente.getEndereco(),
                 cliente.getEmail(),
+                cliente.getEndereco(),
                 cliente.getAtivo()
         );
     }

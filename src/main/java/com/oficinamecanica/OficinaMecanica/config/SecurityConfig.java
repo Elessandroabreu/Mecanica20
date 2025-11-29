@@ -51,14 +51,13 @@ public class SecurityConfig {
                                 "/v3/api-docs.yaml"
                         ).permitAll()
 
-                        // ✅ AUTENTICAÇÃO - Permite GET e POST em /api/auth/login
-                        .requestMatchers(HttpMethod.GET, "/api/auth/login").permitAll()
+                        // ✅ AUTENTICAÇÃO - Apenas POST em /login
                         .requestMatchers(HttpMethod.POST, "/api/auth/login").permitAll()
                         .requestMatchers(HttpMethod.POST, "/api/auth/register").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/auth/me").authenticated()
                         .requestMatchers("/api/auth/oauth2/**").permitAll()
 
-                        // ✅ OAUTH2 - Apenas rotas específicas do OAuth2
+                        // ✅ OAUTH2
                         .requestMatchers(
                                 "/oauth2/**",
                                 "/login/oauth2/**"
@@ -82,7 +81,6 @@ public class SecurityConfig {
                         // ✅ QUALQUER OUTRA ROTA
                         .anyRequest().permitAll()
                 )
-
                 // ✅ OAuth2 Login - DEPOIS das regras de autorização
                 .oauth2Login(oauth2 -> oauth2
                         .loginPage("/api/auth/login") // Não redireciona automaticamente
