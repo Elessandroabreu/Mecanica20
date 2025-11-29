@@ -21,13 +21,13 @@ public record ClienteDTO(
         @Size(max = 20, message = "Telefone deve ter no máximo 20 caracteres")
         String telefone,
 
-        @Size(max = 255, message = "Endereço deve ter no máximo 255 caracteres")
-        String endereco,
-
         @NotBlank(message = "E-mail obrigatório")
         @Email(message = "Email inválido")
         @Size(max = 150, message = "Email deve ter no máximo 150 caracteres")
         String email,
+
+        @Size(max = 255, message = "Endereço deve ter no máximo 255 caracteres")
+        String endereco,
 
         Boolean ativo
 ) {}
