@@ -77,9 +77,6 @@ public class SecurityConfig {
                         .requestMatchers("/api/clientes/**")
                         .hasAnyRole("ADMIN", "ATENDENTE", "MECANICO")
 
-
-
-
                         .requestMatchers("/api/ordens-servico/**")
                         .hasAnyRole("ADMIN", "ATENDENTE")
 
