@@ -20,7 +20,7 @@ public record UsuarioDTO(
         String email,
 
         @Size(min = 3, message = "Senha deve ter no mínimo 3 caracteres")
-        String password,
+        String senha,
 
         @NotNull(message = "Provider é obrigatório")
         AuthProvider provider,

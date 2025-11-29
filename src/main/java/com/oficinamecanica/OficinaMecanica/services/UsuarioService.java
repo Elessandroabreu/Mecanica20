@@ -39,7 +39,7 @@ public class UsuarioService {
         UsuarioModel usuario = UsuarioModel.builder()
                 .nmUsuario(dto.nmUsuario())
                 .email(dto.email())
-                .senha(dto.password() != null ? passwordEncoder.encode(dto.password()) : null)
+                .senha(dto.senha() != null ? passwordEncoder.encode(dto.senha()) : null)
                 .provider(dto.provider())
                 .roles(dto.roles())
                 .telefone(dto.telefone())
@@ -115,8 +115,8 @@ public class UsuarioService {
         usuario.setEmail(dto.email());
 
         // Atualizar senha apenas se foi fornecida
-        if (dto.password() != null && !dto.password().isEmpty()) {
-            usuario.setSenha(passwordEncoder.encode(dto.password()));
+        if (dto.senha() != null && !dto.senha().isEmpty()) {
+            usuario.setSenha(passwordEncoder.encode(dto.senha()));
         }
 
         usuario.setTelefone(dto.telefone());
