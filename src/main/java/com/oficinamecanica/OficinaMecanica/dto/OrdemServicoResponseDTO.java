@@ -2,18 +2,17 @@ package com.oficinamecanica.OficinaMecanica.dto;
 
 import com.oficinamecanica.OficinaMecanica.enums.Status;
 import com.oficinamecanica.OficinaMecanica.enums.TipoOrdemOrcamento;
+
 import java.time.LocalDateTime;
 import java.util.List;
-
 
 public record OrdemServicoResponseDTO(
         Integer cdOrdemServico,
 
-
         Integer cdCliente,
         String nomeCliente,
-        Integer cdVeiculo,
 
+        Integer cdVeiculo,
         String placaVeiculo,
         String modeloVeiculo,
         String marcaVeiculo,
@@ -21,8 +20,9 @@ public record OrdemServicoResponseDTO(
         Integer cdMecanico,
         String nomeMecanico,
 
-        TipoOrdemOrcamento TipoOrdemOrcamento,
+        TipoOrdemOrcamento tipoOrdemOrcamento,
         Status status,
+
         LocalDateTime dataAgendamento,
         LocalDateTime dataAbertura,
 
@@ -36,6 +36,7 @@ public record OrdemServicoResponseDTO(
 
         List<ItemResponseDTO> itens
 ) {
+
     public record ItemResponseDTO(
             Integer cdItem,
             Integer cdProduto,

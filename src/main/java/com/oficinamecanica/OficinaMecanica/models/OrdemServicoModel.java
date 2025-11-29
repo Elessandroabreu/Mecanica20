@@ -6,6 +6,7 @@ import com.oficinamecanica.OficinaMecanica.enums.TipoOrdemOrcamento;
 
 import jakarta.persistence.*;
 import lombok.*;
+
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -35,30 +36,29 @@ public class OrdemServicoModel {
     @JoinColumn(name = "CDMECANICO", nullable = false)
     private UsuarioModel mecanico;
 
+    // ORDEM_SERVICO ou ORCAMENTO
     @Enumerated(EnumType.STRING)
     @Column(name = "TIPOORDEMORCAMENTO", nullable = false, length = 20)
     private TipoOrdemOrcamento tipoOrdemOrcamento;
 
+    // Status será definido automaticamente no @PrePersist
     @Enumerated(EnumType.STRING)
     @Column(name = "STATUS", nullable = false, length = 20)
-    private Status status = Status.AGENDADO;
+    private Status status;
 
-    @Column(name = "DATAAGENDAMENTO", nullable = false)
+    // Para orçamento não é obrigatório
+    @Column(name = "DATAAGENDAMENTO")
     private LocalDateTime dataAgendamento;
 
-    // SOMENTE PRODUTOS
     @Column(name = "VLPECAS")
     private Double vlPecas = 0.0;
 
-    // SOMENTE SERVIÇOS PADRÃO (classe Servico)
     @Column(name = "VLSERVICOS")
     private Double vlServicos = 0.0;
 
-    // MÃO DE OBRA AVULSA DIGITADA MANUALMENTE
     @Column(name = "VLMAOOBRAEXTRA")
     private Double vlMaoObraExtra = 0.0;
 
-    // SOMA TOTAL
     @Column(name = "VLTOTAL")
     private Double vlTotal = 0.0;
 
@@ -80,8 +80,17 @@ public class OrdemServicoModel {
     @Column(name = "DATAABERTURA", nullable = false)
     private LocalDateTime dataAbertura;
 
+    // ================================
+    // DEFINIR STATUS AUTOMATICAMENTE
+    // ================================
     @PrePersist
     protected void onCreate() {
         this.dataAbertura = LocalDateTime.now();
+
+        if (this.tipoOrdemOrcamento == TipoOrdemOrcamento.ORCAMENTO) {
+            this.status = Status.ORCAMENTO;
+        } else {
+            this.status = Status.AGENDADO;
+        }
     }
 }

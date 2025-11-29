@@ -16,6 +16,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.stream.Collectors;
 
 @Slf4j
 @Service
@@ -32,18 +33,18 @@ public class OrdemServicoService {
     private final FaturamentoRepository faturamentoRepository;
     private final AgendamentoRepository agendamentoRepository;
 
-    // ✅ CRIAR ORDEM OU ORÇAMENTO - RETORNA ResponseDTO
+    // ============================================================
+    // CRIAR ORDEM OU ORÇAMENTO
+    // ============================================================
     @Transactional
     public OrdemServicoResponseDTO criar(OrdemServicoRequestDTO dto) {
         log.info("🆕 Criando {} para cliente: {}", dto.tipoOrdemOrcamento(), dto.cdCliente());
 
-        // Buscar entidades
         ClienteModel cliente = clienteRepository.findById(dto.cdCliente())
                 .orElseThrow(() -> new RuntimeException("Cliente não encontrado"));
 
-        if (!cliente.getAtivo()) {
+        if (!cliente.getAtivo())
             throw new RuntimeException("Cliente inativo");
-        }
 
         VeiculoModel veiculo = veiculoRepository.findById(dto.cdVeiculo())
                 .orElseThrow(() -> new RuntimeException("Veículo não encontrado"));
@@ -51,22 +52,26 @@ public class OrdemServicoService {
         UsuarioModel mecanico = usuarioRepository.findById(dto.cdMecanico())
                 .orElseThrow(() -> new RuntimeException("Mecânico não encontrado"));
 
-        if (!mecanico.getAtivo()) {
+        if (!mecanico.getAtivo())
             throw new RuntimeException("Mecânico inativo");
-        }
 
-        // Validar disponibilidade se for ORDEM_DE_SERVICO com data
-        if (dto.tipoOrdemOrcamento() == TipoOrdemOrcamento.ORDEM_DE_SERVICO && dto.dataAgendamento() != null) {
+        // Valida disponibilidade de horário (somente OS)
+        if (dto.tipoOrdemOrcamento() == TipoOrdemOrcamento.ORDEM_DE_SERVICO &&
+                dto.dataAgendamento() != null) {
             validarDisponibilidadeMecanico(dto.cdMecanico(), dto.dataAgendamento());
         }
 
-        // Criar ordem
+        // 🔥 CORREÇÃO DO STATUS AQUI!
+        Status statusInicial = (dto.tipoOrdemOrcamento() == TipoOrdemOrcamento.ORCAMENTO)
+                ? Status.ORCAMENTO
+                : Status.AGENDADO;
+
         OrdemServicoModel ordem = OrdemServicoModel.builder()
                 .clienteModel(cliente)
                 .veiculo(veiculo)
                 .mecanico(mecanico)
                 .tipoOrdemOrcamento(dto.tipoOrdemOrcamento())
-                .status(Status.AGENDADO)
+                .status(statusInicial) // ← CORRIGIDO
                 .dataAbertura(LocalDateTime.now())
                 .dataAgendamento(dto.dataAgendamento() != null ?
                         dto.dataAgendamento().atStartOfDay() : LocalDateTime.now())
@@ -81,29 +86,27 @@ public class OrdemServicoService {
 
         OrdemServicoModel salva = ordemServicoRepository.save(ordem);
 
-        // Adicionar itens
-        if (dto.itens() != null && !dto.itens().isEmpty()) {
+        if (dto.itens() != null && !dto.itens().isEmpty())
             adicionarItens(salva, dto.itens());
-        }
 
-        // Criar agendamento se ORDEM_DE_SERVICO com data
-        if (dto.tipoOrdemOrcamento() == TipoOrdemOrcamento.ORDEM_DE_SERVICO && dto.dataAgendamento() != null) {
+        // Cria agendamento APENAS se for ordem
+        if (dto.tipoOrdemOrcamento() == TipoOrdemOrcamento.ORDEM_DE_SERVICO &&
+                dto.dataAgendamento() != null) {
             criarAgendamentoAutomatico(salva, dto.dataAgendamento());
         }
-
-        log.info("✅ {} criado ID: {}", dto.tipoOrdemOrcamento(), salva.getCdOrdemServico());
 
         return converterParaResponseDTO(ordemServicoRepository.findByIdWithItens(salva.getCdOrdemServico()));
     }
 
+    // ============================================================
     // ADICIONAR ITENS
+    // ============================================================
     @Transactional
-    private void adicionarItens(OrdemServicoModel ordem, List<OrdemServicoRequestDTO.ItemDTO> itensDTO) {
+    protected void adicionarItens(OrdemServicoModel ordem, List<OrdemServicoRequestDTO.ItemDTO> itensDTO) {
         double totalPecas = 0.0;
         double totalServicos = 0.0;
 
-        // Só dá baixa se for ORDEM_DE_SERVICO
-        boolean darBaixaEstoque = (ordem.getTipoOrdemOrcamento() == TipoOrdemOrcamento.ORDEM_DE_SERVICO);
+        boolean darBaixaEstoque = ordem.getTipoOrdemOrcamento() == TipoOrdemOrcamento.ORDEM_DE_SERVICO;
 
         for (OrdemServicoRequestDTO.ItemDTO itemDTO : itensDTO) {
             ItemOrdemServicoModel item = new ItemOrdemServicoModel();
@@ -115,27 +118,20 @@ public class OrdemServicoService {
                 ProdutoModel produto = produtoRepository.findById(itemDTO.cdProduto())
                         .orElseThrow(() -> new RuntimeException("Produto não encontrado"));
 
-                if (!produto.getAtivo()) {
+                if (!produto.getAtivo())
                     throw new RuntimeException("Produto inativo: " + produto.getNmProduto());
-                }
 
-                if (produto.getQtdEstoque() < itemDTO.quantidade()) {
-                    throw new RuntimeException(
-                            "Estoque insuficiente para " + produto.getNmProduto() +
-                                    ". Disponível: " + produto.getQtdEstoque()
-                    );
-                }
+                if (produto.getQtdEstoque() < itemDTO.quantidade())
+                    throw new RuntimeException("Estoque insuficiente para " + produto.getNmProduto());
 
                 item.setProduto(produto);
                 item.setVlUnitario(produto.getVlProduto());
                 item.setVlTotal(produto.getVlProduto() * itemDTO.quantidade());
                 totalPecas += item.getVlTotal();
 
-                // Dar baixa apenas se ORDEM_DE_SERVICO
                 if (darBaixaEstoque) {
                     produto.setQtdEstoque(produto.getQtdEstoque() - itemDTO.quantidade());
                     produtoRepository.save(produto);
-                    log.info("📦 Baixa: {} - Estoque: {}", produto.getNmProduto(), produto.getQtdEstoque());
                 }
             }
 
@@ -144,9 +140,8 @@ public class OrdemServicoService {
                 ServicoModel servico = servicoRepository.findById(itemDTO.cdServico())
                         .orElseThrow(() -> new RuntimeException("Serviço não encontrado"));
 
-                if (!servico.getAtivo()) {
+                if (!servico.getAtivo())
                     throw new RuntimeException("Serviço inativo");
-                }
 
                 item.setServico(servico);
                 item.setVlUnitario(servico.getVlServico());
@@ -157,14 +152,15 @@ public class OrdemServicoService {
             itemOrdemServicoRepository.save(item);
         }
 
-        // Atualizar totais
         ordem.setVlPecas(totalPecas);
         ordem.setVlServicos(totalServicos);
         ordem.setVlTotal(totalPecas + totalServicos + ordem.getVlMaoObraExtra());
         ordemServicoRepository.save(ordem);
     }
 
-    // ✅ APROVAR ORÇAMENTO - RETORNA ResponseDTO
+    // ============================================================
+    // APROVAR ORÇAMENTO
+    // ============================================================
     @Transactional
     public OrdemServicoResponseDTO aprovarOrcamento(Integer id, LocalDate dataAgendamento) {
         log.info("📋 Aprovando orçamento ID: {}", id);
@@ -172,139 +168,116 @@ public class OrdemServicoService {
         OrdemServicoModel ordem = ordemServicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ordem não encontrada"));
 
-        if (ordem.getTipoOrdemOrcamento() != TipoOrdemOrcamento.ORCAMENTO) {
+        if (ordem.getTipoOrdemOrcamento() != TipoOrdemOrcamento.ORCAMENTO)
             throw new RuntimeException("Apenas orçamentos podem ser aprovados");
-        }
 
-        if (ordem.getAprovado()) {
+        if (ordem.getAprovado())
             throw new RuntimeException("Orçamento já aprovado");
-        }
 
-        // Validar disponibilidade
-        if (dataAgendamento != null) {
+        // valida disponibilidade
+        if (dataAgendamento != null)
             validarDisponibilidadeMecanico(ordem.getMecanico().getCdUsuario(), dataAgendamento);
-        }
 
-        // DAR BAIXA NO ESTOQUE (orçamento não dava baixa)
-        List<ItemOrdemServicoModel> itens = itemOrdemServicoRepository
-                .findByOrdemServico_CdOrdemServico(id);
-
-        for (ItemOrdemServicoModel item : itens) {
+        // baixa de estoque
+        for (ItemOrdemServicoModel item : itemOrdemServicoRepository.findByOrdemServico_CdOrdemServico(id)) {
             if (item.getProduto() != null) {
                 ProdutoModel produto = item.getProduto();
 
-                if (produto.getQtdEstoque() < item.getQuantidade()) {
-                    throw new RuntimeException(
-                            "Estoque insuficiente para " + produto.getNmProduto()
-                    );
-                }
+                if (produto.getQtdEstoque() < item.getQuantidade())
+                    throw new RuntimeException("Estoque insuficiente para " + produto.getNmProduto());
 
                 produto.setQtdEstoque(produto.getQtdEstoque() - item.getQuantidade());
                 produtoRepository.save(produto);
-                log.info("📦 Baixa: {}", produto.getNmProduto());
             }
         }
 
-        // Converter para ORDEM_DE_SERVICO
         ordem.setAprovado(true);
         ordem.setTipoOrdemOrcamento(TipoOrdemOrcamento.ORDEM_DE_SERVICO);
         ordem.setStatus(Status.AGENDADO);
 
-        if (dataAgendamento != null) {
+        if (dataAgendamento != null)
             ordem.setDataAgendamento(dataAgendamento.atStartOfDay());
-        }
 
         OrdemServicoModel atualizada = ordemServicoRepository.save(ordem);
 
-        // Criar agendamento
-        if (dataAgendamento != null) {
+        if (dataAgendamento != null)
             criarAgendamentoAutomatico(atualizada, dataAgendamento);
-        }
 
-        log.info("✅ Orçamento aprovado: {}", id);
-
-        return converterParaResponseDTO(ordemServicoRepository.findByIdWithItens(atualizada.getCdOrdemServico()));
+        return converterParaResponseDTO(
+                ordemServicoRepository.findByIdWithItens(atualizada.getCdOrdemServico())
+        );
     }
 
-    // ✅ INICIAR - RETORNA ResponseDTO
+    // ============================================================
+    // INICIAR OS
+    // ============================================================
     @Transactional
     public OrdemServicoResponseDTO iniciar(Integer id) {
-        log.info("▶️ Iniciando OS: {}", id);
 
         OrdemServicoModel ordem = ordemServicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ordem não encontrada"));
 
-        if (ordem.getStatus() != Status.AGENDADO) {
+        if (ordem.getStatus() != Status.AGENDADO)
             throw new RuntimeException("Apenas ordens AGENDADAS podem ser iniciadas");
-        }
 
         ordem.setStatus(Status.EM_ANDAMENTO);
         OrdemServicoModel atualizada = ordemServicoRepository.save(ordem);
 
         atualizarAgendamento(ordem, Status.EM_ANDAMENTO);
 
-        log.info("✅ OS iniciada: {}", id);
-
         return converterParaResponseDTO(ordemServicoRepository.findByIdWithItens(atualizada.getCdOrdemServico()));
     }
 
-    // ✅ CONCLUIR - RETORNA ResponseDTO
+    // ============================================================
+    // CONCLUIR OS
+    // ============================================================
     @Transactional
     public OrdemServicoResponseDTO concluir(Integer id, String formaPagamento) {
-        log.info("✅ Concluindo OS: {}", id);
 
         OrdemServicoModel ordem = ordemServicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ordem não encontrada"));
 
-        if (ordem.getStatus() == Status.CONCLUIDO) {
+        if (ordem.getStatus() == Status.CONCLUIDO)
             throw new RuntimeException("Ordem já concluída");
-        }
 
-        if (ordem.getStatus() == Status.CANCELADO) {
+        if (ordem.getStatus() == Status.CANCELADO)
             throw new RuntimeException("Ordem cancelada não pode ser concluída");
-        }
 
         ordem.setStatus(Status.CONCLUIDO);
         OrdemServicoModel concluida = ordemServicoRepository.save(ordem);
 
-        // Gerar faturamento
         gerarFaturamento(concluida, formaPagamento);
-
-        // Atualizar agendamento
         atualizarAgendamento(ordem, Status.CONCLUIDO);
 
-        log.info("✅ OS concluída: {}", id);
-
-        return converterParaResponseDTO(ordemServicoRepository.findByIdWithItens(concluida.getCdOrdemServico()));
+        return converterParaResponseDTO(
+                ordemServicoRepository.findByIdWithItens(concluida.getCdOrdemServico())
+        );
     }
 
-    // CANCELAR
+    // ============================================================
+    // CANCELAR OS
+    // ============================================================
     @Transactional
     public void cancelar(Integer id) {
-        log.info("🚫 Cancelando OS: {}", id);
 
         OrdemServicoModel ordem = ordemServicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ordem não encontrada"));
 
-        if (ordem.getStatus() == Status.CONCLUIDO) {
+        if (ordem.getStatus() == Status.CONCLUIDO)
             throw new RuntimeException("Ordem concluída não pode ser cancelada");
-        }
 
-        if (ordem.getStatus() == Status.CANCELADO) {
+        if (ordem.getStatus() == Status.CANCELADO)
             throw new RuntimeException("Ordem já cancelada");
-        }
 
-        // DEVOLVER ESTOQUE (apenas se ORDEM_DE_SERVICO)
+        // devolução estoque
         if (ordem.getTipoOrdemOrcamento() == TipoOrdemOrcamento.ORDEM_DE_SERVICO) {
-            List<ItemOrdemServicoModel> itens = itemOrdemServicoRepository
-                    .findByOrdemServico_CdOrdemServico(id);
+            for (ItemOrdemServicoModel item : itemOrdemServicoRepository
+                    .findByOrdemServico_CdOrdemServico(id)) {
 
-            for (ItemOrdemServicoModel item : itens) {
                 if (item.getProduto() != null) {
                     ProdutoModel produto = item.getProduto();
                     produto.setQtdEstoque(produto.getQtdEstoque() + item.getQuantidade());
                     produtoRepository.save(produto);
-                    log.info("📦 Devolvido: {}", produto.getNmProduto());
                 }
             }
         }
@@ -313,13 +286,14 @@ public class OrdemServicoService {
         ordemServicoRepository.save(ordem);
 
         atualizarAgendamento(ordem, Status.CANCELADO);
-
-        log.info("✅ OS cancelada: {}", id);
     }
 
-    // CRIAR AGENDAMENTO AUTOMÁTICO
+    // ============================================================
+    // AGENDAMENTO AUTOMATICO
+    // ============================================================
     @Transactional
-    private void criarAgendamentoAutomatico(OrdemServicoModel ordem, LocalDate dataAgendamento) {
+    protected void criarAgendamentoAutomatico(OrdemServicoModel ordem, LocalDate dataAgendamento) {
+
         AgendamentoModel agendamento = AgendamentoModel.builder()
                 .cdCliente(ordem.getClienteModel())
                 .veiculo(ordem.getVeiculo())
@@ -331,66 +305,67 @@ public class OrdemServicoService {
                 .build();
 
         agendamentoRepository.save(agendamento);
-        log.info("📅 Agendamento criado para OS {}", ordem.getCdOrdemServico());
     }
 
+    // ============================================================
     // ATUALIZAR AGENDAMENTO
+    // ============================================================
     @Transactional
-    private void atualizarAgendamento(OrdemServicoModel ordem, Status novoStatus) {
-        List<AgendamentoModel> agendamentos = agendamentoRepository
-                .findByOrdemServico_CdOrdemServico(ordem.getCdOrdemServico());
+    protected void atualizarAgendamento(OrdemServicoModel ordem, Status novoStatus) {
+        List<AgendamentoModel> agendamentos =
+                agendamentoRepository.findByOrdemServico_CdOrdemServico(ordem.getCdOrdemServico());
 
         if (!agendamentos.isEmpty()) {
             AgendamentoModel agendamento = agendamentos.get(0);
             agendamento.setStatus(novoStatus);
             agendamentoRepository.save(agendamento);
-            log.info("📅 Agendamento atualizado: {}", novoStatus);
         }
     }
 
-    // GERAR FATURAMENTO
+    // ============================================================
+    // FATURAMENTO
+    // ============================================================
     @Transactional
-    private void gerarFaturamento(OrdemServicoModel ordem, String formaPagamento) {
-        try {
-            FaturamentoModel faturamento = FaturamentoModel.builder()
-                    .ordemServico(ordem)
-                    .dataVenda(LocalDateTime.now())
-                    .vlTotal(ordem.getVlTotal())
-                    .formaPagamento(FormaPagamento.valueOf(formaPagamento))
-                    .build();
+    protected void gerarFaturamento(OrdemServicoModel ordem, String formaPagamento) {
 
-            faturamentoRepository.save(faturamento);
-            log.info("💰 Faturamento gerado: R$ {}", ordem.getVlTotal());
-        } catch (IllegalArgumentException e) {
-            throw new RuntimeException("Forma de pagamento inválida: " + formaPagamento);
-        }
+        FaturamentoModel faturamento = FaturamentoModel.builder()
+                .ordemServico(ordem)
+                .dataVenda(LocalDateTime.now())
+                .vlTotal(ordem.getVlTotal())
+                .formaPagamento(FormaPagamento.valueOf(formaPagamento))
+                .build();
+
+        faturamentoRepository.save(faturamento);
     }
 
+    // ============================================================
     // VALIDAR DISPONIBILIDADE
+    // ============================================================
     private void validarDisponibilidadeMecanico(Integer cdMecanico, LocalDate dataAgendamento) {
-        List<AgendamentoModel> agendamentos = agendamentoRepository
+        if (!agendamentoRepository
                 .findByMecanico_CdUsuarioAndDataAgendamentoAndStatusNot(
-                        cdMecanico,
-                        dataAgendamento,
-                        Status.CANCELADO
-                );
+                        cdMecanico, dataAgendamento, Status.CANCELADO
+                ).isEmpty()) {
 
-        if (!agendamentos.isEmpty()) {
             throw new RuntimeException("Mecânico já tem agendamento para " + dataAgendamento);
         }
     }
 
-    // ✅ BUSCAR POR ID - RETORNA ResponseDTO
+    // ============================================================
+    // BUSCAR POR ID
+    // ============================================================
     @Transactional(readOnly = true)
     public OrdemServicoResponseDTO buscarPorId(Integer id) {
         OrdemServicoModel ordem = ordemServicoRepository.findByIdWithItens(id);
-        if (ordem == null) {
+        if (ordem == null)
             throw new RuntimeException("Ordem não encontrada");
-        }
+
         return converterParaResponseDTO(ordem);
     }
 
-    // ✅ LISTAR POR STATUS - RETORNA LISTA DE ResponseDTO
+    // ============================================================
+    // LISTAR POR STATUS
+    // ============================================================
     @Transactional(readOnly = true)
     public List<OrdemServicoResponseDTO> listarPorStatus(Status status) {
         return ordemServicoRepository.findByStatus(status).stream()
@@ -400,7 +375,9 @@ public class OrdemServicoService {
                 .toList();
     }
 
-    // ✅ LISTAR ORÇAMENTOS PENDENTES - RETORNA LISTA DE ResponseDTO
+    // ============================================================
+    // LISTAR ORÇAMENTOS PENDENTES
+    // ============================================================
     @Transactional(readOnly = true)
     public List<OrdemServicoResponseDTO> listarOrcamentosPendentes() {
         return ordemServicoRepository.findOrcamentosPendentes().stream()
@@ -410,69 +387,63 @@ public class OrdemServicoService {
                 .toList();
     }
 
-    // ✅ ATUALIZAR - RETORNA ResponseDTO
+    // ============================================================
+    // ATUALIZAR OS
+    // ============================================================
     @Transactional
     public OrdemServicoResponseDTO atualizar(Integer id, OrdemServicoRequestDTO dto) {
+
         OrdemServicoModel ordem = ordemServicoRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Ordem não encontrada"));
 
-        if (ordem.getStatus() != Status.AGENDADO) {
+        if (ordem.getStatus() != Status.AGENDADO)
             throw new RuntimeException("Apenas ordens AGENDADAS podem ser editadas");
-        }
 
-        // Atualizar diagnóstico
-        if (dto.diagnostico() != null) {
+        if (dto.diagnostico() != null)
             ordem.setDiagnostico(dto.diagnostico());
-        }
 
-        // Atualizar vlMaoObraExtra se fornecido
         if (dto.vlMaoObra() != null) {
             ordem.setVlMaoObraExtra(dto.vlMaoObra());
-            // Recalcular total
             ordem.setVlTotal(ordem.getVlPecas() + ordem.getVlServicos() + ordem.getVlMaoObraExtra());
         }
 
         OrdemServicoModel atualizada = ordemServicoRepository.save(ordem);
-        return converterParaResponseDTO(ordemServicoRepository.findByIdWithItens(atualizada.getCdOrdemServico()));
+
+        return converterParaResponseDTO(
+                ordemServicoRepository.findByIdWithItens(atualizada.getCdOrdemServico()));
     }
 
-    // ✅ CONVERTER PARA ResponseDTO - MÉTODO CORRETO
+    // ============================================================
+    // CONVERTER RESPONSE DTO
+    // ============================================================
     private OrdemServicoResponseDTO converterParaResponseDTO(OrdemServicoModel ordem) {
-        // Converter itens
+
         List<OrdemServicoResponseDTO.ItemResponseDTO> itensDTO = ordem.getItens() != null
-                ? ordem.getItens().stream()
-                .map(item -> new OrdemServicoResponseDTO.ItemResponseDTO(
-                        item.getCdItemOrdemServico(),
-                        item.getProduto() != null ? item.getProduto().getCdProduto() : null,
-                        item.getProduto() != null ? item.getProduto().getNmProduto() : null,
-                        item.getServico() != null ? item.getServico().getCdServico() : null,
-                        item.getServico() != null ? item.getServico().getNmServico() : null,
-                        item.getQuantidade(),
-                        item.getVlUnitario(),
-                        item.getVlTotal()
-                ))
-                .toList()
-                : new ArrayList<>();
+                ? ordem.getItens().stream().map(item -> new OrdemServicoResponseDTO.ItemResponseDTO(
+                item.getCdItemOrdemServico(),
+                item.getProduto() != null ? item.getProduto().getCdProduto() : null,
+                item.getProduto() != null ? item.getProduto().getNmProduto() : null,
+                item.getServico() != null ? item.getServico().getCdServico() : null,
+                item.getServico() != null ? item.getServico().getNmServico() : null,
+                item.getQuantidade(),
+                item.getVlUnitario(),
+                item.getVlTotal()
+        )).toList() : new ArrayList<>();
 
         return new OrdemServicoResponseDTO(
                 ordem.getCdOrdemServico(),
-                // Cliente
                 ordem.getClienteModel().getCdCliente(),
                 ordem.getClienteModel().getNmCliente(),
-                // Veículo
                 ordem.getVeiculo().getCdVeiculo(),
                 ordem.getVeiculo().getPlaca(),
                 ordem.getVeiculo().getModelo(),
                 ordem.getVeiculo().getMarca(),
-                // Mecânico
                 ordem.getMecanico().getCdUsuario(),
                 ordem.getMecanico().getNmUsuario(),
-                // Dados da OS
                 ordem.getTipoOrdemOrcamento(),
                 ordem.getStatus(),
                 ordem.getDataAgendamento(),
                 ordem.getDataAbertura(),
-                // Valores
                 ordem.getVlPecas(),
                 ordem.getVlServicos(),
                 ordem.getVlMaoObraExtra(),
@@ -481,5 +452,34 @@ public class OrdemServicoService {
                 ordem.getAprovado(),
                 itensDTO
         );
+    }
+
+    // ============================================================
+    // LISTAR TODAS
+    // ============================================================
+    public List<OrdemServicoResponseDTO> listarTodas() {
+        return ordemServicoRepository.findAll().stream()
+                .map(ordem -> new OrdemServicoResponseDTO(
+                        ordem.getCdOrdemServico(),
+                        ordem.getClienteModel().getCdCliente(),
+                        ordem.getClienteModel().getNmCliente(),
+                        ordem.getVeiculo().getCdVeiculo(),
+                        ordem.getVeiculo().getPlaca(),
+                        ordem.getVeiculo().getModelo(),
+                        ordem.getVeiculo().getMarca(),
+                        ordem.getMecanico().getCdUsuario(),
+                        ordem.getMecanico().getNmUsuario(),
+                        ordem.getTipoOrdemOrcamento(),
+                        ordem.getStatus(),
+                        ordem.getDataAgendamento(),
+                        ordem.getDataAbertura(),
+                        ordem.getVlPecas(),
+                        ordem.getVlServicos(),
+                        ordem.getVlMaoObraExtra(),
+                        ordem.getVlTotal(),
+                        ordem.getDiagnostico(),
+                        ordem.getAprovado(),
+                        null
+                )).collect(Collectors.toList());
     }
 }

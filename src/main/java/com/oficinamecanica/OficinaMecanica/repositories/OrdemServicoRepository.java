@@ -25,7 +25,17 @@ public interface OrdemServicoRepository extends JpaRepository<OrdemServicoModel,
     @Query("SELECT o FROM OrdemServicoModel o WHERE o.tipoOrdemOrcamento = 'ORCAMENTO' AND o.aprovado = false")
     List<OrdemServicoModel> findOrcamentosPendentes();
 
-    // Listar ordens com itens (fetch join) - IMPORTANTE para evitar N+1
-    @Query("SELECT DISTINCT o FROM OrdemServicoModel o LEFT JOIN FETCH o.itens WHERE o.cdOrdemServico = :cdOrdemServico")
-    OrdemServicoModel findByIdWithItens(@Param("cdOrdemServico") Integer cdOrdemServico);
-}
+//    // Listar ordens com itens (fetch join) - IMPORTANTE para evitar N+1
+//    @Query("SELECT DISTINCT o FROM OrdemServicoModel o LEFT JOIN FETCH o.itens WHERE o.cdOrdemServico = :cdOrdemServico")
+//    OrdemServicoModel findByIdWithItens(@Param("cdOrdemServico") Integer cdOrdemServico);
+//}
+
+@Query("SELECT DISTINCT o FROM OrdemServicoModel o " +
+        "LEFT JOIN FETCH o.clienteModel " +
+        "LEFT JOIN FETCH o.veiculo " +
+        "LEFT JOIN FETCH o.mecanico " +
+        "LEFT JOIN FETCH o.itens i " +
+        "LEFT JOIN FETCH i.produto " +
+        "LEFT JOIN FETCH i.servico " +
+        "WHERE o.cdOrdemServico = :id")
+OrdemServicoModel findByIdWithItens(@Param("id") Integer id);}

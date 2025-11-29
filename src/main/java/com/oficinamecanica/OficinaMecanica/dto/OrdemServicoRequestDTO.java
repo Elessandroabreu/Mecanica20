@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.util.List;
 
 public record OrdemServicoRequestDTO(
+
         @NotNull(message = "Cliente é obrigatório")
         Integer cdCliente,
 
@@ -31,6 +32,7 @@ public record OrdemServicoRequestDTO(
         @NotNull(message = "Itens são obrigatórios")
         List<ItemDTO> itens
 ) {
+
         public record ItemDTO(
                 Integer cdProduto,
                 Integer cdServico,
